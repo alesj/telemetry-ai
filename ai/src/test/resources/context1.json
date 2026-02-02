@@ -38,6 +38,44 @@
         "hostName": "macbookpro.localdomain",
         "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
         "processId": 75621
+      },
+      {
+        "timestamp": "2026-02-02T08:33:29.350+01",
+        "sequence": 13490,
+        "loggerClassName": "org.jboss.logging.Logger",
+        "loggerName": "io.quarkus.http.access-log",
+        "level": "INFO",
+        "message": "'127.0.0.1 - - \"GET /poke?value=404 HTTP/1.1\" 404 9 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\" \"-\"'",
+        "threadName": "executor-thread-1",
+        "threadId": 245,
+        "mdc": {
+          "spanId": "f45e965341466d1b",
+          "traceId": "50e189fd66707c625d0ec58a458d9ace",
+          "sampled": "true"
+        },
+        "ndc": "",
+        "hostName": "macbookpro.localdomain",
+        "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
+        "processId": 79656
+      },
+      {
+        "timestamp": "2026-02-02T08:34:05.245+01",
+        "sequence": 13491,
+        "loggerClassName": "org.jboss.logging.Logger",
+        "loggerName": "io.quarkus.http.access-log",
+        "level": "INFO",
+        "message": "'127.0.0.1 - - \"GET /poke?value=500 HTTP/1.1\" 500 21 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\" \"-\"'",
+        "threadName": "executor-thread-1",
+        "threadId": 245,
+        "mdc": {
+          "spanId": "0c419ada18276a0f",
+          "traceId": "a08760c3ded28b62e27d042f7cbc5d42",
+          "sampled": "true"
+        },
+        "ndc": "",
+        "hostName": "macbookpro.localdomain",
+        "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
+        "processId": 79656
       }
     ]
   },
@@ -349,6 +387,386 @@
                   "name": "io.quarkus.opentelemetry",
                   "version": ""
                 }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "batches": [
+          {
+            "resource": {
+              "attributes": [
+                {
+                  "key": "host.name",
+                  "value": {
+                    "stringValue": "MacBookPro.localdomain"
+                  }
+                },
+                {
+                  "key": "service.version",
+                  "value": {
+                    "stringValue": "1.0.0-SNAPSHOT"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.language",
+                  "value": {
+                    "stringValue": "java"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.name",
+                  "value": {
+                    "stringValue": "opentelemetry"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.version",
+                  "value": {
+                    "stringValue": "1.55.0"
+                  }
+                },
+                {
+                  "key": "webengine.name",
+                  "value": {
+                    "stringValue": "Quarkus"
+                  }
+                },
+                {
+                  "key": "webengine.version",
+                  "value": {
+                    "stringValue": "3.30.8"
+                  }
+                },
+                {
+                  "key": "service.name",
+                  "value": {
+                    "stringValue": "telemetry-ai-app"
+                  }
+                }
+              ],
+              "droppedAttributesCount": 0
+            },
+            "instrumentationLibrarySpans": [
+              {
+                "spans": [
+                  {
+                    "traceId": "50e189fd66707c625d0ec58a458d9ace",
+                    "spanId": "f45e965341466d1b",
+                    "parentSpanId": "",
+                    "traceState": "",
+                    "name": "GET /poke",
+                    "kind": "SPAN_KIND_SERVER",
+                    "startTimeUnixNano": 1770017609344667000,
+                    "endTimeUnixNano": 1770017609353980200,
+                    "attributes": [
+                      {
+                        "key": "server.address",
+                        "value": {
+                          "stringValue": "localhost"
+                        }
+                      },
+                      {
+                        "key": "server.port",
+                        "value": {
+                          "intValue": 8080
+                        }
+                      },
+                      {
+                        "key": "client.address",
+                        "value": {
+                          "stringValue": "127.0.0.1"
+                        }
+                      },
+                      {
+                        "key": "user_agent.original",
+                        "value": {
+                          "stringValue": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+                        }
+                      },
+                      {
+                        "key": "url.path",
+                        "value": {
+                          "stringValue": "/poke"
+                        }
+                      },
+                      {
+                        "key": "url.query",
+                        "value": {
+                          "stringValue": "value=404"
+                        }
+                      },
+                      {
+                        "key": "http.response.status_code",
+                        "value": {
+                          "intValue": 404
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      },
+                      {
+                        "key": "http.route",
+                        "value": {
+                          "stringValue": "/poke"
+                        }
+                      },
+                      {
+                        "key": "http.response.body.size",
+                        "value": {
+                          "intValue": 9
+                        }
+                      },
+                      {
+                        "key": "code.function.name",
+                        "value": {
+                          "stringValue": "io.quarkus.telemetry.app.PokeResource.poke"
+                        }
+                      },
+                      {
+                        "key": "url.scheme",
+                        "value": {
+                          "stringValue": "http"
+                        }
+                      }
+                    ],
+                    "droppedAttributesCount": 0,
+                    "droppedEventsCount": 0,
+                    "droppedLinksCount": 0,
+                    "status": {
+                      "code": 0,
+                      "message": ""
+                    },
+                    "events": [
+                      {
+                        "timeUnixNano": 1770017609350375700,
+                        "attributes": [
+                          {
+                            "key": "exception.message",
+                            "value": {
+                              "stringValue": "App error: 404"
+                            }
+                          },
+                          {
+                            "key": "exception.type",
+                            "value": {
+                              "stringValue": "jakarta.ws.rs.WebApplicationException"
+                            }
+                          },
+                          {
+                            "key": "exception.stacktrace",
+                            "value": {
+                              "stringValue": "jakarta.ws.rs.WebApplicationException: App error: 404\n\tat io.quarkus.telemetry.app.PokeResource.poke(PokeResource.java:30)\n\tat io.quarkus.telemetry.app.PokeResource_ClientProxy.poke(Unknown Source)\n\tat io.quarkus.telemetry.app.PokeResource$quarkusrestinvoker$poke_aab2b8badde2c398dc5dc139e2d1cb56bf4ecae0.invoke(Unknown Source)\n\tat org.jboss.resteasy.reactive.server.handlers.InvocationHandler.handle(InvocationHandler.java:29)\n\tat io.quarkus.resteasy.reactive.server.runtime.QuarkusResteasyReactiveRequestContext.invokeHandler(QuarkusResteasyReactiveRequestContext.java:183)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.run(AbstractResteasyReactiveContext.java:147)\n\tat io.quarkus.vertx.core.runtime.VertxCoreRecorder$15.runWith(VertxCoreRecorder.java:645)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2651)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2630)\n\tat org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1622)\n\tat org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1589)\n\tat org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)\n\tat org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)\n\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+                            }
+                          }
+                        ],
+                        "droppedAttributesCount": 0,
+                        "name": "exception"
+                      }
+                    ]
+                  }
+                ],
+                "instrumentationLibrary": {
+                  "name": "io.quarkus.opentelemetry",
+                  "version": ""
+                }
+              }
+            ]
+          },
+          {
+            "batches": [
+              {
+                "resource": {
+                  "attributes": [
+                    {
+                      "key": "host.name",
+                      "value": {
+                        "stringValue": "MacBookPro.localdomain"
+                      }
+                    },
+                    {
+                      "key": "service.version",
+                      "value": {
+                        "stringValue": "1.0.0-SNAPSHOT"
+                      }
+                    },
+                    {
+                      "key": "telemetry.sdk.language",
+                      "value": {
+                        "stringValue": "java"
+                      }
+                    },
+                    {
+                      "key": "telemetry.sdk.name",
+                      "value": {
+                        "stringValue": "opentelemetry"
+                      }
+                    },
+                    {
+                      "key": "telemetry.sdk.version",
+                      "value": {
+                        "stringValue": "1.55.0"
+                      }
+                    },
+                    {
+                      "key": "webengine.name",
+                      "value": {
+                        "stringValue": "Quarkus"
+                      }
+                    },
+                    {
+                      "key": "webengine.version",
+                      "value": {
+                        "stringValue": "3.30.8"
+                      }
+                    },
+                    {
+                      "key": "service.name",
+                      "value": {
+                        "stringValue": "telemetry-ai-app"
+                      }
+                    }
+                  ],
+                  "droppedAttributesCount": 0
+                },
+                "instrumentationLibrarySpans": [
+                  {
+                    "spans": [
+                      {
+                        "traceId": "a08760c3ded28b62e27d042f7cbc5d42",
+                        "spanId": "0c419ada18276a0f",
+                        "parentSpanId": "",
+                        "traceState": "",
+                        "name": "GET /poke",
+                        "kind": "SPAN_KIND_SERVER",
+                        "startTimeUnixNano": 1770017645240603000,
+                        "endTimeUnixNano": 1770017645248916500,
+                        "attributes": [
+                          {
+                            "key": "server.port",
+                            "value": {
+                              "intValue": 8080
+                            }
+                          },
+                          {
+                            "key": "user_agent.original",
+                            "value": {
+                              "stringValue": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+                            }
+                          },
+                          {
+                            "key": "http.response.status_code",
+                            "value": {
+                              "intValue": 500
+                            }
+                          },
+                          {
+                            "key": "code.function.name",
+                            "value": {
+                              "stringValue": "io.quarkus.telemetry.app.PokeResource.poke"
+                            }
+                          },
+                          {
+                            "key": "url.scheme",
+                            "value": {
+                              "stringValue": "http"
+                            }
+                          },
+                          {
+                            "key": "server.address",
+                            "value": {
+                              "stringValue": "localhost"
+                            }
+                          },
+                          {
+                            "key": "client.address",
+                            "value": {
+                              "stringValue": "127.0.0.1"
+                            }
+                          },
+                          {
+                            "key": "url.path",
+                            "value": {
+                              "stringValue": "/poke"
+                            }
+                          },
+                          {
+                            "key": "error.type",
+                            "value": {
+                              "stringValue": "500"
+                            }
+                          },
+                          {
+                            "key": "url.query",
+                            "value": {
+                              "stringValue": "value=500"
+                            }
+                          },
+                          {
+                            "key": "http.request.method",
+                            "value": {
+                              "stringValue": "GET"
+                            }
+                          },
+                          {
+                            "key": "http.route",
+                            "value": {
+                              "stringValue": "/poke"
+                            }
+                          },
+                          {
+                            "key": "http.response.body.size",
+                            "value": {
+                              "intValue": 21
+                            }
+                          }
+                        ],
+                        "droppedAttributesCount": 0,
+                        "droppedEventsCount": 0,
+                        "droppedLinksCount": 0,
+                        "status": {
+                          "code": 2,
+                          "message": ""
+                        },
+                        "events": [
+                          {
+                            "timeUnixNano": 1770017645244727800,
+                            "attributes": [
+                              {
+                                "key": "exception.message",
+                                "value": {
+                                  "stringValue": "App error: 500"
+                                }
+                              },
+                              {
+                                "key": "exception.type",
+                                "value": {
+                                  "stringValue": "jakarta.ws.rs.WebApplicationException"
+                                }
+                              },
+                              {
+                                "key": "exception.stacktrace",
+                                "value": {
+                                  "stringValue": "jakarta.ws.rs.WebApplicationException: App error: 500\n\tat io.quarkus.telemetry.app.PokeResource.poke(PokeResource.java:30)\n\tat io.quarkus.telemetry.app.PokeResource_ClientProxy.poke(Unknown Source)\n\tat io.quarkus.telemetry.app.PokeResource$quarkusrestinvoker$poke_aab2b8badde2c398dc5dc139e2d1cb56bf4ecae0.invoke(Unknown Source)\n\tat org.jboss.resteasy.reactive.server.handlers.InvocationHandler.handle(InvocationHandler.java:29)\n\tat io.quarkus.resteasy.reactive.server.runtime.QuarkusResteasyReactiveRequestContext.invokeHandler(QuarkusResteasyReactiveRequestContext.java:183)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.run(AbstractResteasyReactiveContext.java:147)\n\tat io.quarkus.vertx.core.runtime.VertxCoreRecorder$15.runWith(VertxCoreRecorder.java:645)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2651)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2630)\n\tat org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1622)\n\tat org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1589)\n\tat org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)\n\tat org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)\n\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+                                }
+                              }
+                            ],
+                            "droppedAttributesCount": 0,
+                            "name": "exception"
+                          }
+                        ]
+                      }
+                    ],
+                    "instrumentationLibrary": {
+                      "name": "io.quarkus.opentelemetry",
+                      "version": ""
+                    }
+                  }
+                ]
               }
             ]
           }
