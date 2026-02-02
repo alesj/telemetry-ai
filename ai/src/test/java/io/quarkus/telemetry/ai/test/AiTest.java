@@ -27,7 +27,7 @@ public class AiTest {
                     .contentType("application/json")
                     .body(context)
                     .when()
-                    .get("/analyze")
+                    .post("/analyze")
                     .then()
                     .statusCode(204);
         } catch (IOException ignored) {

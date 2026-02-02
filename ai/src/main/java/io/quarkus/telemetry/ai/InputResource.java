@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.telemetry.common.Context;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +22,8 @@ public class InputResource {
     @Inject
     AiService service;
 
-    @GET
+    @POST
     @Path("/analyze")
-    @Produces(MediaType.TEXT_PLAIN)
     public void analyze(Context context) throws IOException {
         String cs = mapper.writeValueAsString(context);
         log.info("Application behavior: " + service.analyze(cs));

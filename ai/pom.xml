@@ -13,10 +13,10 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>telemetry-ai</artifactId>
+    <artifactId>telemetry-ai-core</artifactId>
     <packaging>jar</packaging>
 
-    <name>Telemetry AI Module</name>
+    <name>Telemetry AI Core Module</name>
     <description>AI abstractions and integration layer (no LLM providers)</description>
 
     <!-- ===================== -->
