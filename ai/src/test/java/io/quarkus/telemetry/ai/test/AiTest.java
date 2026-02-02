@@ -5,6 +5,7 @@ import io.quarkus.telemetry.common.Context;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
+@EnabledIfEnvironmentVariable(named = "OPENAI_API_KEY", matches = ".+")
 public class AiTest {
 
     private static final String CONTEXT = "context1.json";
