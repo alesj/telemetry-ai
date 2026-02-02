@@ -23,6 +23,10 @@
     <!-- Dependencies          -->
     <!-- ===================== -->
     <dependencies>
+        <dependency>
+            <groupId>io.quarkus.telemetry</groupId>
+            <artifactId>telemetry-ai-common</artifactId>
+        </dependency>
 
         <!-- LangChain4j (Quarkus integration, no providers) -->
         <dependency>
@@ -44,6 +48,11 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
 
