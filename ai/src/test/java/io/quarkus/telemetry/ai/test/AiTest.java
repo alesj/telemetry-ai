@@ -16,7 +16,7 @@ import static io.restassured.RestAssured.given;
 @EnabledIfEnvironmentVariable(named = "OPENAI_API_KEY", matches = ".+")
 public class AiTest {
 
-    private static final String CONTEXT = "context1.json";
+    private static final String CONTEXT = "context2.json";
 
     @Inject
     ObjectMapper mapper;
@@ -33,6 +33,7 @@ public class AiTest {
                     .then()
                     .statusCode(204);
         } catch (IOException ignored) {
+            ignored.printStackTrace();
         }
     }
 

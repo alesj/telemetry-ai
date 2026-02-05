@@ -1,0 +1,842 @@
+{
+  "data": [
+    {
+      "logging": [
+        {
+          "timestamp": "2026-02-05T08:13:03.358+01",
+          "sequence": 13986,
+          "loggerClassName": "org.slf4j.impl.Slf4jLogger",
+          "loggerName": "io.quarkus.telemetry.proxy.ProxyResource",
+          "level": "INFO",
+          "message": "Proxying pokeFwd ... 200",
+          "threadName": "executor-thread-1",
+          "threadId": 72,
+          "mdc": {
+            "spanId": "72b179eb1469170c",
+            "traceId": "0c8428a0d2681625eb1e4ae7d5be6e35",
+            "sampled": "true"
+          },
+          "ndc": "",
+          "hostName": "macbookpro",
+          "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
+          "processId": 37882
+        },
+        {
+          "timestamp": "2026-02-05T08:13:03.421+01",
+          "sequence": 13987,
+          "loggerClassName": "org.slf4j.impl.Slf4jLogger",
+          "loggerName": "io.quarkus.telemetry.proxy.ProxyResource",
+          "level": "INFO",
+          "message": "Proxy received: Poked with 200",
+          "threadName": "executor-thread-1",
+          "threadId": 72,
+          "mdc": {
+            "spanId": "72b179eb1469170c",
+            "traceId": "0c8428a0d2681625eb1e4ae7d5be6e35",
+            "sampled": "true"
+          },
+          "ndc": "",
+          "hostName": "macbookpro",
+          "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
+          "processId": 37882
+        },
+        {
+          "timestamp": "2026-02-05T08:13:03.423+01",
+          "sequence": 13988,
+          "loggerClassName": "org.jboss.logging.Logger",
+          "loggerName": "io.quarkus.http.access-log",
+          "level": "INFO",
+          "message": "'127.0.0.1 - - \"GET /poke?value=200 HTTP/1.1\" 204 - \"-\" \"curl/8.7.1\" \"-\"'",
+          "threadName": "executor-thread-1",
+          "threadId": 72,
+          "mdc": {
+            "spanId": "72b179eb1469170c",
+            "traceId": "0c8428a0d2681625eb1e4ae7d5be6e35",
+            "sampled": "true"
+          },
+          "ndc": "",
+          "hostName": "macbookpro",
+          "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
+          "processId": 37882
+        }
+      ],
+      "tracing": {
+        "batches": [
+          {
+            "resource": {
+              "attributes": [
+                {
+                  "key": "host.name",
+                  "value": {
+                    "stringValue": "MacBookPro"
+                  }
+                },
+                {
+                  "key": "service.version",
+                  "value": {
+                    "stringValue": "1.0.0-SNAPSHOT"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.language",
+                  "value": {
+                    "stringValue": "java"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.name",
+                  "value": {
+                    "stringValue": "opentelemetry"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.version",
+                  "value": {
+                    "stringValue": "1.57.0"
+                  }
+                },
+                {
+                  "key": "webengine.name",
+                  "value": {
+                    "stringValue": "Quarkus"
+                  }
+                },
+                {
+                  "key": "webengine.version",
+                  "value": {
+                    "stringValue": "3.31.2"
+                  }
+                },
+                {
+                  "key": "service.name",
+                  "value": {
+                    "stringValue": "telemetry-ai-proxy"
+                  }
+                }
+              ],
+              "droppedAttributesCount": 0
+            },
+            "instrumentationLibrarySpans": [
+              {
+                "spans": [
+                  {
+                    "traceId": "0c8428a0d2681625eb1e4ae7d5be6e35",
+                    "spanId": "bf376786257c770f",
+                    "parentSpanId": "72b179eb1469170c",
+                    "traceState": "",
+                    "name": "GET /poke",
+                    "kind": "SPAN_KIND_CLIENT",
+                    "startTimeUnixNano": 1770275583372488000,
+                    "endTimeUnixNano": 1770275583415160300,
+                    "attributes": [
+                      {
+                        "key": "server.port",
+                        "value": {
+                          "intValue": 8082
+                        }
+                      },
+                      {
+                        "key": "url.full",
+                        "value": {
+                          "stringValue": "http://localhost:8082/poke?value=200"
+                        }
+                      },
+                      {
+                        "key": "http.response.status_code",
+                        "value": {
+                          "intValue": 200
+                        }
+                      },
+                      {
+                        "key": "server.address",
+                        "value": {
+                          "stringValue": "localhost"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ],
+                    "droppedAttributesCount": 0,
+                    "droppedEventsCount": 0,
+                    "droppedLinksCount": 0,
+                    "status": {
+                      "code": 0,
+                      "message": ""
+                    }
+                  }
+                ],
+                "instrumentationLibrary": {
+                  "name": "io.quarkus.opentelemetry",
+                  "version": ""
+                }
+              }
+            ]
+          },
+          {
+            "resource": {
+              "attributes": [
+                {
+                  "key": "host.name",
+                  "value": {
+                    "stringValue": "MacBookPro"
+                  }
+                },
+                {
+                  "key": "service.version",
+                  "value": {
+                    "stringValue": "1.0.0-SNAPSHOT"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.language",
+                  "value": {
+                    "stringValue": "java"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.name",
+                  "value": {
+                    "stringValue": "opentelemetry"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.version",
+                  "value": {
+                    "stringValue": "1.57.0"
+                  }
+                },
+                {
+                  "key": "webengine.name",
+                  "value": {
+                    "stringValue": "Quarkus"
+                  }
+                },
+                {
+                  "key": "webengine.version",
+                  "value": {
+                    "stringValue": "3.31.2"
+                  }
+                },
+                {
+                  "key": "service.name",
+                  "value": {
+                    "stringValue": "telemetry-ai-proxy"
+                  }
+                }
+              ],
+              "droppedAttributesCount": 0
+            },
+            "instrumentationLibrarySpans": [
+              {
+                "spans": [
+                  {
+                    "traceId": "0c8428a0d2681625eb1e4ae7d5be6e35",
+                    "spanId": "72b179eb1469170c",
+                    "parentSpanId": "",
+                    "traceState": "",
+                    "name": "GET /poke",
+                    "kind": "SPAN_KIND_SERVER",
+                    "startTimeUnixNano": 1770275583318759000,
+                    "endTimeUnixNano": 1770275583425257700,
+                    "attributes": [
+                      {
+                        "key": "server.port",
+                        "value": {
+                          "intValue": 8081
+                        }
+                      },
+                      {
+                        "key": "code.function.name",
+                        "value": {
+                          "stringValue": "io.quarkus.telemetry.proxy.ProxyResource.pokeFwd"
+                        }
+                      },
+                      {
+                        "key": "url.scheme",
+                        "value": {
+                          "stringValue": "http"
+                        }
+                      },
+                      {
+                        "key": "http.response.status_code",
+                        "value": {
+                          "intValue": 204
+                        }
+                      },
+                      {
+                        "key": "server.address",
+                        "value": {
+                          "stringValue": "localhost"
+                        }
+                      },
+                      {
+                        "key": "client.address",
+                        "value": {
+                          "stringValue": "127.0.0.1"
+                        }
+                      },
+                      {
+                        "key": "user_agent.original",
+                        "value": {
+                          "stringValue": "curl/8.7.1"
+                        }
+                      },
+                      {
+                        "key": "url.path",
+                        "value": {
+                          "stringValue": "/poke"
+                        }
+                      },
+                      {
+                        "key": "url.query",
+                        "value": {
+                          "stringValue": "value=200"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      },
+                      {
+                        "key": "http.route",
+                        "value": {
+                          "stringValue": "/poke"
+                        }
+                      }
+                    ],
+                    "droppedAttributesCount": 0,
+                    "droppedEventsCount": 0,
+                    "droppedLinksCount": 0,
+                    "status": {
+                      "code": 0,
+                      "message": ""
+                    }
+                  }
+                ],
+                "instrumentationLibrary": {
+                  "name": "io.quarkus.opentelemetry",
+                  "version": ""
+                }
+              }
+            ]
+          },
+          {
+            "resource": {
+              "attributes": [
+                {
+                  "key": "host.name",
+                  "value": {
+                    "stringValue": "MacBookPro"
+                  }
+                },
+                {
+                  "key": "service.version",
+                  "value": {
+                    "stringValue": "1.0.0-SNAPSHOT"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.language",
+                  "value": {
+                    "stringValue": "java"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.name",
+                  "value": {
+                    "stringValue": "opentelemetry"
+                  }
+                },
+                {
+                  "key": "telemetry.sdk.version",
+                  "value": {
+                    "stringValue": "1.57.0"
+                  }
+                },
+                {
+                  "key": "webengine.name",
+                  "value": {
+                    "stringValue": "Quarkus"
+                  }
+                },
+                {
+                  "key": "webengine.version",
+                  "value": {
+                    "stringValue": "3.31.2"
+                  }
+                },
+                {
+                  "key": "service.name",
+                  "value": {
+                    "stringValue": "telemetry-ai-app"
+                  }
+                }
+              ],
+              "droppedAttributesCount": 0
+            },
+            "instrumentationLibrarySpans": [
+              {
+                "spans": [
+                  {
+                    "traceId": "0c8428a0d2681625eb1e4ae7d5be6e35",
+                    "spanId": "0197f6f4fffc3bb3",
+                    "parentSpanId": "bf376786257c770f",
+                    "traceState": "",
+                    "name": "GET /poke",
+                    "kind": "SPAN_KIND_SERVER",
+                    "startTimeUnixNano": 1770275583386932000,
+                    "endTimeUnixNano": 1770275583417805000,
+                    "attributes": [
+                      {
+                        "key": "code.function.name",
+                        "value": {
+                          "stringValue": "io.quarkus.telemetry.app.PokeResource.poke"
+                        }
+                      },
+                      {
+                        "key": "server.port",
+                        "value": {
+                          "intValue": 8082
+                        }
+                      },
+                      {
+                        "key": "url.scheme",
+                        "value": {
+                          "stringValue": "http"
+                        }
+                      },
+                      {
+                        "key": "http.response.status_code",
+                        "value": {
+                          "intValue": 200
+                        }
+                      },
+                      {
+                        "key": "url.path",
+                        "value": {
+                          "stringValue": "/poke"
+                        }
+                      },
+                      {
+                        "key": "url.query",
+                        "value": {
+                          "stringValue": "value=200"
+                        }
+                      },
+                      {
+                        "key": "server.address",
+                        "value": {
+                          "stringValue": "localhost"
+                        }
+                      },
+                      {
+                        "key": "client.address",
+                        "value": {
+                          "stringValue": "127.0.0.1"
+                        }
+                      },
+                      {
+                        "key": "user_agent.original",
+                        "value": {
+                          "stringValue": "Quarkus REST Client"
+                        }
+                      },
+                      {
+                        "key": "http.response.body.size",
+                        "value": {
+                          "intValue": 14
+                        }
+                      },
+                      {
+                        "key": "http.route",
+                        "value": {
+                          "stringValue": "/poke"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ],
+                    "droppedAttributesCount": 0,
+                    "droppedEventsCount": 0,
+                    "droppedLinksCount": 0,
+                    "status": {
+                      "code": 0,
+                      "message": ""
+                    }
+                  }
+                ],
+                "instrumentationLibrary": {
+                  "name": "io.quarkus.opentelemetry",
+                  "version": ""
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "metrics": [
+        {
+          "worker.pool.completed;pool.name=vert.x-worker-thread;pool.type=worker": 2.0,
+          "worker.pool.rejected;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+          "jvm.gc.memory.promoted": 0.0,
+          "worker.pool.completed;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+          "jvm.gc.memory.allocated": 0.0,
+          "worker.pool.rejected;pool.name=vert.x-worker-thread;pool.type=worker": 0.0,
+          "jvm.info;runtime=OpenJDK Runtime Environment;vendor=GraalVM Community;version=21.0.1+12-jvmci-23.1-b19": 1.0,
+          "http.client.active.connections;clientName=proxy": 0.0,
+          "jvm.memory.max;area=nonheap;id=Metaspace": -1.0,
+          "jvm.buffer.count;id=mapped": 0.0,
+          "jvm.memory.used;area=nonheap;id=Compressed Class Space": 11738992,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-0": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-2": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-1": 0.0,
+          "process.files.max": 10240.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-8": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-7": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-9": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-4": 0.0,
+          "jvm.memory.usage.after.gc;area=heap;pool=long-lived": 0.0,
+          "worker.pool.queue.size;pool.name=vert.x-worker-thread;pool.type=worker": 0.0,
+          "jvm.threads.states;state=timed-waiting": 7.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-3": 0.0,
+          "jvm.memory.used;area=nonheap;id=Metaspace": 81432264,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-6": 0.0,
+          "netty.allocator.pooled.arenas;allocator.type=PooledByteBufAllocator;memory.type=heap;name=pooled": 20.0,
+          "netty.allocator.pooled.threadlocal.caches;allocator.type=PooledByteBufAllocator;name=pooled": 2.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-5": 0.0,
+          "netty.allocator.pooled.chunk.size;allocator.type=PooledByteBufAllocator;name=pooled": 65536.0,
+          "jvm.memory.committed;area=nonheap;id=Metaspace": 83165184,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=direct;name=vertx-unpooled": 0.0,
+          "jvm.memory.used;area=heap;id=G1 Old Gen": 78896104,
+          "jvm.memory.used;area=heap;id=G1 Survivor Space": 7982600.0,
+          "jvm.buffer.count;id=direct": 25.0,
+          "jvm.memory.max;area=heap;id=G1 Survivor Space": -1.0,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=heap;name=vertx-unpooled": 0.0,
+          "netty.allocator.pooled.arenas;allocator.type=PooledByteBufAllocator;memory.type=direct;name=vertx-pooled": 20.0,
+          "worker.pool.queue.size;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+          "netty.eventexecutor.workers": 1.0,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=direct;name=unpooled": 31.0,
+          "jvm.gc.live.data.size": 0.0,
+          "http.server.active.connections;server.port=8081": 1.0,
+          "jvm.gc.overhead": 0.0,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=heap;name=quarkus-multipart-form-upload": 0.0,
+          "jvm.threads.states;state=blocked": 0.0,
+          "netty.allocator.pooled.arenas;allocator.type=PooledByteBufAllocator;memory.type=direct;name=pooled": 20.0,
+          "worker.pool.active;pool.name=vert.x-worker-thread;pool.type=worker": 1.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-acceptor-thread-0": 0.0,
+          "worker.pool.active;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+          "jvm.memory.max;area=nonheap;id=CodeCache": 50331648,
+          "jvm.buffer.memory.used;id=direct": 652643.0,
+          "process.files.open": 580.0,
+          "jvm.buffer.total.capacity;id=mapped - 'non-volatile memory'": 0.0,
+          "worker.pool.ratio;pool.name=vert.x-worker-thread;pool.type=worker": 0.005,
+          "jvm.buffer.total.capacity;id=direct": 652642.0,
+          "netty.allocator.memory.pinned;allocator.type=PooledByteBufAllocator;memory.type=direct;name=vertx-pooled": 0.0,
+          "netty.allocator.pooled.threadlocal.caches;allocator.type=PooledByteBufAllocator;name=vertx-pooled": 4.0,
+          "netty.allocator.pooled.cache.size;allocator.type=PooledByteBufAllocator;cache.type=normal;name=vertx-pooled": 64.0,
+          "jvm.threads.states;state=new": 0.0,
+          "system.load.average.1m": 4.53759765625,
+          "netty.allocator.pooled.cache.size;allocator.type=PooledByteBufAllocator;cache.type=small;name=vertx-pooled": 256.0,
+          "jvm.buffer.count;id=mapped - 'non-volatile memory'": 0.0,
+          "jvm.memory.committed;area=heap;id=G1 Eden Space": 2.097152E+8,
+          "jvm.buffer.total.capacity;id=mapped": 0.0,
+          "jvm.memory.max;area=nonheap;id=Compressed Class Space": 1073741824,
+          "jvm.memory.committed;area=heap;id=G1 Survivor Space": 8388608.0,
+          "jvm.threads.states;state=runnable": 17.0,
+          "netty.allocator.pooled.cache.size;allocator.type=PooledByteBufAllocator;cache.type=normal;name=pooled": 64.0,
+          "jvm.classes.loaded": 18952.0,
+          "jvm.threads.daemon": 19.0,
+          "worker.pool.idle;pool.name=vert.x-worker-thread;pool.type=worker": 199.0,
+          "netty.allocator.pooled.arenas;allocator.type=PooledByteBufAllocator;memory.type=heap;name=vertx-pooled": 20.0,
+          "jvm.buffer.memory.used;id=mapped - 'non-volatile memory'": 0.0,
+          "netty.allocator.memory.pinned;allocator.type=PooledByteBufAllocator;memory.type=heap;name=vertx-pooled": 0.0,
+          "http.client.queue.size;clientName=proxy": 0.0,
+          "jvm.memory.committed;area=heap;id=G1 Old Gen": 117440512,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=heap;name=unpooled": 384.0,
+          "jvm.gc.max.data.size": 17179869184,
+          "system.cpu.usage": 0.18890074706510138,
+          "http.server.active.requests;server.port=8081;url.scheme=http": 1.0,
+          "jvm.memory.max;area=heap;id=G1 Old Gen": 17179869184,
+          "netty.allocator.memory.used;allocator.type=PooledByteBufAllocator;memory.type=heap;name=pooled": 0.0,
+          "jvm.threads.peak": 38.0,
+          "process.cpu.usage": 0.0018340119247602657,
+          "jvm.threads.live": 34.0,
+          "jvm.memory.committed;area=nonheap;id=CodeCache": 19595264,
+          "netty.allocator.memory.used;allocator.type=PooledByteBufAllocator;memory.type=direct;name=vertx-pooled": 393216.0,
+          "jvm.memory.used;area=nonheap;id=CodeCache": 19012224,
+          "netty.allocator.memory.used;allocator.type=PooledByteBufAllocator;memory.type=direct;name=pooled": 131072.0,
+          "netty.allocator.memory.pinned;allocator.type=PooledByteBufAllocator;memory.type=direct;name=pooled": 0.0,
+          "netty.allocator.pooled.cache.size;allocator.type=PooledByteBufAllocator;cache.type=small;name=pooled": 256.0,
+          "jvm.memory.used;area=heap;id=G1 Eden Space": 117440512,
+          "system.cpu.count": 10.0,
+          "jvm.buffer.memory.used;id=mapped": 0.0,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=direct;name=quarkus-multipart-form-upload": 0.0,
+          "jvm.memory.max;area=heap;id=G1 Eden Space": -1.0,
+          "worker.pool.idle;pool.name=vert.x-internal-blocking;pool.type=worker": 20.0,
+          "netty.allocator.pooled.chunk.size;allocator.type=PooledByteBufAllocator;name=vertx-pooled": 65536.0,
+          "netty.allocator.memory.used;allocator.type=PooledByteBufAllocator;memory.type=heap;name=vertx-pooled": 0.0,
+          "jvm.memory.committed;area=nonheap;id=Compressed Class Space": 12517376,
+          "jvm.threads.states;state=terminated": 0.0,
+          "jvm.threads.states;state=waiting": 10.0,
+          "netty.allocator.memory.pinned;allocator.type=PooledByteBufAllocator;memory.type=heap;name=pooled": 0.0,
+          "process.start.time": 1770275539856,
+          "process.uptime": 264764.0,
+          "jvm.classes.unloaded": 227.0,
+          "jvm.classes.loaded.count": 19183.0,
+          "process.cpu.time": 7.06854E+9,
+          "jvm.threads.started": 60.0,
+          "worker.pool.queue.delay": {
+            "count;pool.name=vert.x-internal-blocking;pool.type=worker": 0,
+            "elapsedTime;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+            "count;pool.name=vert.x-worker-thread;pool.type=worker": 3,
+            "elapsedTime;pool.name=vert.x-worker-thread;pool.type=worker": 0.0
+          },
+          "http.server.requests": {
+            "count;method=GET;outcome=SUCCESS;status=204;uri=/poke": 1,
+            "elapsedTime;method=GET;outcome=SUCCESS;status=204;uri=/poke": 109.0
+          },
+          "http.client.queue.delay": {
+            "count;clientName=proxy": 1,
+            "elapsedTime;clientName=proxy": 1.0
+          },
+          "worker.pool.usage": {
+            "count;pool.name=vert.x-worker-thread;pool.type=worker": 2,
+            "elapsedTime;pool.name=vert.x-worker-thread;pool.type=worker": 5.0,
+            "count;pool.name=vert.x-internal-blocking;pool.type=worker": 0,
+            "elapsedTime;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0
+          },
+          "http.client.requests": {
+            "count;clientName=proxy;method=GET;outcome=SUCCESS;status=200;uri=/poke": 1,
+            "elapsedTime;clientName=proxy;method=GET;outcome=SUCCESS;status=200;uri=/poke": 52.0
+          },
+          "http.client.connections": {
+            "activeTasks;clientName=proxy": 0,
+            "duration;clientName=proxy": 0.0,
+            "max;clientName=proxy": 0.0,
+            "mean;clientName=proxy": 0.0
+          },
+          "http.server.connections": {
+            "activeTasks;server.port=8081": 0,
+            "duration;server.port=8081": 0.0,
+            "max;server.port=8081": 0.0,
+            "mean;server.port=8081": 0.0
+          },
+          "http.client.bytes.read": {
+            "min;clientName=proxy": 14.0,
+            "count;clientName=proxy": 1,
+            "max;clientName=proxy": 14.0,
+            "mean;clientName=proxy": 14.0,
+            "p50;clientName=proxy": 14.0,
+            "p75;clientName=proxy": 14.0,
+            "p95;clientName=proxy": 14.0,
+            "p98;clientName=proxy": 14.0,
+            "p99;clientName=proxy": 14.0,
+            "p999;clientName=proxy": 14.0
+          },
+          "http.server.bytes.read": {
+            "min;server.port=8081": 0.0,
+            "count;server.port=8081": 0,
+            "max;server.port=8081": 0.0,
+            "mean;server.port=8081": 0.0,
+            "p50;server.port=8081": 0.0,
+            "p75;server.port=8081": 0.0,
+            "p95;server.port=8081": 0.0,
+            "p98;server.port=8081": 0.0,
+            "p99;server.port=8081": 0.0,
+            "p999;server.port=8081": 0.0
+          },
+          "http.client.bytes.written": {
+            "min;clientName=proxy": 0.0,
+            "count;clientName=proxy": 0,
+            "max;clientName=proxy": 0.0,
+            "mean;clientName=proxy": 0.0,
+            "p50;clientName=proxy": 0.0,
+            "p75;clientName=proxy": 0.0,
+            "p95;clientName=proxy": 0.0,
+            "p98;clientName=proxy": 0.0,
+            "p99;clientName=proxy": 0.0,
+            "p999;clientName=proxy": 0.0
+          },
+          "http.server.bytes.written": {
+            "min;server.port=8081": 0.0,
+            "count;server.port=8081": 0,
+            "max;server.port=8081": 0.0,
+            "mean;server.port=8081": 0.0,
+            "p50;server.port=8081": 0.0,
+            "p75;server.port=8081": 0.0,
+            "p95;server.port=8081": 0.0,
+            "p98;server.port=8081": 0.0,
+            "p99;server.port=8081": 0.0,
+            "p999;server.port=8081": 0.0
+          }
+        },
+        {
+          "worker.pool.completed;pool.name=vert.x-worker-thread;pool.type=worker": 2.0,
+          "worker.pool.rejected;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+          "jvm.gc.memory.promoted": 0.0,
+          "worker.pool.completed;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+          "jvm.gc.memory.allocated": 0.0,
+          "worker.pool.rejected;pool.name=vert.x-worker-thread;pool.type=worker": 0.0,
+          "jvm.info;runtime=OpenJDK Runtime Environment;vendor=GraalVM Community;version=21.0.1+12-jvmci-23.1-b19": 1.0,
+          "jvm.memory.max;area=nonheap;id=Metaspace": -1.0,
+          "jvm.buffer.count;id=mapped": 0.0,
+          "jvm.memory.used;area=nonheap;id=Compressed Class Space": 11689424,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-0": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-2": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-1": 0.0,
+          "process.files.max": 10240.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-8": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-7": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-9": 0.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-4": 0.0,
+          "jvm.memory.usage.after.gc;area=heap;pool=long-lived": 0.0,
+          "worker.pool.queue.size;pool.name=vert.x-worker-thread;pool.type=worker": 0.0,
+          "jvm.threads.states;state=timed-waiting": 8.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-3": 0.0,
+          "jvm.memory.used;area=nonheap;id=Metaspace": 81452432,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-6": 0.0,
+          "netty.allocator.pooled.arenas;allocator.type=PooledByteBufAllocator;memory.type=heap;name=pooled": 20.0,
+          "netty.allocator.pooled.threadlocal.caches;allocator.type=PooledByteBufAllocator;name=pooled": 2.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-eventloop-thread-5": 0.0,
+          "netty.allocator.pooled.chunk.size;allocator.type=PooledByteBufAllocator;name=pooled": 65536.0,
+          "jvm.memory.committed;area=nonheap;id=Metaspace": 83165184,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=direct;name=vertx-unpooled": 0.0,
+          "jvm.memory.used;area=heap;id=G1 Old Gen": 8.108904E+7,
+          "jvm.memory.used;area=heap;id=G1 Survivor Space": 10505696,
+          "jvm.buffer.count;id=direct": 29.0,
+          "jvm.memory.max;area=heap;id=G1 Survivor Space": -1.0,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=heap;name=vertx-unpooled": 0.0,
+          "netty.allocator.pooled.arenas;allocator.type=PooledByteBufAllocator;memory.type=direct;name=vertx-pooled": 20.0,
+          "worker.pool.queue.size;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+          "netty.eventexecutor.workers": 10.0,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=direct;name=unpooled": 31.0,
+          "jvm.gc.live.data.size": 0.0,
+          "jvm.gc.overhead": 0.0,
+          "jvm.threads.states;state=blocked": 0.0,
+          "http.server.active.connections;server.port=8082": 1.0,
+          "netty.allocator.pooled.arenas;allocator.type=PooledByteBufAllocator;memory.type=direct;name=pooled": 20.0,
+          "worker.pool.active;pool.name=vert.x-worker-thread;pool.type=worker": 1.0,
+          "netty.eventexecutor.tasks.pending;name=vert.x-acceptor-thread-0": 0.0,
+          "worker.pool.active;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+          "jvm.memory.max;area=nonheap;id=CodeCache": 50331648,
+          "jvm.buffer.memory.used;id=direct": 723390.0,
+          "process.files.open": 568.0,
+          "jvm.buffer.total.capacity;id=mapped - 'non-volatile memory'": 0.0,
+          "worker.pool.ratio;pool.name=vert.x-worker-thread;pool.type=worker": 0.005,
+          "http.server.active.requests;server.port=8082;url.scheme=http": 1.0,
+          "jvm.buffer.total.capacity;id=direct": 723389.0,
+          "netty.allocator.memory.pinned;allocator.type=PooledByteBufAllocator;memory.type=direct;name=vertx-pooled": 0.0,
+          "netty.allocator.pooled.threadlocal.caches;allocator.type=PooledByteBufAllocator;name=vertx-pooled": 4.0,
+          "netty.allocator.pooled.cache.size;allocator.type=PooledByteBufAllocator;cache.type=normal;name=vertx-pooled": 64.0,
+          "jvm.threads.states;state=new": 0.0,
+          "system.load.average.1m": 3.96875,
+          "netty.allocator.pooled.cache.size;allocator.type=PooledByteBufAllocator;cache.type=small;name=vertx-pooled": 256.0,
+          "jvm.buffer.count;id=mapped - 'non-volatile memory'": 0.0,
+          "jvm.memory.committed;area=heap;id=G1 Eden Space": 218103808,
+          "jvm.buffer.total.capacity;id=mapped": 0.0,
+          "jvm.memory.max;area=nonheap;id=Compressed Class Space": 1073741824,
+          "jvm.memory.committed;area=heap;id=G1 Survivor Space": 16777216,
+          "jvm.threads.states;state=runnable": 18.0,
+          "netty.allocator.pooled.cache.size;allocator.type=PooledByteBufAllocator;cache.type=normal;name=pooled": 64.0,
+          "jvm.classes.loaded": 18879.0,
+          "jvm.threads.daemon": 21.0,
+          "worker.pool.idle;pool.name=vert.x-worker-thread;pool.type=worker": 199.0,
+          "netty.allocator.pooled.arenas;allocator.type=PooledByteBufAllocator;memory.type=heap;name=vertx-pooled": 20.0,
+          "jvm.buffer.memory.used;id=mapped - 'non-volatile memory'": 0.0,
+          "netty.allocator.memory.pinned;allocator.type=PooledByteBufAllocator;memory.type=heap;name=vertx-pooled": 0.0,
+          "jvm.memory.committed;area=heap;id=G1 Old Gen": 134217728,
+          "netty.allocator.memory.used;allocator.type=UnpooledByteBufAllocator;memory.type=heap;name=unpooled": 384.0,
+          "jvm.gc.max.data.size": 17179869184,
+          "system.cpu.usage": 0.2168421052631579,
+          "jvm.memory.max;area=heap;id=G1 Old Gen": 17179869184,
+          "netty.allocator.memory.used;allocator.type=PooledByteBufAllocator;memory.type=heap;name=pooled": 0.0,
+          "jvm.threads.peak": 41.0,
+          "process.cpu.usage": 0.0006225435980273552,
+          "jvm.threads.live": 36.0,
+          "jvm.memory.committed;area=nonheap;id=CodeCache": 1.96608E+7,
+          "netty.allocator.memory.used;allocator.type=PooledByteBufAllocator;memory.type=direct;name=vertx-pooled": 458752.0,
+          "jvm.memory.used;area=nonheap;id=CodeCache": 18244096,
+          "netty.allocator.memory.used;allocator.type=PooledByteBufAllocator;memory.type=direct;name=pooled": 131072.0,
+          "netty.allocator.memory.pinned;allocator.type=PooledByteBufAllocator;memory.type=direct;name=pooled": 0.0,
+          "netty.allocator.pooled.cache.size;allocator.type=PooledByteBufAllocator;cache.type=small;name=pooled": 256.0,
+          "jvm.memory.used;area=heap;id=G1 Eden Space": 100663296,
+          "system.cpu.count": 10.0,
+          "jvm.buffer.memory.used;id=mapped": 0.0,
+          "jvm.memory.max;area=heap;id=G1 Eden Space": -1.0,
+          "worker.pool.idle;pool.name=vert.x-internal-blocking;pool.type=worker": 20.0,
+          "netty.allocator.pooled.chunk.size;allocator.type=PooledByteBufAllocator;name=vertx-pooled": 65536.0,
+          "netty.allocator.memory.used;allocator.type=PooledByteBufAllocator;memory.type=heap;name=vertx-pooled": 0.0,
+          "jvm.memory.committed;area=nonheap;id=Compressed Class Space": 1.245184E+7,
+          "jvm.threads.states;state=terminated": 0.0,
+          "jvm.threads.states;state=waiting": 10.0,
+          "netty.allocator.memory.pinned;allocator.type=PooledByteBufAllocator;memory.type=heap;name=pooled": 0.0,
+          "process.start.time": 1770275516322,
+          "process.uptime": 304345.0,
+          "jvm.classes.unloaded": 259.0,
+          "jvm.classes.loaded.count": 19142.0,
+          "process.cpu.time": 7.130842E+9,
+          "jvm.threads.started": 80.0,
+          "worker.pool.queue.delay": {
+            "count;pool.name=vert.x-internal-blocking;pool.type=worker": 0,
+            "elapsedTime;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0,
+            "count;pool.name=vert.x-worker-thread;pool.type=worker": 3,
+            "elapsedTime;pool.name=vert.x-worker-thread;pool.type=worker": 0.0
+          },
+          "http.server.requests": {
+            "count;method=GET;outcome=SUCCESS;status=200;uri=/poke": 1,
+            "elapsedTime;method=GET;outcome=SUCCESS;status=200;uri=/poke": 34.0
+          },
+          "worker.pool.usage": {
+            "count;pool.name=vert.x-worker-thread;pool.type=worker": 2,
+            "elapsedTime;pool.name=vert.x-worker-thread;pool.type=worker": 4.0,
+            "count;pool.name=vert.x-internal-blocking;pool.type=worker": 0,
+            "elapsedTime;pool.name=vert.x-internal-blocking;pool.type=worker": 0.0
+          },
+          "http.server.connections": {
+            "activeTasks;server.port=8082": 0,
+            "duration;server.port=8082": 0.0,
+            "max;server.port=8082": 0.0,
+            "mean;server.port=8082": 0.0
+          },
+          "http.server.bytes.read": {
+            "min;server.port=8082": 0.0,
+            "count;server.port=8082": 0,
+            "max;server.port=8082": 0.0,
+            "mean;server.port=8082": 0.0,
+            "p50;server.port=8082": 0.0,
+            "p75;server.port=8082": 0.0,
+            "p95;server.port=8082": 0.0,
+            "p98;server.port=8082": 0.0,
+            "p99;server.port=8082": 0.0,
+            "p999;server.port=8082": 0.0
+          },
+          "http.server.bytes.written": {
+            "min;server.port=8082": 14.0,
+            "count;server.port=8082": 1,
+            "max;server.port=8082": 14.0,
+            "mean;server.port=8082": 14.0,
+            "p50;server.port=8082": 14.0,
+            "p75;server.port=8082": 14.0,
+            "p95;server.port=8082": 14.0,
+            "p98;server.port=8082": 14.0,
+            "p99;server.port=8082": 14.0,
+            "p999;server.port=8082": 14.0
+          }
+        }
+      ],
+      "profiling": [
+      ]
+    },
+    {}
+  ]
+}

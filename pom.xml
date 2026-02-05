@@ -36,7 +36,7 @@
         <!-- Quarkus -->
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>3.30.8</quarkus.platform.version>
+        <quarkus.platform.version>3.31.2</quarkus.platform.version>
 
         <!-- Libs -->
         <quarkus.ai>1.6.0.CR2</quarkus.ai>

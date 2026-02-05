@@ -6,47 +6,60 @@ import java.util.List;
 import java.util.Map;
 
 public class Context {
-    @JsonProperty
-    private Map<String, List<Map<String, Object>>> logging;
+    private List<Data> data;
 
     @JsonProperty
-    private Map<String, List<Map<String, Object>>> tracing;
-
-    @JsonProperty
-    private Map<String, List<Map<String, Object>>> metrics;
-
-    @JsonProperty
-    private Map<String, List<Map<String, Object>>> profiling;
-
-    public Map<String, List<Map<String, Object>>> getLogging() {
-        return logging;
+    public List<Data> getData() {
+        return data;
     }
 
-    public void setLogging(Map<String, List<Map<String, Object>>> logging) {
-        this.logging = logging;
+    public void setData(List<Data> data) {
+        this.data = data;
     }
 
-    public Map<String, List<Map<String, Object>>> getTracing() {
-        return tracing;
-    }
+    public static class Data {
+        @JsonProperty
+        private List<Map<String, Object>> logging;
 
-    public void setTracing(Map<String, List<Map<String, Object>>> tracing) {
-        this.tracing = tracing;
-    }
+        @JsonProperty
+        private Map<String, Object> tracing;
 
-    public Map<String, List<Map<String, Object>>> getMetrics() {
-        return metrics;
-    }
+        @JsonProperty
+        private List<Map<String, Object>> metrics;
 
-    public void setMetrics(Map<String, List<Map<String, Object>>> metrics) {
-        this.metrics = metrics;
-    }
+        @JsonProperty
+        private List<Map<String, Object>> profiling;
 
-    public Map<String, List<Map<String, Object>>> getProfiling() {
-        return profiling;
-    }
+        public List<Map<String, Object>> getLogging() {
+            return logging;
+        }
 
-    public void setProfiling(Map<String, List<Map<String, Object>>> profiling) {
-        this.profiling = profiling;
+        public void setLogging(List<Map<String, Object>> logging) {
+            this.logging = logging;
+        }
+
+        public Map<String, Object> getTracing() {
+            return tracing;
+        }
+
+        public void setTracing(Map<String, Object> tracing) {
+            this.tracing = tracing;
+        }
+
+        public List<Map<String, Object>> getMetrics() {
+            return metrics;
+        }
+
+        public void setMetrics(List<Map<String, Object>> metrics) {
+            this.metrics = metrics;
+        }
+
+        public List<Map<String, Object>> getProfiling() {
+            return profiling;
+        }
+
+        public void setProfiling(List<Map<String, Object>> profiling) {
+            this.profiling = profiling;
+        }
     }
 }
