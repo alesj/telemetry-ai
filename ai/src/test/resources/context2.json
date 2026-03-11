@@ -58,6 +58,46 @@
           "hostName": "macbookpro",
           "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
           "processId": 37882
+        },
+        {
+          "timestamp": "2026-02-05T08:13:03.406+01",
+          "sequence": 13534,
+          "loggerClassName": "org.slf4j.impl.Slf4jLogger",
+          "loggerName": "io.quarkus.telemetry.app.PokeResource",
+          "level": "INFO",
+          "message": "Poking ... 200",
+          "threadName": "executor-thread-1",
+          "threadId": 96,
+          "mdc": {
+            "spanId": "0197f6f4fffc3bb3",
+            "parentId": "bf376786257c770f",
+            "traceId": "0c8428a0d2681625eb1e4ae7d5be6e35",
+            "sampled": "true"
+          },
+          "ndc": "",
+          "hostName": "macbookpro",
+          "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
+          "processId": 37836
+        },
+        {
+          "timestamp": "2026-02-05T08:13:03.412+01",
+          "sequence": 13535,
+          "loggerClassName": "org.jboss.logging.Logger",
+          "loggerName": "io.quarkus.http.access-log",
+          "level": "INFO",
+          "message": "'127.0.0.1 - - \"GET /poke?value=200 HTTP/1.1\" 200 14 \"-\" \"Quarkus REST Client\" \"-\"'",
+          "threadName": "executor-thread-1",
+          "threadId": 96,
+          "mdc": {
+            "spanId": "0197f6f4fffc3bb3",
+            "parentId": "bf376786257c770f",
+            "traceId": "0c8428a0d2681625eb1e4ae7d5be6e35",
+            "sampled": "true"
+          },
+          "ndc": "",
+          "hostName": "macbookpro",
+          "processName": "/Users/alesj/.sdkman/candidates/java/current/bin/java",
+          "processId": 37836
         }
       ],
       "tracing": {
