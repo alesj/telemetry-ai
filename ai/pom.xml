@@ -28,10 +28,20 @@
             <artifactId>telemetry-ai-common</artifactId>
         </dependency>
 
+        <!-- LGTM -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-observability-devservices-lgtm</artifactId>
+        </dependency>
+
         <!-- LangChain4j (Quarkus integration, no providers) -->
         <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-openai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.langchain4j</groupId>
+            <artifactId>quarkus-langchain4j-mcp</artifactId>
         </dependency>
 
         <!-- REST -->
