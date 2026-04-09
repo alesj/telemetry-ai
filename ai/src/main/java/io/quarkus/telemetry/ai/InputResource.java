@@ -1,6 +1,5 @@
 package io.quarkus.telemetry.ai;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -15,11 +14,8 @@ public class InputResource {
 
     private static final String USER_MSG =
             """
-            Analyze latest application traces, logs and metrics.
+            Analyze last application traces, logs and metrics.
             """;
-
-    @Inject
-    ObjectMapper mapper;
 
     @Inject
     AiService service;

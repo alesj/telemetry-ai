@@ -8,13 +8,12 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 @Path("/")
 public class PokeResource {
-    private static final Logger log = LoggerFactory.getLogger(PokeResource.class);
+    private static final Logger log = Logger.getLogger(PokeResource.class);
 
     static boolean inRange(int from, int till, Integer value) {
         return value != null && from <= value && value < till;

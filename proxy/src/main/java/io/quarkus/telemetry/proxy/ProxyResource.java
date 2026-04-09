@@ -7,13 +7,12 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 @Path("/")
 public class ProxyResource {
-    private static final Logger log = LoggerFactory.getLogger(ProxyResource.class);
+    private static final Logger log = Logger.getLogger(ProxyResource.class);
 
     @Inject
     @RestClient
