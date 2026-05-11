@@ -60,7 +60,7 @@ public class Configuration {
                 .clientName("grafana")
                 .transport(transport)
                 .build();
-        return new StripMcpClient(client, Function.identity());
+        return new StripMcpClient(client, StripFunctions.LOGS);
     }
 
     public void destroyMcpClient(@Disposes McpClient client) throws Exception {
