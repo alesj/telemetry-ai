@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.langchain4j.service.tool.ToolExecutionResult;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -134,5 +135,142 @@ public class StripFunctions {
     };
 
     public static Function<ToolExecutionResult, ToolExecutionResult> LOG_DATA = wrap(STRIP_LOG_DATA);
+
+    private static final Set<String> USELESS_METRIC_PREFIXES = new HashSet<>(Arrays.asList(
+        // Netty allocator internals - too granular
+        "netty.allocator.pooled.arenas",
+        "netty.allocator.pooled.threadlocal.caches",
+        "netty.allocator.pooled.chunk.size",
+        "netty.allocator.pooled.cache.size",
+        "netty.allocator.memory.pinned",
+        // Static/constant metrics
+        "jvm.info",
+        "netty.eventexecutor.workers",
+        "system.cpu.count",
+        "process.files.max",
+        // Per-thread metrics (too noisy)
+        "netty.eventexecutor.tasks.pending",
+        // Mapped buffer metrics (usually 0)
+        "jvm.buffer.count;id=mapped - 'non-volatile memory'",
+        "jvm.buffer.total.capacity;id=mapped - 'non-volatile memory'",
+        "jvm.buffer.memory.used;id=mapped - 'non-volatile memory'",
+        // Less useful JVM internals
+        "jvm.classes.unloaded",
+        "jvm.threads.started",
+        "jvm.gc.live.data.size",
+        "jvm.memory.usage.after.gc"
+    ));
+
+    private static boolean isUselessMetric(String metricName) {
+        if (metricName == null) {
+            return false;
+        }
+
+        for (String prefix : USELESS_METRIC_PREFIXES) {
+            if (metricName.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static final Function<String, String> STRIP_METRICS = metrics -> {
+        if (metrics == null || metrics.isBlank()) {
+            return metrics;
+        }
+
+        try {
+            JsonNode root = MAPPER.readTree(metrics);
+            JsonNode dataArray = root.path("data");
+
+            if (!dataArray.isArray()) {
+                return metrics;
+            }
+
+            // Filter the data array
+            ObjectNode result = MAPPER.createObjectNode();
+            var filteredData = MAPPER.createArrayNode();
+
+            for (JsonNode item : dataArray) {
+                JsonNode metric = item.path("metric");
+                String metricName = metric.path("__name__").asText("");
+
+                // Skip useless metrics
+                if (!isUselessMetric(metricName)) {
+                    filteredData.add(item);
+                }
+            }
+
+            result.set("data", filteredData);
+            return MAPPER.writeValueAsString(result);
+        } catch (Exception e) {
+            // If JSON parsing fails, return original
+            return metrics;
+        }
+    };
+
+    public static Function<ToolExecutionResult, ToolExecutionResult> METRICS = wrap(STRIP_METRICS);
+
+    /**
+     * Extracts the start date/time of the root span from trace JSON.
+     * The root span is identified as the span without a parentSpanId.
+     *
+     * @param traceJson JSON string containing trace data
+     * @return ISO-8601 formatted timestamp (e.g., "2026-05-12T10:30:49.074740Z"), or null if not found
+     */
+    public static String extractRootSpanStartTime(String traceJson) {
+        if (traceJson == null || traceJson.isBlank()) {
+            return null;
+        }
+
+        try {
+            JsonNode root = MAPPER.readTree(traceJson);
+            JsonNode trace = root.path("trace");
+
+            if (trace.isMissingNode()) {
+                return null;
+            }
+
+            // Iterate through all services and their scopes
+            JsonNode services = trace.path("services");
+            if (!services.isArray()) {
+                return null;
+            }
+
+            for (JsonNode service : services) {
+                JsonNode scopes = service.path("scopes");
+                if (!scopes.isArray()) {
+                    continue;
+                }
+
+                for (JsonNode scope : scopes) {
+                    JsonNode spans = scope.path("spans");
+                    if (!spans.isArray()) {
+                        continue;
+                    }
+
+                    for (JsonNode span : spans) {
+                        // Root span has no parentSpanId
+                        if (!span.has("parentSpanId")) {
+                            String startTimeNano = span.path("startTimeUnixNano").asText();
+                            if (!startTimeNano.isEmpty()) {
+                                // Convert nanoseconds to Instant
+                                long nanos = Long.parseLong(startTimeNano);
+                                long seconds = nanos / 1_000_000_000L;
+                                long nanoAdjustment = nanos % 1_000_000_000L;
+                                Instant instant = Instant.ofEpochSecond(seconds, nanoAdjustment);
+                                return instant.toString(); // ISO-8601 format
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
+        } catch (Exception e) {
+            // If JSON parsing fails, return null
+            return null;
+        }
+    }
 
 }

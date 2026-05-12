@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import dev.langchain4j.service.tool.ToolExecutionResult;
 
 public class Configuration {
     private static final Logger log = LoggerFactory.getLogger(InputResource.class);
@@ -59,7 +61,15 @@ public class Configuration {
                 .clientName("grafana")
                 .transport(transport)
                 .build();
-        return new StripMcpClient(client, StripFunctions.LOG_DATA);
+
+        // Configure tool-specific stripping functions
+        Map<String, Function<ToolExecutionResult, ToolExecutionResult>> toolSpecificFns = Map.of(
+                "query_loki_logs", StripFunctions.LOG_DATA,
+                "query_prometheus", StripFunctions.METRICS
+        );
+
+        // Use identity function as default (no stripping for other tools)
+        return new StripMcpClient(client, Function.identity(), toolSpecificFns);
     }
 
     public void destroyMcpClient(@Disposes McpClient client) throws Exception {

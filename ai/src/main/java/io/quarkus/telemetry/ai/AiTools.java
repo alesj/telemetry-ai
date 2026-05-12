@@ -9,7 +9,7 @@ import io.quarkiverse.langchain4j.RegisterAiService;
 import io.quarkiverse.langchain4j.mcp.runtime.McpToolBox;
 
 @RegisterAiService
-public interface Tools {
+public interface AiTools {
     @UserMessage("""
                 Call the traceql-search tool (NOT tempo_traceql-search) with argument query="{}"
 
@@ -28,6 +28,7 @@ public interface Tools {
             Return the complete trace data as a JSON string.
             """
     )
+    @OutputGuardrails(LogGuardrail.class)
     @Tool("Provide trace with trace id")
     @McpToolBox({"tempo"})
     String traceById(String traceId);
@@ -58,4 +59,23 @@ public interface Tools {
     @Tool("Provide logs with trace id")
     @McpToolBox({"grafana"})
     List<String> logsWithTraceId(String traceId);
+
+    @UserMessage("""
+      Call query_prometheus MCP tool with:
+      - datasourceUid: "prometheus"
+      - expr: "{__name__=~'.+', job!=\"opentelemetry-collector\"}"
+      - queryType: "instant"
+      - endTime: {datetime} in RFC3339 format
+
+      This returns all application Prometheus metrics at the specified time: {datetime}
+      Excludes opentelemetry-collector infrastructure metrics.
+
+      WARNING: This may return a large number of time series.
+      Return the raw JSON response.
+      """
+    )
+    @OutputGuardrails(LogGuardrail.class)
+    @Tool("Get all Prometheus metrics at specific time")
+    @McpToolBox({"grafana"})
+    String getAllMetricsForDatetime(String datetime);
 }
