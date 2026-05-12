@@ -49,11 +49,11 @@ public class StripMcpClient implements McpClient {
     @Override
     public ToolExecutionResult executeTool(ToolExecutionRequest executionRequest,
                                            InvocationContext invocationContext) {
-        //System.out.println("MCP Tool Call: " + executionRequest.name() + " with args: " + executionRequest.arguments());
+        System.out.println("MCP Tool Call: " + executionRequest.name() + " with args: " + executionRequest.arguments());
         ToolExecutionResult result = delegate.executeTool(executionRequest, invocationContext);
-        //System.out.println("rawRes = " + result.resultText());
+        System.out.println("rawRes = " + result.resultText());
         ToolExecutionResult transformed = fn.apply(result);
-        //System.out.println("transformedRes = " + transformed.resultText());
+        System.out.println("transformedRes = " + transformed.resultText());
         return transformed;
     }
 

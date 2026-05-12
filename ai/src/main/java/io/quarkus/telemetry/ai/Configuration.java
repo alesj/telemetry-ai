@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public class Configuration {
     private static final Logger log = LoggerFactory.getLogger(InputResource.class);
@@ -46,7 +45,7 @@ public class Configuration {
                 .clientName("tempo")
                 .transport(transport)
                 .build();
-        return new StripMcpClient(client, Function.identity());
+        return new StripMcpClient(client, StripFunctions.TRACE);
     }
 
     @Singleton
@@ -60,7 +59,7 @@ public class Configuration {
                 .clientName("grafana")
                 .transport(transport)
                 .build();
-        return new StripMcpClient(client, StripFunctions.LOGS);
+        return new StripMcpClient(client, StripFunctions.LOG_DATA);
     }
 
     public void destroyMcpClient(@Disposes McpClient client) throws Exception {
