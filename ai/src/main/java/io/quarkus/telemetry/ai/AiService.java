@@ -11,15 +11,20 @@ public interface AiService {
 
             Your task:
             1. First, retrieve the last {n} trace IDs using the provideLastNTraceIds tool
-            2. For each trace ID, gather all corresponding logs using the logsWithTraceId tool
-            3. Analyze the logs for each trace to identify:
-               - Errors, exceptions, or warnings
-               - Performance issues or slow operations
+            2. For each trace ID:
+               a. Fetch the complete trace data using the traceById tool
+               b. Gather all corresponding logs using the logsWithTraceId tool
+            3. Analyze both the trace data and logs for each trace to identify:
+               - Errors, exceptions, or warnings in logs
+               - Performance issues: slow spans, high latency, bottlenecks in the trace
+               - Failed requests or error status codes
+               - Service dependencies and their health
                - Patterns across multiple traces
                - Any anomalies or unusual behavior
 
             Provide a comprehensive analysis that includes:
-            - Summary of findings for each trace ID
+            - Summary of findings for each trace ID (trace structure + logs)
+            - Performance metrics: duration, span count, slowest operations
             - Common patterns or issues across traces
             - Recommendations for investigation or remediation
             - Severity assessment (critical, high, medium, low) for identified issues

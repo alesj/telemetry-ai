@@ -23,6 +23,16 @@ public interface Tools {
     List<String> provideLastNTraceIds(int n);
 
     @UserMessage("""
+            Call the 'get-trace' MCP tool with argument trace_id="{traceId}"
+
+            Return the complete trace data as a JSON string.
+            """
+    )
+    @Tool("Provide trace with trace id")
+    @McpToolBox({"tempo"})
+    String traceById(String traceId);
+
+    @UserMessage("""
             Use the grafana MCP tool to query Loki logs for a specific trace ID:
             1. Query the Loki datasource (uid: "loki") for logs containing the trace ID
             2. Use LogQL query: {{service_name=~".+"}} |= "{traceId}" to filter logs by trace ID
