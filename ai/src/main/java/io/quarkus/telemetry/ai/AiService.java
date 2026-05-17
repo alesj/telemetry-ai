@@ -12,47 +12,47 @@ public interface AiService {
             CRITICAL: You MUST collect BOTH trace data AND logs for EVERY trace ID. Analysis without logs is INCOMPLETE.
 
             AVAILABLE TOOLS (use ONLY these exact tool names):
-            - "Provide last n trace ids" (provideLastNTraceIds)
-            - "Provide trace with trace id" (traceById)
-            - "Provide logs with trace id" (logsWithTraceId)
-            - "Extract root span start time from trace JSON" (extractRootSpanStartTime)
-            - "Get all Prometheus metrics at specific time" (getAllMetricsForDatetime)
+            - "Provide last n trace ids"
+            - "Provide trace with trace id"
+            - "Provide logs with trace id"
+            - "Get root span start time for trace id"
+            - "Get all Prometheus metrics at specific time"
 
             DO NOT use any other tools. DO NOT call MCP tools directly (traceql-search, get-trace, query_loki_logs, query_prometheus).
 
             MANDATORY STEPS - Execute in this EXACT order:
 
-            1. TOOL CALL: provideLastNTraceIds({n})
+            1. TOOL CALL: "Provide last n trace ids"
+               Parameter: n (the number of traces requested)
                Returns: List of trace ID strings
                Save result as: traceIds
 
             2. For EACH traceId in traceIds, execute ALL THREE tool calls (NO EXCEPTIONS):
 
-               a) TOOL CALL: traceById(traceId)
-                  Input: The trace ID string
+               a) TOOL CALL: "Provide trace with trace id"
+                  Parameter: traceId (the trace ID string)
                   Returns: Complete trace data as JSON string
-                  Save result as: trace_json
+                  Note: This tool also internally extracts and stores the root span start time
 
-               b) TOOL CALL: logsWithTraceId(traceId)
-                  Input: The trace ID string
+               b) TOOL CALL: "Provide logs with trace id"
+                  Parameter: traceId (the trace ID string)
                   Returns: List of log message strings
-                  Save result as: log_messages
 
-               c) TOOL CALL: extractRootSpanStartTime(trace_json)
-                  Input: The complete trace JSON string from step 2a
+               c) TOOL CALL: "Get root span start time for trace id"
+                  Parameter: traceId (the trace ID string - same one used in step 2a)
                   Returns: ISO-8601 timestamp string (e.g., "2026-05-12T15:10:49.074740Z")
                   Save result as: timestamp
 
                IMPORTANT: All three tool calls are REQUIRED for each trace ID.
                If you skip any tool call, your analysis will be rejected.
 
-            3. TOOL CALL: getAllMetricsForDatetime(timestamp) for each unique timestamp
-               Input: ISO-8601 timestamp string from step 2c
+            3. TOOL CALL: "Get all Prometheus metrics at specific time" for each unique timestamp
+               Parameter: datetime (ISO-8601 timestamp string from step 2c)
                Returns: Prometheus metrics JSON at that specific time
                Save result as: metrics_json
 
                NOTE: Multiple traces may share the same timestamp, so call this only ONCE per unique timestamp.
-               This is a TOOL CALL - you must invoke getAllMetricsForDatetime with the timestamp string.
+               This is a TOOL CALL - you must invoke this tool with the timestamp string.
 
             4. After collecting ALL trace data, log data, AND metrics data, analyze:
                - Errors, exceptions, or warnings in logs
@@ -75,14 +75,14 @@ public interface AiService {
                - Severity assessment (critical, high, medium, low) for identified issues
 
             VALIDATION: Before providing analysis, verify you made these TOOL CALLS:
-            - traceById: called ONCE per trace ID
-            - logsWithTraceId: called ONCE per trace ID
-            - extractRootSpanStartTime: called ONCE per trace ID (with the trace JSON as input)
-            - getAllMetricsForDatetime: called ONCE per unique timestamp (with the ISO-8601 timestamp string as input)
+            - "Provide trace with trace id": called ONCE per trace ID
+            - "Provide logs with trace id": called ONCE per trace ID
+            - "Get root span start time for trace id": called ONCE per trace ID (with the trace ID string as input)
+            - "Get all Prometheus metrics at specific time": called ONCE per unique timestamp (with the ISO-8601 timestamp string as input)
 
             If you did not invoke all these tools, DO NOT proceed with analysis. Go back and execute the missing tool calls.
             """
     )
-    @ToolBox({AiTools.class, PlainTools.class})
+    @ToolBox(PlainTools.class)
     String analyze(int n);
 }

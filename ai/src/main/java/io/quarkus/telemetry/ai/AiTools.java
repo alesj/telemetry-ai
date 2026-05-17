@@ -2,7 +2,7 @@ package io.quarkus.telemetry.ai;
 
 import java.util.List;
 
-import dev.langchain4j.agent.tool.Tool;
+//import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.guardrail.OutputGuardrails;
 import io.quarkiverse.langchain4j.RegisterAiService;
@@ -18,18 +18,21 @@ public interface AiTools {
                 Extract and return the first {n} traceID values as a list of strings.
             """)
     @OutputGuardrails(LogGuardrail.class)
-    @Tool("Provide last n trace ids")
+    //@Tool("Provide last n trace ids")
     @McpToolBox({"tempo"})
     List<String> provideLastNTraceIds(int n);
 
     @UserMessage("""
             Call the 'get-trace' MCP tool with argument trace_id="{traceId}"
 
-            Return the complete trace data as a JSON string.
+            Return the EXACT, UNMODIFIED result from the get-trace tool.
+            Do NOT summarize, transform, or reformat the response.
+            Do NOT create a simplified version.
+            Return the raw JSON string exactly as received from the tool.
             """
     )
     @OutputGuardrails(LogGuardrail.class)
-    @Tool("Provide trace with trace id")
+    //@Tool("Provide trace with trace id")
     @McpToolBox({"tempo"})
     String traceById(String traceId);
 
@@ -52,11 +55,12 @@ public interface AiTools {
             - endRfc3339: {{current_date_time}} in RFC3339 format (YYYY-MM-DDTHH:MM:SSZ)
             - limit: 1000
 
-            Return only the log message text content as a list of strings.
+            Extract ONLY the log message text content from each log entry and return as a list of strings.
+            Do NOT include timestamps, severity, or other metadata - just the message text.
             """
     )
     @OutputGuardrails(LogGuardrail.class)
-    @Tool("Provide logs with trace id")
+    //@Tool("Provide logs with trace id")
     @McpToolBox({"grafana"})
     List<String> logsWithTraceId(String traceId);
 
@@ -70,12 +74,13 @@ public interface AiTools {
       This returns all application Prometheus metrics at the specified time: {datetime}
       Excludes opentelemetry-collector infrastructure metrics.
 
-      WARNING: This may return a large number of time series.
-      Return the raw JSON response.
+      Return the EXACT, UNMODIFIED result from the query_prometheus tool.
+      Do NOT summarize, transform, or reformat the response.
+      Return the raw JSON string exactly as received from the tool.
       """
     )
     @OutputGuardrails(LogGuardrail.class)
-    @Tool("Get all Prometheus metrics at specific time")
+    //@Tool("Get all Prometheus metrics at specific time")
     @McpToolBox({"grafana"})
     String getAllMetricsForDatetime(String datetime);
 }

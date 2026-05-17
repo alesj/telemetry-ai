@@ -19,6 +19,6 @@ public class InputResource {
     @GET
     @Path("/analyze/{n}")
     public void analyze(@PathParam("n") int n) {
-        log.info("Application behavior: \n" + service.analyze(n));
+        log.info("Application behavior (n={}): \n" + service.analyze(n), n);
     }
 }

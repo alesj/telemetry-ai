@@ -10,6 +10,8 @@ import io.quarkiverse.langchain4j.mcp.runtime.http.QuarkusStreamableHttpMcpTrans
 import io.vertx.core.Vertx;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Named;
+import jakarta.inject.Qualifier;
 import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -37,6 +39,7 @@ public class Configuration {
     }
 
     @Singleton
+    @Named("tempoMcpClient")
     public McpClient tempoMcpClient(Vertx vertx) {
         McpTransport transport = new QuarkusStreamableHttpMcpTransport.Builder()
                 .mcpClientName("tempo")
@@ -51,6 +54,7 @@ public class Configuration {
     }
 
     @Singleton
+    @Named("grafanaMcpClient")
     public McpClient grafanaMcpClient() {
         McpTransport transport = new StdioMcpTransport.Builder()
                 .command(List.of("uvx", "mcp-grafana"))
