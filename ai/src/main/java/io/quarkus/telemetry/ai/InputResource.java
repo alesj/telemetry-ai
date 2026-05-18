@@ -22,7 +22,7 @@ public class InputResource {
     @Path("/analyze/{n}")
     @Produces(MediaType.TEXT_PLAIN)
     public String analyze(@PathParam("n") int n) {
-        String result = String.format("Application behavior (n=%s): \n" + service.analyze(n), n);
+        String result = String.format("Application behavior (n=%s): \n%s", n, service.analyze(n));
         log.info(result);
         return result;
     }

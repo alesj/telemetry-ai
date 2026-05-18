@@ -238,13 +238,22 @@ public class StripFunctions {
     }
 
     private static final Function<String, String> STRIP_METRICS = metrics -> {
+        System.out.println("=== STRIP_METRICS CALLED ===");
+
         if (metrics == null || metrics.isBlank()) {
+            System.out.println("STRIP_METRICS: metrics is null or blank, returning as-is");
             return metrics;
         }
 
+        System.out.println("STRIP_METRICS: Input length: " + metrics.length());
+
         try {
+            System.out.println("STRIP_METRICS: Parsing JSON...");
             JsonNode root = MAPPER.readTree(metrics);
+            System.out.println("STRIP_METRICS: JSON parsed successfully");
+
             JsonNode dataArray = root.path("data");
+            System.out.println("STRIP_METRICS: Got data array, isArray: " + dataArray.isArray());
 
             if (!dataArray.isArray()) {
                 return metrics;

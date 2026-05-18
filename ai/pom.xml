@@ -35,9 +35,17 @@
         </dependency>
 
         <!-- LangChain4j (Quarkus integration, no providers) -->
-        <dependency>
+        <!-- dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-openai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.langchain4j</groupId>
+            <artifactId>quarkus-langchain4j-anthropic</artifactId>
+        </dependency -->
+        <dependency>
+            <groupId>io.quarkiverse.langchain4j</groupId>
+            <artifactId>quarkus-langchain4j-ai-gemini</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
