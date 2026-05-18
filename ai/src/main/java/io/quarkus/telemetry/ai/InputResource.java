@@ -5,6 +5,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +20,10 @@ public class InputResource {
 
     @GET
     @Path("/analyze/{n}")
-    public void analyze(@PathParam("n") int n) {
-        log.info("Application behavior (n={}): \n" + service.analyze(n), n);
+    @Produces(MediaType.TEXT_PLAIN)
+    public String analyze(@PathParam("n") int n) {
+        String result = String.format("Application behavior (n=%s): \n" + service.analyze(n), n);
+        log.info(result);
+        return result;
     }
 }
