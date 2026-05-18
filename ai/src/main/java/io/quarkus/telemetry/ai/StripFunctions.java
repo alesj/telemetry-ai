@@ -138,27 +138,39 @@ public class StripFunctions {
 
     private static final Set<String> USELESS_METRIC_PREFIXES = new HashSet<>(Arrays.asList(
         // Netty allocator internals - too granular
-        "netty.allocator.pooled.arenas",
-        "netty.allocator.pooled.threadlocal.caches",
-        "netty.allocator.pooled.chunk.size",
-        "netty.allocator.pooled.cache.size",
-        "netty.allocator.memory.pinned",
+        "netty_allocator_pooled_arenas",
+        "netty_allocator_pooled_threadlocal_caches",
+        "netty_allocator_pooled_chunk_size",
+        "netty_allocator_pooled_cache_size",
+        "netty_allocator_memory_pinned",
         // Static/constant metrics
-        "jvm.info",
-        "netty.eventexecutor.workers",
-        "system.cpu.count",
-        "process.files.max",
+        "jvm_info",
+        "target_info",
+        "netty_eventexecutor_workers",
+        "system_cpu_count",
+        "process_files_max",
+        "process_start_time",
         // Per-thread metrics (too noisy)
-        "netty.eventexecutor.tasks.pending",
+        "netty_eventexecutor_tasks_pending",
         // Mapped buffer metrics (usually 0)
-        "jvm.buffer.count;id=mapped - 'non-volatile memory'",
-        "jvm.buffer.total.capacity;id=mapped - 'non-volatile memory'",
-        "jvm.buffer.memory.used;id=mapped - 'non-volatile memory'",
+        "jvm_buffer_count_buffers;id=mapped",
+        "jvm_buffer_total_capacity_bytes;id=mapped",
+        "jvm_buffer_memory_used_bytes;id=mapped",
         // Less useful JVM internals
-        "jvm.classes.unloaded",
-        "jvm.threads.started",
-        "jvm.gc.live.data.size",
-        "jvm.memory.usage.after.gc"
+        "jvm_classes_unloaded",
+        "jvm_classes_loaded",
+        "jvm_threads_started",
+        "jvm_threads_states",
+        "jvm_gc_live_data_size",
+        "jvm_memory_usage_after_gc",
+        // Monotonic counters that are less useful than rates/gauges
+        "process_cpu_time",
+        "worker_pool_completed_total",
+        // OpenTelemetry SDK internal metrics (not application metrics)
+        "otel_sdk_",
+        // Connection duration metrics (less useful than active connections)
+        "http_server_connections_duration",
+        "http_client_connections_duration"
     ));
 
     private static boolean isUselessMetric(String metricName) {
