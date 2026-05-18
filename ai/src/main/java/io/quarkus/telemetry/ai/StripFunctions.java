@@ -137,40 +137,43 @@ public class StripFunctions {
     public static Function<ToolExecutionResult, ToolExecutionResult> LOG_DATA = wrap(STRIP_LOG_DATA);
 
     private static final Set<String> USELESS_METRIC_PREFIXES = new HashSet<>(Arrays.asList(
-        // Netty allocator internals - too granular
-        "netty_allocator_pooled_arenas",
-        "netty_allocator_pooled_threadlocal_caches",
-        "netty_allocator_pooled_chunk_size",
-        "netty_allocator_pooled_cache_size",
-        "netty_allocator_memory_pinned",
+        // ALL Netty metrics - too low level for app troubleshooting
+        "netty_",
         // Static/constant metrics
         "jvm_info",
         "target_info",
-        "netty_eventexecutor_workers",
         "system_cpu_count",
         "process_files_max",
         "process_start_time",
-        // Per-thread metrics (too noisy)
-        "netty_eventexecutor_tasks_pending",
-        // Mapped buffer metrics (usually 0)
-        "jvm_buffer_count_buffers;id=mapped",
-        "jvm_buffer_total_capacity_bytes;id=mapped",
-        "jvm_buffer_memory_used_bytes;id=mapped",
-        // Less useful JVM internals
-        "jvm_classes_unloaded",
-        "jvm_classes_loaded",
+        "jvm_memory_max_bytes",
+        // ALL JVM buffer metrics - too low level
+        "jvm_buffer_",
+        // JVM classes metrics - rarely actionable
+        "jvm_classes_",
+        // Most thread metrics - keep only jvm_threads_live
         "jvm_threads_started",
         "jvm_threads_states",
-        "jvm_gc_live_data_size",
+        "jvm_threads_peak",
+        "jvm_threads_daemon",
+        // GC detail metrics - keep only jvm_gc_overhead
+        "jvm_gc_live_data",
+        "jvm_gc_max_data",
         "jvm_memory_usage_after_gc",
-        // Monotonic counters that are less useful than rates/gauges
+        // Committed bytes when we have used bytes
+        "jvm_memory_committed_bytes",
+        // Monotonic counters
         "process_cpu_time",
         "worker_pool_completed_total",
-        // OpenTelemetry SDK internal metrics (not application metrics)
+        // ALL OpenTelemetry SDK internals
         "otel_sdk_",
-        // Connection duration metrics (less useful than active connections)
+        // Connection duration summaries (keep max only for requests)
         "http_server_connections_duration",
         "http_client_connections_duration"
+    ));
+
+    private static final Set<String> USELESS_METRIC_SUFFIXES = new HashSet<>(Arrays.asList(
+        "_bucket", // Histogram buckets - creates dozens of entries
+        "_created" // Metric creation timestamp - not useful
     ));
 
     private static boolean isUselessMetric(String metricName) {
@@ -178,11 +181,59 @@ public class StripFunctions {
             return false;
         }
 
+        // Check prefixes
         for (String prefix : USELESS_METRIC_PREFIXES) {
             if (metricName.startsWith(prefix)) {
                 return true;
             }
         }
+
+        // Check suffixes
+        for (String suffix : USELESS_METRIC_SUFFIXES) {
+            if (metricName.endsWith(suffix)) {
+                return true;
+            }
+        }
+
+        // Filter out histogram _sum and _count when we prefer _max
+        // e.g., keep http_server_requests_max_milliseconds, drop http_server_requests_milliseconds_sum/count
+        if ((metricName.endsWith("_sum") || metricName.endsWith("_count")) &&
+            (metricName.contains("_milliseconds") || metricName.contains("_bytes"))) {
+            // These are histogram aggregations - we prefer the _max variant
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean hasUselessLabels(JsonNode metricLabels) {
+        // Filter out ALL per-region memory metrics - we only want heap/nonheap totals
+        // Remove: G1 Eden Space, G1 Survivor Space, G1 Old Gen, Code Cache, Compressed Class Space, Metaspace
+        if (metricLabels.has("id")) {
+            // If there's an "id" label, it's a per-region breakdown - filter it out
+            // The aggregate metrics don't have an "id" label
+            return true;
+        }
+
+        // Filter out per-allocator-type metrics - too granular
+        if (metricLabels.has("allocator_type")) {
+            return true;
+        }
+
+        // Filter duplicate worker pools - keep only one
+        if (metricLabels.has("pool_name")) {
+            String poolName = metricLabels.path("pool_name").asText("");
+            // Keep only vert.x-worker-thread, skip vert.x-internal-blocking
+            if (poolName.equals("vert.x-internal-blocking")) {
+                return true;
+            }
+        }
+
+        // Filter metrics with "le" label (histogram buckets)
+        if (metricLabels.has("le")) {
+            return true; // Histogram bucket - we don't need individual buckets
+        }
+
         return false;
     }
 
@@ -199,23 +250,44 @@ public class StripFunctions {
                 return metrics;
             }
 
+            int originalCount = dataArray.size();
+            System.out.println("STRIP_METRICS: Starting with " + originalCount + " metrics");
+
             // Filter the data array
             ObjectNode result = MAPPER.createObjectNode();
             var filteredData = MAPPER.createArrayNode();
+
+            int filteredByName = 0;
+            int filteredByLabels = 0;
 
             for (JsonNode item : dataArray) {
                 JsonNode metric = item.path("metric");
                 String metricName = metric.path("__name__").asText("");
 
-                // Skip useless metrics
-                if (!isUselessMetric(metricName)) {
-                    filteredData.add(item);
+                // Skip useless metrics by name (prefix/suffix)
+                if (isUselessMetric(metricName)) {
+                    filteredByName++;
+                    continue;
                 }
+
+                // Skip metrics with useless labels (per-region, per-allocator, etc.)
+                if (hasUselessLabels(metric)) {
+                    filteredByLabels++;
+                    continue;
+                }
+
+                filteredData.add(item);
             }
+
+            int keptCount = filteredData.size();
+            System.out.println("STRIP_METRICS: Filtered out " + filteredByName + " by name, " +
+                             filteredByLabels + " by labels. Kept " + keptCount + " metrics.");
 
             result.set("data", filteredData);
             return MAPPER.writeValueAsString(result);
         } catch (Exception e) {
+            System.err.println("STRIP_METRICS ERROR: " + e.getMessage());
+            e.printStackTrace();
             // If JSON parsing fails, return original
             return metrics;
         }
