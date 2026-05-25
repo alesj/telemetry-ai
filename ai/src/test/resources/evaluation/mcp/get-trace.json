@@ -1,0 +1,146 @@
+{
+  "trace": {
+    "traceId": "1c4bde37247ac6d29ea87bb6cf28dd6f",
+    "services": [
+      {
+        "serviceName": "telemetry-ai-proxy",
+        "resource": {
+          "host.name": "MacBookPro",
+          "service.version": "1.0.0-SNAPSHOT",
+          "telemetry.sdk.language": "java",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "1.60.1",
+          "webengine.name": "Quarkus",
+          "webengine.version": "999-SNAPSHOT"
+        },
+        "scopes": [
+          {
+            "name": "io.quarkus.opentelemetry",
+            "spans": [
+              {
+                "spanId": "cb49594d3e4b7cc5",
+                "name": "GET /poke",
+                "kind": "SPAN_KIND_SERVER",
+                "startTimeUnixNano": "1778598649074740000",
+                "endTimeUnixNano": "1778598649118903667",
+                "durationMs": 44.163667,
+                "attributes": {
+                  "client.address": "127.0.0.1",
+                  "code.function.name": "io.quarkus.telemetry.proxy.ProxyResource.pokeFwd",
+                  "error.type": "500",
+                  "http.request.method": "GET",
+                  "http.response.body.size": 253071,
+                  "http.response.status_code": 500,
+                  "http.route": "/poke",
+                  "server.address": "localhost",
+                  "server.port": 8081,
+                  "url.path": "/poke",
+                  "url.query": "value=500",
+                  "url.scheme": "http",
+                  "user_agent.original": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+                },
+                "events": [
+                  {
+                    "name": "exception",
+                    "timeUnixNano": "1778598649115146292",
+                    "attributes": {
+                      "exception.message": "Received: 'Internal Server Error, status code 500' when invoking REST Client method: 'io.quarkus.telemetry.proxy.ProxyClient#pokeFwd'",
+                      "exception.stacktrace": "org.jboss.resteasy.reactive.ClientWebApplicationException: Received: 'Internal Server Error, status code 500' when invoking REST Client method: 'io.quarkus.telemetry.proxy.ProxyClient#pokeFwd'\n\tat org.jboss.resteasy.reactive.client.impl.RestClientRequestContext.unwrapException(RestClientRequestContext.java:222)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.handleException(AbstractResteasyReactiveContext.java:336)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.run(AbstractResteasyReactiveContext.java:175)\n\tat io.quarkus.vertx.core.runtime.VertxCoreRecorder$15.runWith(VertxCoreRecorder.java:677)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2651)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2630)\n\tat org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1622)\n\tat org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1589)\n\tat org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)\n\tat org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)\n\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nCaused by: jakarta.ws.rs.WebApplicationException: Internal Server Error, status code 500\n\tat io.quarkus.rest.client.reactive.runtime.DefaultMicroprofileRestClientExceptionMapper.toThrowable(DefaultMicroprofileRestClientExceptionMapper.java:19)\n\tat io.quarkus.rest.client.reactive.runtime.MicroProfileRestClientResponseFilter.filter(MicroProfileRestClientResponseFilter.java:55)\n\tat org.jboss.resteasy.reactive.client.handlers.ClientResponseFilterRestHandler.doHandle(ClientResponseFilterRestHandler.java:76)\n\tat org.jboss.resteasy.reactive.client.handlers.ClientResponseFilterRestHandler.handle(ClientResponseFilterRestHandler.java:31)\n\tat org.jboss.resteasy.reactive.client.handlers.ClientResponseFilterRestHandler.ha",
+                      "exception.type": "org.jboss.resteasy.reactive.ClientWebApplicationException"
+                    }
+                  }
+                ],
+                "status": {
+                  "code": "STATUS_CODE_ERROR",
+                  "message": ""
+                }
+              },
+              {
+                "spanId": "d6b3815bd99b3760",
+                "name": "GET /poke",
+                "parentSpanId": "cb49594d3e4b7cc5",
+                "kind": "SPAN_KIND_CLIENT",
+                "startTimeUnixNano": "1778598649093833292",
+                "endTimeUnixNano": "1778598649113367417",
+                "durationMs": 19.534125,
+                "attributes": {
+                  "error.type": "500",
+                  "http.request.method": "GET",
+                  "http.response.status_code": 500,
+                  "server.address": "localhost",
+                  "server.port": 8082,
+                  "url.full": "http://localhost:8082/poke?value=500"
+                },
+                "status": {
+                  "code": "STATUS_CODE_ERROR",
+                  "message": ""
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "serviceName": "telemetry-ai-app",
+        "resource": {
+          "host.name": "MacBookPro",
+          "service.version": "1.0.0-SNAPSHOT",
+          "telemetry.sdk.language": "java",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "1.60.1",
+          "webengine.name": "Quarkus",
+          "webengine.version": "999-SNAPSHOT"
+        },
+        "scopes": [
+          {
+            "name": "io.quarkus.opentelemetry",
+            "spans": [
+              {
+                "spanId": "ae282708c3c056d5",
+                "name": "GET /poke",
+                "parentSpanId": "d6b3815bd99b3760",
+                "kind": "SPAN_KIND_SERVER",
+                "startTimeUnixNano": "1778598649105172000",
+                "endTimeUnixNano": "1778598649113473334",
+                "durationMs": 8.301334,
+                "attributes": {
+                  "client.address": "127.0.0.1",
+                  "code.function.name": "io.quarkus.telemetry.app.PokeResource.poke",
+                  "error.type": "500",
+                  "http.request.method": "GET",
+                  "http.response.body.size": 21,
+                  "http.response.status_code": 500,
+                  "http.route": "/poke",
+                  "server.address": "localhost",
+                  "server.port": 8082,
+                  "url.path": "/poke",
+                  "url.query": "value=500",
+                  "url.scheme": "http",
+                  "user_agent.original": "Quarkus REST Client"
+                },
+                "events": [
+                  {
+                    "name": "exception",
+                    "timeUnixNano": "1778598649111345709",
+                    "attributes": {
+                      "exception.message": "App error: 500",
+                      "exception.stacktrace": "jakarta.ws.rs.WebApplicationException: App error: 500\n\tat io.quarkus.telemetry.app.PokeResource.poke(PokeResource.java:33)\n\tat io.quarkus.telemetry.app.PokeResource_ClientProxy.poke(Unknown Source)\n\tat io.quarkus.telemetry.app.PokeResource$quarkusrestinvoker$poke_aab2b8badde2c398dc5dc139e2d1cb56bf4ecae0.invoke(Unknown Source)\n\tat org.jboss.resteasy.reactive.server.handlers.InvocationHandler.handle(InvocationHandler.java:29)\n\tat io.quarkus.resteasy.reactive.server.runtime.QuarkusResteasyReactiveRequestContext.invokeHandler(QuarkusResteasyReactiveRequestContext.java:190)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.run(AbstractResteasyReactiveContext.java:147)\n\tat io.quarkus.vertx.core.runtime.VertxCoreRecorder$15.runWith(VertxCoreRecorder.java:677)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2651)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2630)\n\tat org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1622)\n\tat org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1589)\n\tat org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)\n\tat org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)\n\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n",
+                      "exception.type": "jakarta.ws.rs.WebApplicationException"
+                    }
+                  }
+                ],
+                "status": {
+                  "code": "STATUS_CODE_ERROR",
+                  "message": ""
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "metrics": {
+    "inspectedBytes": 291787
+  }
+}

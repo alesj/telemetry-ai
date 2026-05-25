@@ -1,0 +1,26 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {"metric": {"__name__": "system_cpu_usage", "job": "telemetry-ai-proxy"}, "value": [1778598649, "0.052"]},
+      {"metric": {"__name__": "system_cpu_usage", "job": "telemetry-ai-app"}, "value": [1778598649, "0.048"]},
+      {"metric": {"__name__": "process_cpu_usage", "job": "telemetry-ai-proxy"}, "value": [1778598649, "0.031"]},
+      {"metric": {"__name__": "process_cpu_usage", "job": "telemetry-ai-app"}, "value": [1778598649, "0.027"]},
+      {"metric": {"__name__": "jvm_memory_used_bytes", "area": "heap", "job": "telemetry-ai-proxy"}, "value": [1778598649, "134217728"]},
+      {"metric": {"__name__": "jvm_memory_max_bytes", "area": "heap", "job": "telemetry-ai-proxy"}, "value": [1778598649, "536870912"]},
+      {"metric": {"__name__": "jvm_memory_used_bytes", "area": "heap", "job": "telemetry-ai-app"}, "value": [1778598649, "117440512"]},
+      {"metric": {"__name__": "jvm_memory_max_bytes", "area": "heap", "job": "telemetry-ai-app"}, "value": [1778598649, "536870912"]},
+      {"metric": {"__name__": "jvm_gc_overhead", "job": "telemetry-ai-proxy"}, "value": [1778598649, "0.012"]},
+      {"metric": {"__name__": "jvm_gc_overhead", "job": "telemetry-ai-app"}, "value": [1778598649, "0.009"]},
+      {"metric": {"__name__": "worker_pool_active", "pool_name": "vert.x-worker-thread", "job": "telemetry-ai-proxy"}, "value": [1778598649, "2"]},
+      {"metric": {"__name__": "worker_pool_idle", "pool_name": "vert.x-worker-thread", "job": "telemetry-ai-proxy"}, "value": [1778598649, "8"]},
+      {"metric": {"__name__": "worker_pool_queue_size", "pool_name": "vert.x-worker-thread", "job": "telemetry-ai-proxy"}, "value": [1778598649, "0"]},
+      {"metric": {"__name__": "worker_pool_active", "pool_name": "vert.x-worker-thread", "job": "telemetry-ai-app"}, "value": [1778598649, "1"]},
+      {"metric": {"__name__": "worker_pool_idle", "pool_name": "vert.x-worker-thread", "job": "telemetry-ai-app"}, "value": [1778598649, "9"]},
+      {"metric": {"__name__": "worker_pool_queue_size", "pool_name": "vert.x-worker-thread", "job": "telemetry-ai-app"}, "value": [1778598649, "0"]},
+      {"metric": {"__name__": "http_server_active_requests", "method": "GET", "uri": "/poke", "job": "telemetry-ai-proxy"}, "value": [1778598649, "1"]},
+      {"metric": {"__name__": "http_server_active_requests", "method": "GET", "uri": "/poke", "job": "telemetry-ai-app"}, "value": [1778598649, "1"]}
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "traces": [
+    {
+      "traceID": "1c4bde37247ac6d29ea87bb6cf28dd6f",
+      "rootServiceName": "telemetry-ai-proxy",
+      "rootTraceName": "GET /poke",
+      "startTimeUnixNano": "1778598649074740000",
+      "durationMs": 44
+    }
+  ]
+}

@@ -1,272 +1,323 @@
 package io.quarkus.telemetry.ai.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import dev.langchain4j.model.chat.ChatModel;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-/**
- * Evaluation test to measure analysis quality over time.
- *
- * This test runs the AI analysis on known test cases and checks for:
- * 1. Required findings are present
- * 2. False positives are not present
- * 3. Specific metrics are cited
- * 4. Correlations are made
- *
- * Run this test before and after making changes to track quality improvements/regressions.
- */
-@Disabled("Enable when you have AiService injected and test data available")
-public class AnalysisEvaluationTest {
+@QuarkusTest
+@TestProfile(EvalTestProfile.class)
+@EnabledIfSystemProperty(named = "eval.run", matches = "true")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class AnalysisEvaluationTest {
 
-    /**
-     * Evaluation criteria for analysis quality
-     */
-    static class EvaluationResult {
-        String testCase;
-        String analysisOutput;
-        int detectionScore = 0; // out of 40
-        int correlationScore = 0; // out of 30
-        int rootCauseScore = 0; // out of 20
-        int recommendationScore = 0; // out of 10
-        int bonusPenalty = 0;
-        List<String> findings = new ArrayList<>();
-        List<String> issues = new ArrayList<>();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-        int totalScore() {
-            return detectionScore + correlationScore + rootCauseScore + recommendationScore + bonusPenalty;
+    @Inject
+    ChatModel chatModel;
+
+    private EvaluationJudge judge;
+    private boolean judgeAvailable;
+    private final List<EvaluationRecord> results = new ArrayList<>();
+
+    private static final String MEMORY_PRESSURE_SPEC = """
+            - MUST detect: HTTP 500 error
+            - MUST detect: OutOfMemoryError in logs
+            - MUST correlate: jvm_memory_used_bytes at >90% when error occurred
+            - MUST identify root cause: Memory exhaustion
+            - MUST recommend: Increase heap size or investigate memory leak
+            - MUST NOT: Blame CPU, network, or unrelated metrics as the cause
+            """;
+
+    private static final String THREAD_STARVATION_SPEC = """
+            - MUST detect: Slow response time (>2s)
+            - MUST correlate: worker_pool_queue_size >0 with worker_pool_idle=0
+            - MUST identify root cause: Thread pool exhaustion
+            - MUST recommend: Increase worker thread pool size or reduce blocking operations
+            - MUST NOT: Blame memory or CPU if they are normal
+            """;
+
+    private static final String DOWNSTREAM_ERROR_SPEC = """
+            - MUST detect: HTTP 500 at proxy, HTTP 403 from downstream service
+            - MUST identify: Error propagation from child span to parent
+            - MUST quote: Relevant log message about 403 Forbidden
+            - MUST correlate: System metrics normal (not a resource issue)
+            - MUST identify root cause: Authorization failure in downstream service
+            - MUST recommend: Check API credentials or permissions
+            - MUST NOT: Blame CPU, memory, or thread pool
+            """;
+
+    private static final String HEALTHY_REQUEST_SPEC = """
+            - MUST detect: HTTP 200 success
+            - MUST report: Normal latency (<100ms)
+            - MUST report: System metrics healthy
+            - MUST NOT: Report false issues, warnings, or errors
+            - MUST NOT: Claim any resource pressure or performance problems
+            - Severity MUST be LOW
+            """;
+
+    @BeforeAll
+    void setup() {
+        String apiKey = Optional.ofNullable(System.getProperty("eval.api.key"))
+                .or(() -> Optional.ofNullable(System.getenv("OPENAI_API_KEY")))
+                .orElse(null);
+        if (apiKey != null && !apiKey.isBlank() && !apiKey.equals("dummy-key-for-startup")) {
+            judge = new EvaluationJudge(chatModel);
+            judgeAvailable = true;
+        }
+    }
+
+    @Test
+    void evaluateMemoryPressureAnalysis() throws IOException {
+        EvaluationRecord result = evaluate(
+                "Memory Pressure Error",
+                "memory-pressure.md",
+                MEMORY_PRESSURE_SPEC,
+                "CRITICAL"
+        );
+
+        assertTrue(result.structural.passes(),
+                "Structural validation failed. " + result.structural);
+
+        if (judgeAvailable) {
+            assertTrue(result.judge.passes(),
+                    "Judge score below threshold. " + result.judge);
+        }
+    }
+
+    @Test
+    void evaluateThreadStarvationAnalysis() throws IOException {
+        EvaluationRecord result = evaluate(
+                "Thread Starvation",
+                "thread-starvation.md",
+                THREAD_STARVATION_SPEC,
+                "HIGH"
+        );
+
+        assertTrue(result.structural.passes(),
+                "Structural validation failed. " + result.structural);
+
+        if (judgeAvailable) {
+            assertTrue(result.judge.passes(),
+                    "Judge score below threshold. " + result.judge);
+        }
+    }
+
+    @Test
+    void evaluateDownstreamErrorAnalysis() throws IOException {
+        EvaluationRecord result = evaluate(
+                "Downstream Service Error",
+                "downstream-error.md",
+                DOWNSTREAM_ERROR_SPEC,
+                "HIGH"
+        );
+
+        assertTrue(result.structural.passes(),
+                "Structural validation failed. " + result.structural);
+
+        if (judgeAvailable) {
+            assertTrue(result.judge.passes(),
+                    "Judge score below threshold. " + result.judge);
+        }
+    }
+
+    @Test
+    void evaluateHealthyRequestAnalysis() throws IOException {
+        EvaluationRecord result = evaluate(
+                "Healthy Request (No False Positives)",
+                "healthy-request.md",
+                HEALTHY_REQUEST_SPEC,
+                "LOW"
+        );
+
+        assertTrue(result.structural.passes(),
+                "Structural validation failed. " + result.structural);
+
+        if (judgeAvailable) {
+            assertTrue(result.judge.passes(),
+                    "Judge score below threshold. " + result.judge);
+        }
+    }
+
+    @Test
+    void llmJudgeMemoryPressure() throws IOException {
+        assumeTrue(judgeAvailable, "LLM API key not configured");
+        String analysis = loadFixture("memory-pressure.md");
+        EvaluationJudge.JudgeScore score = judge.evaluate(
+                "Memory Pressure Error", MEMORY_PRESSURE_SPEC, "CRITICAL", analysis);
+        System.out.println("[LLM Judge] Memory Pressure: " + score);
+        assertTrue(score.passes(), "LLM judge score below 70: " + score);
+    }
+
+    @Test
+    void llmJudgeThreadStarvation() throws IOException {
+        assumeTrue(judgeAvailable, "LLM API key not configured");
+        String analysis = loadFixture("thread-starvation.md");
+        EvaluationJudge.JudgeScore score = judge.evaluate(
+                "Thread Starvation", THREAD_STARVATION_SPEC, "HIGH", analysis);
+        System.out.println("[LLM Judge] Thread Starvation: " + score);
+        assertTrue(score.passes(), "LLM judge score below 70: " + score);
+    }
+
+    @Test
+    void llmJudgeDownstreamError() throws IOException {
+        assumeTrue(judgeAvailable, "LLM API key not configured");
+        String analysis = loadFixture("downstream-error.md");
+        EvaluationJudge.JudgeScore score = judge.evaluate(
+                "Downstream Service Error", DOWNSTREAM_ERROR_SPEC, "HIGH", analysis);
+        System.out.println("[LLM Judge] Downstream Error: " + score);
+        assertTrue(score.passes(), "LLM judge score below 70: " + score);
+    }
+
+    @Test
+    void llmJudgeHealthyRequest() throws IOException {
+        assumeTrue(judgeAvailable, "LLM API key not configured");
+        String analysis = loadFixture("healthy-request.md");
+        EvaluationJudge.JudgeScore score = judge.evaluate(
+                "Healthy Request", HEALTHY_REQUEST_SPEC, "LOW", analysis);
+        System.out.println("[LLM Judge] Healthy Request: " + score);
+        assertTrue(score.passes(), "LLM judge score below 70: " + score);
+    }
+
+    @AfterAll
+    void reportResults() {
+        if (results.isEmpty()) return;
+
+        System.out.println("\n=== EVALUATION REPORT ===");
+        for (EvaluationRecord r : results) {
+            System.out.println(r);
+            System.out.println("---");
         }
 
-        boolean passes() {
-            return totalScore() >= 70;
+        int structuralPasses = (int) results.stream().filter(r -> r.structural.passes()).count();
+        System.out.printf("Structural: %d/%d passed%n", structuralPasses, results.size());
+
+        if (judgeAvailable) {
+            long judgePasses = results.stream().filter(r -> r.judge != null && r.judge.passes()).count();
+            double avgScore = results.stream()
+                    .filter(r -> r.judge != null)
+                    .mapToInt(r -> r.judge.total())
+                    .average()
+                    .orElse(0);
+            System.out.printf("LLM Judge: %d/%d passed, avg score: %.0f/100%n",
+                    judgePasses, results.size(), avgScore);
         }
 
+        saveResults();
+    }
+
+    private EvaluationRecord evaluate(String testCaseName, String fixtureFile,
+                                      String expectedFindings, String expectedSeverity) throws IOException {
+        String analysis = loadFixture(fixtureFile);
+
+        StructuralValidator.Result structural = StructuralValidator.validate(analysis);
+
+        EvaluationJudge.JudgeScore judgeScore = null;
+        if (judgeAvailable) {
+            judgeScore = judge.evaluate(testCaseName, expectedFindings, expectedSeverity, analysis);
+        }
+
+        EvaluationRecord record = new EvaluationRecord(testCaseName, fixtureFile, structural, judgeScore);
+        results.add(record);
+
+        System.out.printf("[%s] %s%n", testCaseName, structural);
+        if (judgeScore != null) {
+            System.out.printf("[%s] %s%n", testCaseName, judgeScore);
+        }
+
+        return record;
+    }
+
+    private static String loadFixture(String name) throws IOException {
+        try (InputStream is = AnalysisEvaluationTest.class.getClassLoader()
+                .getResourceAsStream("evaluation/recorded/" + name)) {
+            assertNotNull(is, "Fixture file not found: evaluation/recorded/" + name);
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    private void saveResults() {
+        try {
+            ObjectNode root = MAPPER.createObjectNode();
+            root.put("timestamp", Instant.now().toString());
+            root.put("judgeAvailable", judgeAvailable);
+            if (judgeAvailable) {
+                root.put("judgeModel", System.getProperty("eval.model", "gpt-4o-mini"));
+            }
+
+            ArrayNode testCases = root.putArray("testCases");
+            for (EvaluationRecord r : results) {
+                ObjectNode tc = testCases.addObject();
+                tc.put("name", r.testCaseName);
+                tc.put("fixture", r.fixtureFile);
+
+                ObjectNode structural = tc.putObject("structural");
+                structural.put("sectionCount", r.structural.sectionCount());
+                structural.put("totalSections", r.structural.totalSections());
+                structural.put("score", r.structural.score());
+                structural.put("maxScore", r.structural.maxScore());
+                structural.put("passes", r.structural.passes());
+                if (!r.structural.missingSections().isEmpty()) {
+                    ArrayNode missing = structural.putArray("missingSections");
+                    r.structural.missingSections().forEach(missing::add);
+                }
+
+                if (r.judge != null) {
+                    ObjectNode judgeNode = tc.putObject("judge");
+                    judgeNode.put("completeness", r.judge.completeness());
+                    judgeNode.put("accuracy", r.judge.accuracy());
+                    judgeNode.put("correlationQuality", r.judge.correlationQuality());
+                    judgeNode.put("actionability", r.judge.actionability());
+                    judgeNode.put("total", r.judge.total());
+                    judgeNode.put("passes", r.judge.passes());
+                    judgeNode.put("justification", r.judge.justification());
+                }
+            }
+
+            Path resultsFile = Path.of("target/evaluation-results.json");
+            Files.createDirectories(resultsFile.getParent());
+            MAPPER.writerWithDefaultPrettyPrinter().writeValue(resultsFile.toFile(), root);
+        } catch (IOException e) {
+            System.err.println("Failed to save evaluation results: " + e.getMessage());
+        }
+    }
+
+    record EvaluationRecord(
+            String testCaseName,
+            String fixtureFile,
+            StructuralValidator.Result structural,
+            EvaluationJudge.JudgeScore judge
+    ) {
         @Override
         public String toString() {
-            return String.format("""
-                Test Case: %s
-                Detection: %d/40
-                Correlation: %d/30
-                Root Cause: %d/20
-                Recommendations: %d/10
-                Bonus/Penalty: %d
-                TOTAL: %d/100 (%s)
-
-                Findings:
-                %s
-
-                Issues:
-                %s
-                """,
-                testCase,
-                detectionScore, correlationScore, rootCauseScore, recommendationScore,
-                bonusPenalty, totalScore(), passes() ? "PASS" : "FAIL",
-                String.join("\n", findings),
-                String.join("\n", issues)
-            );
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.format("Test Case: %s (%s)%n", testCaseName, fixtureFile));
+            sb.append("  ").append(structural).append("\n");
+            if (judge != null) {
+                sb.append("  ").append(judge).append("\n");
+            }
+            return sb.toString();
         }
-    }
-
-    @Test
-    void evaluateMemoryPressureAnalysis() {
-        // This would call AiService.analyze() with a known trace ID
-        // String analysis = aiService.analyze(1); // for trace test-oom-trace-001
-
-        String mockAnalysis = """
-            ## Trace ID: test-oom-trace-001
-            **Status:** Error - HTTP 500
-
-            ### Trace Analysis
-            - Root cause: OutOfMemoryError in application service
-
-            ### Log Insights
-            - Key messages: "java.lang.OutOfMemoryError: Java heap space"
-
-            ### Metrics Correlation
-            **System state at 2026-05-18T10:00:00Z:**
-            - Memory: jvm_memory_used_bytes = 720MB / jvm_memory_max_bytes = 750MB (96%)
-
-            **Correlation with trace:**
-            - JVM memory at 96% capacity when error occurred, causing OutOfMemoryError
-
-            ### Severity
-            CRITICAL - Application cannot serve requests due to memory exhaustion
-
-            ### Recommendations
-            1. Increase JVM heap size from 750MB to at least 1024MB
-            2. Investigate potential memory leak using heap dump analysis
-            """;
-
-        EvaluationResult result = evaluateMemoryPressure(mockAnalysis);
-
-        System.out.println(result);
-
-        // Save results for tracking over time
-        saveEvaluationResult(result);
-
-        assertTrue(result.passes(), "Analysis quality should meet threshold");
-        assertTrue(result.totalScore() >= 80, "Memory pressure analysis should score at least 80/100");
-    }
-
-    private EvaluationResult evaluateMemoryPressure(String analysis) {
-        EvaluationResult result = new EvaluationResult();
-        result.testCase = "Memory Pressure Error";
-        result.analysisOutput = analysis;
-
-        // Detection (40 points)
-        if (analysis.contains("HTTP 500") || analysis.contains("500")) {
-            result.detectionScore += 10;
-            result.findings.add("✅ Detected HTTP 500 error");
-        } else {
-            result.issues.add("❌ Failed to detect HTTP 500 error");
-        }
-
-        if (analysis.toLowerCase().contains("outofmemory") || analysis.toLowerCase().contains("out of memory")) {
-            result.detectionScore += 15;
-            result.findings.add("✅ Detected OutOfMemoryError");
-        } else {
-            result.issues.add("❌ Failed to detect OutOfMemoryError");
-        }
-
-        if (analysis.contains("jvm_memory_used")) {
-            result.detectionScore += 15;
-            result.findings.add("✅ Cited jvm_memory_used metric");
-        } else {
-            result.issues.add("❌ Failed to cite memory metrics");
-        }
-
-        // Correlation (30 points)
-        if (analysis.matches("(?s).*jvm_memory.*\\d+%.*") || analysis.matches("(?s).*jvm_memory.*\\d+MB.*")) {
-            result.correlationScore += 15;
-            result.findings.add("✅ Provided specific memory percentage or value");
-        } else {
-            result.issues.add("❌ Did not provide specific memory values");
-        }
-
-        if (analysis.toLowerCase().contains("when error occurred") ||
-            analysis.toLowerCase().contains("at the time") ||
-            analysis.toLowerCase().contains("coincides")) {
-            result.correlationScore += 15;
-            result.findings.add("✅ Explicitly correlated metrics with error timing");
-        } else {
-            result.issues.add("❌ Did not correlate metrics with error timing");
-        }
-
-        // Root Cause (20 points)
-        if (analysis.toLowerCase().contains("memory") &&
-            (analysis.toLowerCase().contains("exhaust") ||
-             analysis.toLowerCase().contains("capacity") ||
-             analysis.toLowerCase().contains("pressure"))) {
-            result.rootCauseScore += 20;
-            result.findings.add("✅ Correctly identified memory exhaustion as root cause");
-        } else {
-            result.issues.add("❌ Failed to identify memory as root cause");
-        }
-
-        // Recommendations (10 points)
-        if (analysis.toLowerCase().contains("increase") && analysis.toLowerCase().contains("heap")) {
-            result.recommendationScore += 5;
-            result.findings.add("✅ Recommended increasing heap size");
-        }
-
-        if (analysis.toLowerCase().contains("memory leak") || analysis.toLowerCase().contains("heap dump")) {
-            result.recommendationScore += 5;
-            result.findings.add("✅ Recommended investigating memory leak");
-        }
-
-        // Penalties
-        if (analysis.toLowerCase().contains("cpu") &&
-            !analysis.toLowerCase().contains("cpu usage normal")) {
-            result.bonusPenalty -= 10;
-            result.issues.add("⚠️ Incorrectly blamed CPU (false positive)");
-        }
-
-        return result;
-    }
-
-    private void saveEvaluationResult(EvaluationResult result) {
-        try {
-            Path resultsFile = Path.of("target/evaluation-results.log");
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            String entry = String.format("[%s] %s: %d/100 (%s)%n",
-                timestamp, result.testCase, result.totalScore(), result.passes() ? "PASS" : "FAIL");
-
-            Files.createDirectories(resultsFile.getParent());
-            Files.writeString(resultsFile, entry,
-                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            System.err.println("Failed to save evaluation result: " + e.getMessage());
-        }
-    }
-
-    @Test
-    void evaluateThreadStarvationAnalysis() {
-        // Similar structure for thread starvation test case
-        // Score based on: detecting slow response, correlating worker pool metrics, etc.
-    }
-
-    @Test
-    void evaluateDownstreamErrorAnalysis() {
-        // Test case for downstream service errors
-        // Should detect error propagation, quote relevant logs, etc.
-    }
-
-    @Test
-    void evaluateNoFalsePositivesOnSuccess() {
-        String successAnalysis = """
-            ## Trace ID: test-success-200-004
-            **Status:** Success - HTTP 200
-            **Duration:** 45ms
-
-            ### Trace Analysis
-            - Root cause: N/A - successful request
-            - Request completed normally with good performance
-
-            ### Metrics Correlation
-            **System state at 2026-05-18T11:00:00Z:**
-            - CPU: system_cpu_usage = 5%
-            - Memory: jvm_memory_used_bytes = 350MB / 750MB (47%)
-            - Active requests: 2
-
-            All metrics within normal ranges.
-
-            ### Severity
-            LOW - No issues detected
-            """;
-
-        EvaluationResult result = new EvaluationResult();
-        result.testCase = "Successful Request (No False Positives)";
-        result.analysisOutput = successAnalysis;
-
-        // Should NOT claim any errors
-        if (!successAnalysis.toLowerCase().contains("error") ||
-            successAnalysis.toLowerCase().contains("no issue")) {
-            result.detectionScore = 40;
-            result.findings.add("✅ Correctly identified no errors");
-        } else {
-            result.detectionScore = 0;
-            result.issues.add("❌ False positive: claimed error on successful trace");
-        }
-
-        // Should cite metrics
-        if (successAnalysis.contains("CPU") && successAnalysis.contains("Memory")) {
-            result.correlationScore = 30;
-            result.findings.add("✅ Cited system metrics");
-        }
-
-        result.rootCauseScore = 20; // N/A is correct
-        result.recommendationScore = 10; // No recommendations needed is correct
-
-        System.out.println(result);
-        assertTrue(result.passes(), "Should not report false positives");
     }
 }

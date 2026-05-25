@@ -1,0 +1,32 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "streams",
+    "result": [
+      {
+        "stream": {
+          "service_name": "telemetry-ai-proxy",
+          "detected_level": "INFO"
+        },
+        "values": [
+          ["1778598649074000000", "Received GET /poke request from 127.0.0.1"],
+          ["1778598649093000000", "Forwarding request to downstream service at localhost:8082"],
+          ["1778598649115000000", "ERROR: ClientWebApplicationException: Received 'Internal Server Error, status code 500' when invoking REST Client method: 'io.quarkus.telemetry.proxy.ProxyClient#pokeFwd'"],
+          ["1778598649118000000", "Returning HTTP 500 to client"]
+        ]
+      },
+      {
+        "stream": {
+          "service_name": "telemetry-ai-app",
+          "detected_level": "ERROR"
+        },
+        "values": [
+          ["1778598649105000000", "Received GET /poke request with value=500"],
+          ["1778598649111000000", "ERROR: jakarta.ws.rs.WebApplicationException: App error: 500"],
+          ["1778598649111500000", "at io.quarkus.telemetry.app.PokeResource.poke(PokeResource.java:33)"],
+          ["1778598649113000000", "Returning HTTP 500 response"]
+        ]
+      }
+    ]
+  }
+}
