@@ -56,57 +56,71 @@ public interface AiService {
 
             4. After collecting ALL trace data, log data, AND metrics data, perform DEEP CORRELATION analysis:
 
-               A. TRACE ANALYSIS:
-                  - Request flow: Identify root span, child spans, service dependencies
-                  - Timing: Calculate total duration, identify slowest spans (>100ms)
-                  - Errors: HTTP status codes (4xx, 5xx), exception events in spans
-                  - Attributes: Extract http.route, http.method, http.status_code, error messages
+               A. BUILD A UNIFIED TIMELINE for each trace:
+                  Combine all three data sources chronologically:
+                  - Span start/end times and durations from the trace
+                  - Log entries matched to spans by timestamp and service name
+                  - Metric snapshot values at the trace's timestamp
+                  This timeline is the foundation — analyze it as ONE story, not three separate datasets.
 
-               B. LOG ANALYSIS:
-                  - Error patterns: Look for ERROR/WARN severity, exception stack traces
-                  - Business logic: Application-specific messages that explain trace behavior
-                  - Match log messages to specific spans using timestamps and service names
+               B. THREE-WAY TRIANGULATION (CRITICAL):
+                  For EVERY finding, seek corroborating evidence from the other two data sources.
+                  Never report an observation from just one source — always triangulate:
 
-               C. METRICS CORRELATION (CRITICAL):
-                  For each trace, correlate its timestamp with the metrics snapshot:
+                  Trace → Log → Metric patterns:
+                  - Trace shows HTTP 500 → Find the exception in logs → Check if memory/CPU was constrained in metrics
+                  - Trace shows slow span (>1s) → Find timeout/retry messages in logs → Check worker_pool or GC metrics
+                  - Trace shows downstream call failed → Find connection error in logs → Check http_client_active_connections metric
 
-                  **If trace shows errors (4xx/5xx status):**
-                  - Check http_server_requests metrics for error rates at that time
-                  - Look for http_server_active_requests spikes (overload?)
-                  - Examine worker_pool metrics: high queue_size or low idle workers?
-                  - Check jvm_memory_used vs max (out of memory?)
-                  - Look for system_cpu_usage or process_cpu_usage spikes
+                  Log → Trace → Metric patterns:
+                  - Log shows "connection refused" → Find the span that called that service → Check http_client_queue_size metric
+                  - Log shows OutOfMemoryError → Find which span was executing → Confirm jvm_memory_used_bytes was near max
+                  - Log shows "circuit breaker open" → Identify the failing downstream span → Check downstream error rate metrics
 
-                  **If trace shows high latency (>1s):**
-                  - Compare http_server_requests_milliseconds with trace duration
-                  - Check worker_pool_queue_delay (thread starvation?)
-                  - Look for jvm_gc_overhead spikes (GC pauses?)
-                  - Examine http_client metrics if trace calls downstream services
-                  - Check if system_cpu_usage or jvm_memory_used_bytes are near limits
+                  Metric → Trace → Log patterns:
+                  - Metrics show memory at 95% → Look for GC-heavy spans or pauses in trace → Find GC/memory log warnings
+                  - Metrics show worker_pool_idle=0 → Find queued/delayed spans in trace → Look for thread starvation logs
+                  - Metrics show CPU spike → Identify compute-heavy spans → Look for processing-related log entries
 
-                  **Always correlate:**
-                  - Match http_server metrics labels (uri, method) with trace http.route
-                  - Compare metric values across different trace timestamps to identify changes
-                  - Identify if resource constraints (CPU, memory, threads) coincide with issues
-                  - Look for patterns: do all errors happen when memory is high?
+               C. CAUSAL CHAIN REASONING:
+                  Build cause → effect chains, not just lists of observations:
 
-               D. CROSS-TRACE PATTERNS:
-                  - Compare metrics across different trace timestamps
-                  - Identify if errors cluster at specific times
-                  - Detect if system state (CPU, memory) degraded over time
-                  - Find common failure modes across multiple traces
+                  Resource pressure → Performance degradation → Error → User impact
+                  Example chains:
+                  - "jvm_memory_used_bytes at 92% → jvm_gc_overhead at 15% → span duration 3x normal → HTTP 503"
+                  - "worker_pool_idle=0, queue_size=12 → request queued 800ms → total latency 1.2s → SLA breach"
+                  - "http_client_active_connections at limit → downstream call timeout → retry storm → CPU spike"
+                  - "process_cpu_usage at 85% → all spans show 2x normal duration → no errors but degraded latency"
 
-               E. METRIC-SPECIFIC GUIDANCE:
-                  **Critical thresholds to flag:**
-                  - jvm_memory_used_bytes >90% of jvm_memory_max_bytes (memory pressure)
-                  - system_cpu_usage or process_cpu_usage >80% (CPU saturation)
-                  - worker_pool_queue_size >0 with worker_pool_idle=0 (thread starvation)
-                  - http_server_active_requests significantly higher than baseline (traffic spike)
-                  - jvm_gc_overhead >10% (excessive garbage collection)
-                  - http_server_requests metrics showing latency spikes in buckets/percentiles
+                  Always distinguish ROOT CAUSE from SYMPTOMS:
+                  - Symptom: "HTTP 500 error returned to client"
+                  - Root cause: "Thread pool exhausted (worker_pool_idle=0) due to slow downstream service (span: 4.2s)"
+                  - Evidence: trace shows blocked span, log shows "connection timeout to service-b", metrics confirm pool saturation
+
+               D. COMPARATIVE ANALYSIS across traces:
+                  When analyzing multiple traces, actively COMPARE them:
+                  - Successful vs failed requests: What metrics differed? Same endpoint, different outcome — what changed?
+                  - Same endpoint over time: Are metrics trending worse? Is latency increasing?
+                  - Different endpoints at same time: Is the issue service-wide (all endpoints slow) or endpoint-specific?
+                  - Identify the inflection point: When did things start going wrong? Which metric changed first?
+
+               E. SERVICE-LEVEL METRIC MATCHING:
+                  Match metrics to the specific services seen in spans:
+                  - If trace shows service-a → service-b call, look for http_client metrics matching service-b
+                  - Match http_server metrics labels (uri, method, status) to trace attributes (http.route, http.method, http.status_code)
+                  - When a span shows an error for a specific endpoint, find the EXACT metric entry for that endpoint
+
+               F. CRITICAL THRESHOLDS TO FLAG:
+                  - jvm_memory_used_bytes >90% of max → memory pressure, likely GC thrashing
+                  - system_cpu_usage or process_cpu_usage >80% → CPU saturation
+                  - worker_pool_queue_size >0 AND worker_pool_idle=0 → thread starvation
+                  - http_server_active_requests significantly above baseline → traffic spike or request pileup
+                  - jvm_gc_overhead >10% → excessive garbage collection, correlate with slow spans
+                  - http_client_queue_size >0 → downstream connection pool exhaustion
 
                   **Use ACTUAL values:** Always cite specific metric values (e.g., "CPU usage: 87%", not just "CPU usage high")
                   **Units matter:** Convert bytes to MB/GB, nanoseconds to ms, for readability
+                  **Quantify impact:** "Span took 3.2s (5x the 640ms average)" is better than "span was slow"
 
             5. Provide STRUCTURED output for each trace (use clear headers and sections):
 
@@ -141,37 +155,39 @@ public interface AiService {
                - Error context: [What do logs reveal about the failure?]
                - Business logic: [Application-specific insights from logs]
 
-               ### Metrics Correlation
+               ### Three-Way Correlation
                **System state at [timestamp]:**
                - CPU: system_cpu_usage = [value]% | process_cpu_usage = [value]%
-               - Memory: jvm_memory_used_bytes = [value]MB / jvm_memory_max_bytes = [value]MB ([percentage]%)
+               - Memory: jvm_memory_used_bytes = [value]MB ([percentage]% of max)
+               - GC: jvm_gc_overhead = [value]%
                - Active requests: http_server_active_requests = [value]
                - Worker pool: active=[value], idle=[value], queue=[value]
 
-               **Correlation with trace:**
-               - [Explain how metrics relate to the observed issue]
-               - Example: "High worker pool queue size (15) coincides with slow response time, suggesting thread starvation"
-               - Example: "JVM memory at 95% capacity when error occurred, likely triggering GC pressure"
-               - Example: "CPU usage normal (5%), ruling out CPU-bound operations as root cause"
+               **Causal chain (trace + logs + metrics):**
+               [Build the cause→effect chain linking all three sources, e.g.:]
+               "Memory at 92% (metric) → GC overhead 14% (metric) → span 'processOrder' took 3.2s (trace) → log: 'GC pause detected' → HTTP 503 returned"
 
-               **Red flags:** [List any concerning metric values]
+               **What metrics RULE OUT:**
+               [Equally important — state what's NOT the problem, e.g.:]
+               "CPU at 5% — not CPU-bound. Worker pool idle=8 — not thread-starved. Issue is memory-specific."
 
                ### Severity
-               [CRITICAL/HIGH/MEDIUM/LOW] - [Justification based on impact and frequency]
+               [CRITICAL/HIGH/MEDIUM/LOW] - [Justification based on impact, frequency, and causal chain]
 
                ### Recommendations
-               1. [Specific action based on root cause]
-               2. [Preventive measures]
-               3. [Monitoring suggestions]
+               1. [Specific action targeting the ROOT CAUSE, not symptoms]
+               2. [Preventive measures with specific thresholds, e.g., "alert when memory >85%"]
+               3. [Monitoring: which metric to watch and what value signals recurrence]
 
                ---
 
                [Repeat above structure for each trace]
 
-               ## Overall Summary
-               - Common patterns: [Issues affecting multiple traces]
-               - Systemic issues: [Resource constraints, configuration problems]
-               - Priority actions: [Most important fixes]
+               ## Cross-Trace Summary
+               - **Healthy vs unhealthy comparison:** [What differed between successful and failed traces?]
+               - **Trend:** [Are things getting worse, stable, or improving across trace timestamps?]
+               - **Root cause:** [Single underlying issue or multiple independent problems?]
+               - **Priority actions:** [Ordered by impact, with specific metrics to monitor]
 
             VALIDATION: Before providing analysis, verify you made these TOOL CALLS:
             - "Provide trace with trace id": called ONCE per trace ID
