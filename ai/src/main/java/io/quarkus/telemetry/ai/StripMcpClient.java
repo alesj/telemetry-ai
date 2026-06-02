@@ -101,6 +101,16 @@ public class StripMcpClient implements McpClient {
     }
 
     @Override
+    public void subscribeToResource(String s) {
+        delegate.subscribeToResource(s);
+    }
+
+    @Override
+    public void unsubscribeFromResource(String s) {
+        delegate.unsubscribeFromResource(s);
+    }
+
+    @Override
     public List<McpPrompt> listPrompts() {
         return delegate.listPrompts();
     }

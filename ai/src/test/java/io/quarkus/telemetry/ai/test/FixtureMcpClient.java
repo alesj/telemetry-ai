@@ -87,6 +87,14 @@ class FixtureMcpClient implements McpClient {
     }
 
     @Override
+    public void subscribeToResource(String s) {
+    }
+
+    @Override
+    public void unsubscribeFromResource(String s) {
+    }
+
+    @Override
     public List<McpPrompt> listPrompts() {
         return List.of();
     }
