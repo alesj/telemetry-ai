@@ -30,7 +30,7 @@ public class PerModelSystemMessageProvider implements SystemMessageProviderWithC
 
     @Nullable
     private String getSystemMessage(String key) {
-        return msgMap.computeIfAbsent(key, k -> {
+        String msg = msgMap.computeIfAbsent(key, k -> {
             InputStream is = getClass().getClassLoader().getResourceAsStream(k + ".txt");
             if (is != null) {
                 try (is) {
@@ -38,11 +38,15 @@ public class PerModelSystemMessageProvider implements SystemMessageProviderWithC
                     return new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     log.info("Could not read system message for: " + k, e);
-                    return getSystemMessage("default");
                 }
             }
+            return null;
+        });
+        if (msg == null) {
             log.infof("System message for %s not found, fallback to default.", k);
             return getSystemMessage("default");
-        });
+        } else {
+            return msg;
+        }
     }
 }
