@@ -36,7 +36,10 @@
         <!-- Quarkus -->
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>3.36.1</quarkus.platform.version>
+        <quarkus.platform.version>3.36.2</quarkus.platform.version>
+
+        <!-- LangChain4j directly, when needed -->
+        <quarkus.langchain4j.version>1.11.0</quarkus.langchain4j.version>
 
         <!-- Build -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,7 +59,7 @@
 
             <!-- Quarkus BOM -->
             <dependency>
-                <groupId>io.quarkus</groupId>
+                <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>${quarkus.platform.artifact-id}</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <type>pom</type>
@@ -66,10 +69,18 @@
             <!-- Common non-LLM libs can be added here later -->
             <!-- e.g. telemetry, observability, config, etc. -->
 
-            <dependency>
+            <!-- dependency>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-langchain4j-bom</artifactId>
                 <version>${quarkus.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency -->
+
+            <dependency>
+                <groupId>io.quarkiverse.langchain4j</groupId>
+                <artifactId>quarkus-langchain4j-bom</artifactId>
+                <version>${quarkus.langchain4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
