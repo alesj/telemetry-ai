@@ -6,6 +6,7 @@ import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.service.guardrail.OutputGuardrails;
+import io.quarkiverse.langchain4j.guardrails.ToolInputGuardrails;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -27,6 +28,7 @@ public class PlainTools {
     McpClient tempoMcpClient;
 
     @OutputGuardrails(LogGuardrail.class)
+    @ToolInputGuardrails(JsonValidator.class)
     @Tool("Provide last n trace ids")
     public List<String> provideLastNTraceIds(int n) {
         System.out.println("Getting last " + n + " trace IDs...");
