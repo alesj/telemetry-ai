@@ -43,7 +43,7 @@ public class PerModelSystemMessageProvider implements SystemMessageProviderWithC
             return null;
         });
         if (msg == null) {
-            log.infof("System message for %s not found, fallback to default.", k);
+            log.infof("System message for %s not found, fallback to default.", key);
             return getSystemMessage("default");
         } else {
             return msg;
