@@ -34,23 +34,7 @@
             <artifactId>quarkus-observability-devservices-lgtm</artifactId>
         </dependency>
 
-        <!-- LangChain4j (Quarkus integration, no providers) -->
-        <dependency>
-            <groupId>io.quarkiverse.langchain4j</groupId>
-            <artifactId>quarkus-langchain4j-openai</artifactId>
-        </dependency>
-        <!-- dependency>
-            <groupId>io.quarkiverse.langchain4j</groupId>
-            <artifactId>quarkus-langchain4j-anthropic</artifactId>
-        </dependency -->
-        <!-- dependency>
-            <groupId>io.quarkiverse.langchain4j</groupId>
-            <artifactId>quarkus-langchain4j-ai-gemini</artifactId>
-        </dependency -->
-        <!-- dependency>
-            <groupId>io.quarkiverse.langchain4j</groupId>
-            <artifactId>quarkus-langchain4j-watsonx</artifactId>
-        </dependency -->
+        <!-- LangChain4j MCP (always needed) -->
         <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-mcp</artifactId>
@@ -102,6 +86,58 @@
 
         </plugins>
     </build>
+
+    <!-- ===================== -->
+    <!-- Profiles              -->
+    <!-- ===================== -->
+    <profiles>
+
+        <!-- Default: OpenAI -->
+        <profile>
+            <id>openai</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <quarkus.profile>openai</quarkus.profile>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkiverse.langchain4j</groupId>
+                    <artifactId>quarkus-langchain4j-openai</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Gemini -->
+        <profile>
+            <id>gemini</id>
+            <properties>
+                <quarkus.profile>gemini</quarkus.profile>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkiverse.langchain4j</groupId>
+                    <artifactId>quarkus-langchain4j-ai-gemini</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- WatsonX -->
+        <profile>
+            <id>watsonx</id>
+            <properties>
+                <quarkus.profile>watsonx</quarkus.profile>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkiverse.langchain4j</groupId>
+                    <artifactId>quarkus-langchain4j-watsonx</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+
+    </profiles>
 
 </project>
 
