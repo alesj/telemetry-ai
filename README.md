@@ -12,6 +12,27 @@ Wait for (1) to **fully** start, so (2) and (3) share the **same** LGTM resource
 
 (3) ./mvn.ai.sh quarkus:dev
 
+In (3) you have 3 profiles:
+* default - OpenAI
+* -Pwatsonx - WatsonX
+* -Pgemini - Gemini
+
+This will run Quarkus with same `quarkus.profile` property as Maven profile name,
+and picking up the right Quarkus LangChain4J dependencies.
+
+```xml
+<!-- Default: OpenAI -->
+<profile>
+    <id>openai</id>
+    <activation>
+        <activeByDefault>true</activeByDefault>
+    </activation>
+    <properties>
+        <quarkus.profile>openai</quarkus.profile>
+    </properties>
+    ...
+```
+
 ---
 
 (1) Starts a simple `proxy` app, that just forwards the request to an "actual" `app`. 
