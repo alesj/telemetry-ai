@@ -1,6 +1,7 @@
 package io.quarkus.telemetry.ai.test;
 
 import dev.langchain4j.mcp.client.McpClient;
+import io.quarkus.arc.properties.IfBuildProperty;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@IfBuildProperty(name = "test.fixture-mcp", stringValue = "true")
 public class EvalMcpProducers {
 
     @Produces

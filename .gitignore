@@ -40,3 +40,6 @@ documentation/book/build/**
 .mavenrc.override
 quarkus.oidc.credentials.secret
 /mvnd.all.sh
+
+# AI
+.claude/

@@ -6,7 +6,7 @@ import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import dev.langchain4j.service.tool.ToolExecutionResult;
 import io.quarkiverse.langchain4j.mcp.runtime.http.QuarkusStreamableHttpMcpTransport;
-import io.quarkus.arc.profile.UnlessBuildProfile;
+import io.quarkus.arc.properties.IfBuildProperty;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.inject.Named;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-@UnlessBuildProfile("test")
+@IfBuildProperty(name = "test.fixture-mcp", stringValue = "false", enableIfMissing = true)
 public class McpClientConfiguration {
     private static final Logger log = LoggerFactory.getLogger(McpClientConfiguration.class);
 
