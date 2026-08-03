@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -87,6 +89,25 @@ public class CompanionApps {
             }
         }
         throw new RuntimeException(label + " did not become ready within " + timeoutSeconds + "s");
+    }
+
+    public static String httpGet(String url, String user, String password) {
+        try {
+            HttpURLConnection conn = (HttpURLConnection)
+                    URI.create(url).toURL().openConnection();
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(10000);
+            String auth = Base64.getEncoder().encodeToString(
+                    (user + ":" + password).getBytes(StandardCharsets.UTF_8));
+            conn.setRequestProperty("Authorization", "Basic " + auth);
+            try (InputStream is = conn.getInputStream()) {
+                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            } finally {
+                conn.disconnect();
+            }
+        } catch (Exception e) {
+            return "ERROR: " + e.getMessage();
+        }
     }
 
     private static void forwardOutput(InputStream inputStream, String label) {

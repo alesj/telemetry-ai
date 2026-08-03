@@ -11,6 +11,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -127,41 +129,64 @@ public class PlainTools {
     public String getAllMetricsForDatetime(String datetime) {
         System.out.println("Getting metrics for datetime: " + datetime);
         try {
-            // Prometheus doesn't accept fractional seconds in RFC3339 format
-            // Convert "2026-05-17T11:40:36.151109Z" to "2026-05-17T11:40:36Z"
-            String prometheusTime = datetime;
-            if (datetime.contains(".")) {
-                int dotIndex = datetime.indexOf('.');
-                int zIndex = datetime.indexOf('Z', dotIndex);
-                if (zIndex > 0) {
-                    prometheusTime = datetime.substring(0, dotIndex) + "Z";
+            Instant instant = Instant.parse(datetime);
+            String result = queryPrometheusAt(toPrometheusTime(instant));
+            if (isEmptyResult(result)) {
+                // Metrics may not exist yet at the exact trace time (export/scrape delay).
+                // Retry at +120s (capped at now) to find the nearest available data.
+                Instant fallback = instant.plusSeconds(120);
+                Instant now = Instant.now();
+                if (fallback.isAfter(now)) {
+                    fallback = now;
                 }
+                System.out.println("No metrics at trace time, retrying at: " + fallback);
+                result = queryPrometheusAt(toPrometheusTime(fallback));
             }
-            System.out.println("Prometheus time (stripped fractional seconds): " + prometheusTime);
-
-            // Call query_prometheus MCP tool directly
-            String args = String.format(
-                "{\"datasourceUid\":\"prometheus\"," +
-                "\"expr\":\"{__name__=~'.+', job!=\\\"opentelemetry-collector\\\"}\"," +
-                "\"queryType\":\"instant\"," +
-                "\"endTime\":\"%s\"}",
-                prometheusTime
-            );
-            System.out.println("Calling query_prometheus with args: " + args);
-
-            ToolExecutionRequest request = ToolExecutionRequest.builder()
-                    .name("query_prometheus")
-                    .arguments(args)
-                    .build();
-
-            System.out.println("About to call grafanaMcpClient.executeTool...");
-            String result = grafanaMcpClient.executeTool(request).resultText();
-            System.out.println("Got metrics JSON (length: " + result.length() + ")");
             return result;
         } catch (Throwable e) {
             System.err.println("ERROR getting metrics: " + e.getClass().getName() + ": " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to get metrics: " + e.getMessage(), e);
+        }
+    }
+
+    private String toPrometheusTime(Instant instant) {
+        String time = DateTimeFormatter.ISO_INSTANT.format(instant);
+        if (time.contains(".")) {
+            int dotIndex = time.indexOf('.');
+            int zIndex = time.indexOf('Z', dotIndex);
+            if (zIndex > 0) {
+                time = time.substring(0, dotIndex) + "Z";
+            }
+        }
+        return time;
+    }
+
+    private String queryPrometheusAt(String prometheusTime) {
+        System.out.println("Querying Prometheus at: " + prometheusTime);
+        String args = String.format(
+            "{\"datasourceUid\":\"prometheus\"," +
+            "\"expr\":\"{__name__=~'.+', job!=\\\"opentelemetry-collector\\\"}\"," +
+            "\"queryType\":\"instant\"," +
+            "\"endTime\":\"%s\"}",
+            prometheusTime
+        );
+        ToolExecutionRequest request = ToolExecutionRequest.builder()
+                .name("query_prometheus")
+                .arguments(args)
+                .build();
+        String result = grafanaMcpClient.executeTool(request).resultText();
+        System.out.println("Got metrics JSON (length: " + result.length() + ")");
+        return result;
+    }
+
+    private boolean isEmptyResult(String json) {
+        try {
+            JsonNode root = MAPPER.readTree(json);
+            JsonNode data = root.path("data");
+            return !data.isArray() || data.isEmpty();
+        } catch (Exception e) {
+            return true;
         }
     }
 }

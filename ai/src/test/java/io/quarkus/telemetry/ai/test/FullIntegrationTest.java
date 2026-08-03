@@ -13,6 +13,8 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.microprofile.config.ConfigProvider;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,8 +49,15 @@ class FullIntegrationTest {
         pokeProxy(403);
         pokeProxy(200);
 
-        System.out.println("[FullIntegrationTest] Waiting 25s for telemetry ingestion...");
-        TimeUnit.SECONDS.sleep(25);
+        System.out.println("[FullIntegrationTest] Waiting 60s for telemetry ingestion...");
+        TimeUnit.SECONDS.sleep(60);
+
+        String grafanaEndpoint = ConfigProvider.getConfig()
+                .getValue("grafana.endpoint", String.class);
+        String metricNames = CompanionApps.httpGet(
+                grafanaEndpoint + "/api/datasources/proxy/uid/prometheus/api/v1/label/__name__/values",
+                "admin", "admin");
+        System.out.println("[FullIntegrationTest] Prometheus metric names: " + metricNames);
 
         String analysis = aiService.analyze(2);
 
