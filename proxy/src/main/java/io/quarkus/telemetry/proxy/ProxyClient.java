@@ -16,4 +16,9 @@ public interface ProxyClient {
     @Path("/poke")
     @Produces(MediaType.TEXT_PLAIN)
     Response pokeFwd(@QueryParam("value") Integer value);
+
+    @GET
+    @Path("/chaos")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response chaosFwd(@QueryParam("type") String type, @QueryParam("intensity") Integer intensity);
 }

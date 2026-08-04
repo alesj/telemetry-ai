@@ -26,4 +26,13 @@ public class ProxyResource {
             log.info("Proxy received: " + response.readEntity(String.class));
         }
     }
+
+    @GET
+    @Path("/chaos")
+    public void chaosFwd(@QueryParam("type") String type, @QueryParam("intensity") Integer intensity) {
+        log.info("Proxying chaos ... type=" + type + " intensity=" + intensity);
+        try (Response response = proxy.chaosFwd(type, intensity)) {
+            log.info("Chaos received: " + response.readEntity(String.class));
+        }
+    }
 }
