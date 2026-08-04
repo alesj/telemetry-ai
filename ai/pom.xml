@@ -61,6 +61,11 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.langchain4j</groupId>
+            <artifactId>quarkus-langchain4j-testing-evaluation-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

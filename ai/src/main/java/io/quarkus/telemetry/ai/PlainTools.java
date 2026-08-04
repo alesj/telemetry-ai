@@ -26,6 +26,9 @@ public class PlainTools {
     AiTools aiTools;
 
     @Inject
+    ToolOutputCapture capture;
+
+    @Inject
     @Named("tempoMcpClient")
     McpClient tempoMcpClient;
 
@@ -60,6 +63,7 @@ public class PlainTools {
             }
 
             System.out.println("Got trace IDs: " + traceIds);
+            capture.record("traceIds", null, traceIds);
             return traceIds;
         } catch (Exception e) {
             throw new RuntimeException("Failed to get trace IDs", e);
@@ -88,6 +92,7 @@ public class PlainTools {
                 traceIdToStartTime.put(traceId, startTime);
             }
 
+            capture.record("trace", traceId, traceJson);
             return traceJson;
         } catch (Exception e) {
             throw new RuntimeException("Failed to get trace", e);
@@ -116,12 +121,34 @@ public class PlainTools {
 
     @OutputGuardrails(LogGuardrail.class)
     @Tool("Provide logs with trace id")
-    public List<String> logsWithTraceId(String traceId) {
+    public String logsWithTraceId(String traceId) {
         System.out.println("Getting logs for trace ID: " + traceId);
-        // Use AiTools for this one since it needs to calculate time ranges
-        List<String> result = aiTools.logsWithTraceId(traceId);
-        System.out.println("Got " + result.size() + " log entries");
-        return result;
+        try {
+            Instant now = Instant.now();
+            Instant start = now.minus(java.time.Duration.ofHours(24));
+            String logql = "{service_name=~\".+\"} | trace_id=`" + traceId + "`";
+            String args = String.format(
+                "{\"datasourceUid\":\"loki\"," +
+                "\"logql\":\"%s\"," +
+                "\"startRfc3339\":\"%s\"," +
+                "\"endRfc3339\":\"%s\"," +
+                "\"limit\":1000}",
+                logql.replace("\"", "\\\""),
+                toPrometheusTime(start),
+                toPrometheusTime(now)
+            );
+            ToolExecutionRequest request = ToolExecutionRequest.builder()
+                    .name("query_loki_logs")
+                    .arguments(args)
+                    .build();
+            String result = grafanaMcpClient.executeTool(request).resultText();
+            System.out.println("Got logs JSON (length: " + result.length() + ")");
+            capture.record("logs", traceId, result);
+            return result;
+        } catch (Exception e) {
+            System.err.println("ERROR getting logs: " + e.getMessage());
+            throw new RuntimeException("Failed to get logs: " + e.getMessage(), e);
+        }
     }
 
     @OutputGuardrails(LogGuardrail.class)
@@ -132,8 +159,6 @@ public class PlainTools {
             Instant instant = Instant.parse(datetime);
             String result = queryPrometheusAt(toPrometheusTime(instant));
             if (isEmptyResult(result)) {
-                // Metrics may not exist yet at the exact trace time (export/scrape delay).
-                // Retry at +120s (capped at now) to find the nearest available data.
                 Instant fallback = instant.plusSeconds(120);
                 Instant now = Instant.now();
                 if (fallback.isAfter(now)) {
@@ -142,6 +167,7 @@ public class PlainTools {
                 System.out.println("No metrics at trace time, retrying at: " + fallback);
                 result = queryPrometheusAt(toPrometheusTime(fallback));
             }
+            capture.record("metrics", datetime, result);
             return result;
         } catch (Throwable e) {
             System.err.println("ERROR getting metrics: " + e.getClass().getName() + ": " + e.getMessage());

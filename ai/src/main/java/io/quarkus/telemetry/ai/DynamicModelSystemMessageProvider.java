@@ -14,6 +14,8 @@ public class DynamicModelSystemMessageProvider extends BaseModelSystemMessagePro
 
     @Nullable
     protected String getSystemMessage(String key) {
-        return msgMap.computeIfAbsent(key, this::loadSystemMessage);
+        String msg = msgMap.computeIfAbsent(key, this::loadSystemMessage);
+        capture().accept(msg);
+        return msg;
     }
 }

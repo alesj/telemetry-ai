@@ -248,19 +248,19 @@ public class StripFunctions {
         System.out.println("STRIP_METRICS: Input length: " + metrics.length());
 
         try {
-            System.out.println("STRIP_METRICS: Parsing JSON...");
+            //System.out.println("STRIP_METRICS: Parsing JSON...");
             JsonNode root = MAPPER.readTree(metrics);
-            System.out.println("STRIP_METRICS: JSON parsed successfully");
+            //System.out.println("STRIP_METRICS: JSON parsed successfully");
 
             JsonNode dataArray = root.path("data");
-            System.out.println("STRIP_METRICS: Got data array, isArray: " + dataArray.isArray());
+            //System.out.println("STRIP_METRICS: Got data array, isArray: " + dataArray.isArray());
 
             if (!dataArray.isArray()) {
                 return metrics;
             }
 
             int originalCount = dataArray.size();
-            System.out.println("STRIP_METRICS: Starting with " + originalCount + " metrics");
+            //System.out.println("STRIP_METRICS: Starting with " + originalCount + " metrics");
 
             // Filter the data array
             ObjectNode result = MAPPER.createObjectNode();
@@ -289,8 +289,8 @@ public class StripFunctions {
             }
 
             int keptCount = filteredData.size();
-            System.out.println("STRIP_METRICS: Filtered out " + filteredByName + " by name, " +
-                             filteredByLabels + " by labels. Kept " + keptCount + " metrics.");
+//            System.out.println("STRIP_METRICS: Filtered out " + filteredByName + " by name, " +
+//                             filteredByLabels + " by labels. Kept " + keptCount + " metrics.");
 
             result.set("data", filteredData);
             return MAPPER.writeValueAsString(result);

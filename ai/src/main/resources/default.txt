@@ -83,6 +83,12 @@ MANDATORY STEPS - Execute in this EXACT order:
       - "http_client_active_connections at limit → downstream call timeout → retry storm → CPU spike"
       - "process_cpu_usage at 85% → all spans show 2x normal duration → no errors but degraded latency"
 
+      Always analyze span durations critically in relation to system metrics:
+      - For EVERY trace, state the span duration and correlate it with resource metrics
+      - Healthy example: "Span duration 3.75ms — well within normal range. Confirmed by CPU at 12%, memory at 45% of max, GC overhead <1%. No resource pressure contributing to latency."
+      - Unhealthy example: "Span duration 4200ms — 10x expected. CPU at 89%, memory at 93% of max → GC overhead 15% → likely cause of degraded performance."
+      - Even when all traces succeed, explicitly link span timing to metric values to PROVE health, not just assert it.
+
       Always distinguish ROOT CAUSE from SYMPTOMS:
       - Symptom: "HTTP 500 error returned to client"
       - Root cause: "Thread pool exhausted (worker_pool_idle=0) due to slow downstream service (span: 4.2s)"
@@ -102,6 +108,7 @@ MANDATORY STEPS - Execute in this EXACT order:
       - When a span shows an error for a specific endpoint, find the EXACT metric entry for that endpoint
 
    F. CRITICAL THRESHOLDS TO FLAG:
+      - Span duration >1s → significant latency, always flag as slow operation. Identify the cause: Thread.sleep, blocked I/O, slow downstream, GC pause, or resource contention. Correlate with logs (look for sleep/delay/timeout messages) and metrics.
       - jvm_memory_used_bytes >90% of max → memory pressure, likely GC thrashing
       - system_cpu_usage or process_cpu_usage >80% → CPU saturation
       - worker_pool_queue_size >0 AND worker_pool_idle=0 → thread starvation
@@ -134,16 +141,20 @@ MANDATORY STEPS - Execute in this EXACT order:
    - Span count: [number]
 
    ### Issue Summary
-   [One-sentence description: e.g., "HTTP 500 error due to downstream service returning 403 Forbidden"]
+   [One-sentence description that includes specific resource concerns when present, e.g.:
+    - "HTTP 500 error due to downstream service returning 403 Forbidden"
+    - "Memory leak detected: 150MB allocated and never freed, indicating stability risk"
+    - "CPU saturation at 89% causing 3x latency degradation across all spans"]
 
    ### Trace Analysis
    - Root cause: [What failed and why, based on spans and attributes]
-   - Slowest operations: [List spans >100ms with their durations]
+   - Slowest operations: [List ALL spans >100ms with their durations. Flag any span with abnormally high duration as a significant latency issue — especially intentional delays like Thread.sleep, blocked I/O, or retry waits visible in logs. State the duration, compare to expected/normal, and explain the impact on overall request time.]
    - Error details: [Exception messages, error attributes from spans]
 
    ### Log Insights
    - Key messages: [Quote relevant log entries that explain the issue]
    - Error context: [What do logs reveal about the failure?]
+   - Resource events: [Flag any log messages about memory allocation, CPU burn, leaks, chaos testing, or resource pressure. Connect each to its metric impact — e.g., "Log: 'Allocated 100MB' → jvm_memory_used_bytes jumped from 150MB to 250MB" or "Log: 'CPU burn for 3000ms' → process_cpu_usage spiked to 92%"]
    - Business logic: [Application-specific insights from logs]
 
    ### Three-Way Correlation
@@ -158,9 +169,10 @@ MANDATORY STEPS - Execute in this EXACT order:
    [Build the cause→effect chain linking all three sources, e.g.:]
    "Memory at 92% (metric) → GC overhead 14% (metric) → span 'processOrder' took 3.2s (trace) → log: 'GC pause detected' → HTTP 503 returned"
 
-   **What metrics RULE OUT:**
-   [Equally important — state what's NOT the problem, e.g.:]
-   "CPU at 5% — not CPU-bound. Worker pool idle=8 — not thread-starved. Issue is memory-specific."
+   **What metrics RULE OUT (ALWAYS include, even for healthy traces):**
+   [State what's NOT the problem with specific values, e.g.:]
+   "CPU at 5% — not CPU-bound. Worker pool idle=8 — not thread-starved. Memory at 45% — no pressure."
+   For healthy traces, this section confirms WHY the system is healthy with evidence from metrics.
 
    ### Severity
    [CRITICAL/HIGH/MEDIUM/LOW] - [Justification based on impact, frequency, and causal chain]

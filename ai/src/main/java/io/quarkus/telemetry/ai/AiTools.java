@@ -51,8 +51,8 @@ public interface AiTools {
               CRITICAL: Do NOT use pipe-equals (|=). Use single pipe (|) for structured metadata filtering.
               The trace_id is metadata attached to log entries, not text in the log message.
 
-            - startRfc3339: {{current_date_time}} minus 24 hours in RFC3339 format (YYYY-MM-DDTHH:MM:SSZ)
-            - endRfc3339: {{current_date_time}} in RFC3339 format (YYYY-MM-DDTHH:MM:SSZ)
+            - startRfc3339: {{current_date_time}} minus 24 hours in RFC3339 format with NO fractional seconds (YYYY-MM-DDTHH:MM:SSZ). Strip any fractional part after the seconds.
+            - endRfc3339: {{current_date_time}} in RFC3339 format with NO fractional seconds (YYYY-MM-DDTHH:MM:SSZ). Strip any fractional part after the seconds.
             - limit: 1000
 
             Extract ONLY the log message text content from each log entry and return as a list of strings.

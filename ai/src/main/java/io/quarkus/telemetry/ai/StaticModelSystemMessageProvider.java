@@ -14,6 +14,7 @@ public class StaticModelSystemMessageProvider extends BaseModelSystemMessageProv
         if (msg == null) {
             msg = loadSystemMessage(key);
         }
+        capture().accept(msg);
         return msg;
     }
 }
