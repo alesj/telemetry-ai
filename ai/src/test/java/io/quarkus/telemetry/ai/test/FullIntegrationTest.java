@@ -136,7 +136,7 @@ class FullIntegrationTest {
         TimeUnit.SECONDS.sleep(60);
 
         capture.start();
-        String analysis = aiService.analyze(traceCount);
+        String analysis = aiService.analyze(traceCount, "markdown", false);
         capture.stop();
 
         System.out.println("\n=== " + label + " ANALYSIS OUTPUT ===");

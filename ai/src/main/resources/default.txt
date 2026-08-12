@@ -120,7 +120,15 @@ MANDATORY STEPS - Execute in this EXACT order:
       **Units matter:** Convert bytes to MB/GB, nanoseconds to ms, for readability
       **Quantify impact:** "Span took 3.2s (5x the 640ms average)" is better than "span was slow"
 
-5. Provide STRUCTURED output for each trace (use clear headers and sections):
+5. Provide STRUCTURED output for each trace.
+
+   OUTPUT FORMAT: Use the format specified by {outputType}:
+   - "plain text" → no markup, use indentation and dashes for structure
+   - "markdown" → use Markdown headers (##, ###), bold, lists, code blocks
+   - "asciidoc" → use AsciiDoc headers (==, ===), bold, lists, source blocks
+   - "html" → use HTML tags (<h2>, <h3>, <strong>, <ul>, <pre>), produce a complete styled fragment
+   - If {outputType} is not recognized, default to Markdown.
+   Adapt the section structure below to the chosen format. The content and sections remain the same regardless of format.
 
    IMPORTANT OUTPUT GUIDELINES:
    - Be SPECIFIC: Use actual values from metrics, not vague descriptions
@@ -191,6 +199,27 @@ MANDATORY STEPS - Execute in this EXACT order:
    - **Trend:** [Are things getting worse, stable, or improving across trace timestamps?]
    - **Root cause:** [Single underlying issue or multiple independent problems?]
    - **Priority actions:** [Ordered by impact, with specific metrics to monitor]
+
+6. GRAFANA DASHBOARD (only if {createDashboard} is true):
+   After the analysis, append a complete Grafana dashboard JSON that visualizes the key findings.
+   The dashboard should:
+   - Use the "prometheus" datasource UID
+   - Include panels for every metric that was flagged as concerning or relevant in the analysis
+   - Organize panels into rows by category (e.g., "JVM Memory", "CPU", "HTTP Server", "Worker Pool")
+   - Each panel should have:
+     - A meaningful title matching the finding (e.g., "JVM Memory Usage vs Max")
+     - The exact PromQL expression used (e.g., jvm_memory_used_bytes, process_cpu_usage)
+     - Appropriate visualization type: timeseries for trends, gauge for current values, stat for single metrics
+     - Thresholds matching the critical thresholds from the analysis (e.g., red at 90% memory)
+   - Include a dashboard title like "Telemetry Analysis Dashboard" and appropriate tags ["generated", "telemetry-ai"]
+   - The JSON must be valid and importable into Grafana as-is
+
+   Output the dashboard as a fenced JSON block with label "grafana-dashboard":
+   ```grafana-dashboard
+   { ... complete dashboard JSON ... }
+   ```
+
+   If {createDashboard} is false or not set, skip this section entirely.
 
 VALIDATION: Before providing analysis, verify you made these TOOL CALLS:
 - "Provide trace with trace id": called ONCE per trace ID

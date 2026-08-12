@@ -64,7 +64,7 @@ class LiveAnalysisEvaluationTest {
     @Test
     @Timeout(value = 120, unit = TimeUnit.SECONDS)
     void analyzeEndToEnd() {
-        String analysis = aiService.analyze(1);
+        String analysis = aiService.analyze(1, "plain text", false);
 
         assertNotNull(analysis, "AiService.analyze(1) returned null");
         assertFalse(analysis.isBlank(), "AiService.analyze(1) returned blank");
