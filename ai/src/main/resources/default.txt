@@ -155,7 +155,7 @@ MANDATORY STEPS - Execute in this EXACT order:
     - "CPU saturation at 89% causing 3x latency degradation across all spans"]
 
    ### Trace Analysis
-   - Root cause: [What failed and why, based on spans and attributes]
+   - Root cause: Clearly explain the cause of delays or failures, including specific references to Thread.sleep or similar intentional delays affecting response times as critical latency factors. Identify blocked I/O, retry loops, or synchronous waits visible in span attributes or logs.
    - Slowest operations: [List ALL spans >100ms with their durations. Flag any span with abnormally high duration as a significant latency issue — especially intentional delays like Thread.sleep, blocked I/O, or retry waits visible in logs. State the duration, compare to expected/normal, and explain the impact on overall request time.]
    - Error details: [Exception messages, error attributes from spans]
 
@@ -195,31 +195,11 @@ MANDATORY STEPS - Execute in this EXACT order:
    [Repeat above structure for each trace]
 
    ## Cross-Trace Summary
-   - **Healthy vs unhealthy comparison:** [What differed between successful and failed traces?]
+   - **Healthy vs unhealthy comparison:** [What differed between successful and failed traces? Compare span durations, error rates, and resource metrics side-by-side. Identify specific performance discrepancies — e.g., "Trace A completed in 12ms while Trace B took 5003ms due to Thread.sleep(5000)"]
+   - **Performance discrepancies:** [Flag traces with significantly different durations for the same endpoint. Quantify the difference and attribute it to a specific cause — intentional delay, resource pressure, downstream failure, etc.]
    - **Trend:** [Are things getting worse, stable, or improving across trace timestamps?]
    - **Root cause:** [Single underlying issue or multiple independent problems?]
    - **Priority actions:** [Ordered by impact, with specific metrics to monitor]
-
-6. GRAFANA DASHBOARD (only if {createDashboard} is true):
-   After the analysis, append a complete Grafana dashboard JSON that visualizes the key findings.
-   The dashboard should:
-   - Use the "prometheus" datasource UID
-   - Include panels for every metric that was flagged as concerning or relevant in the analysis
-   - Organize panels into rows by category (e.g., "JVM Memory", "CPU", "HTTP Server", "Worker Pool")
-   - Each panel should have:
-     - A meaningful title matching the finding (e.g., "JVM Memory Usage vs Max")
-     - The exact PromQL expression used (e.g., jvm_memory_used_bytes, process_cpu_usage)
-     - Appropriate visualization type: timeseries for trends, gauge for current values, stat for single metrics
-     - Thresholds matching the critical thresholds from the analysis (e.g., red at 90% memory)
-   - Include a dashboard title like "Telemetry Analysis Dashboard" and appropriate tags ["generated", "telemetry-ai"]
-   - The JSON must be valid and importable into Grafana as-is
-
-   Output the dashboard as a fenced JSON block with label "grafana-dashboard":
-   ```grafana-dashboard
-   { ... complete dashboard JSON ... }
-   ```
-
-   If {createDashboard} is false or not set, skip this section entirely.
 
 VALIDATION: Before providing analysis, verify you made these TOOL CALLS:
 - "Provide trace with trace id": called ONCE per trace ID

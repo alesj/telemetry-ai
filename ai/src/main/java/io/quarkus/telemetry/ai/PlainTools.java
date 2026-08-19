@@ -23,9 +23,6 @@ public class PlainTools {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Inject
-    AiTools aiTools;
-
-    @Inject
     ToolOutputCapture capture;
 
     @Inject
@@ -38,26 +35,21 @@ public class PlainTools {
     public List<String> provideLastNTraceIds(int n) {
         System.out.println("Getting last " + n + " trace IDs...");
         try {
-            // Call traceql-search MCP tool directly
             ToolExecutionRequest request = ToolExecutionRequest.builder()
                     .name("traceql-search")
-                    .arguments("{\"query\":\"{}\"}")
+                    .arguments("{\"query\":\"{}\",\"limit\":" + n + "}")
                     .build();
             String result = tempoMcpClient.executeTool(request).resultText();
 
-            // Parse and extract trace IDs
             JsonNode root = MAPPER.readTree(result);
             JsonNode traces = root.path("traces");
             List<String> traceIds = new ArrayList<>();
 
             if (traces.isArray()) {
-                int count = 0;
                 for (JsonNode trace : traces) {
-                    if (count >= n) break;
                     String traceId = trace.path("traceID").asText();
                     if (!traceId.isEmpty()) {
                         traceIds.add(traceId);
-                        count++;
                     }
                 }
             }

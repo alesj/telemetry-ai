@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mvn install -DskipTests -pl common
-mvn test -pl ai -Dintegration.run=true -Dtest=FullIntegrationTest
+mvn clean install -DskipTests -pl common
+mvn clean test -pl ai -Dintegration.run=true -Dtest=FullIntegrationTest

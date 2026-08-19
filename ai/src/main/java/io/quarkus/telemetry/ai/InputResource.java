@@ -18,15 +18,32 @@ public class InputResource {
     private static final Logger log = LoggerFactory.getLogger(InputResource.class);
 
     @Inject
-    AiService service;
+    TelemetryAiService telemetry;
+
+    @Inject
+    DevMcpAiService devmcp;
 
     @GET
     @Path("/analyze/{n}")
-    @Produces(MediaType.TEXT_HTML)
-    public String analyze(@PathParam("n") int n,
-                          @QueryParam("createDashboard") @DefaultValue("false") boolean createDashboard) {
-        String result = String.format("Application behavior (n=%s): \n%s", n, service.analyze(n, "html", createDashboard));
-        log.info(result);
-        return result;
+    @Produces(MediaType.APPLICATION_JSON)
+    public AnalysisResult analyze(@PathParam("n") int n,
+                                  @QueryParam("outputType") @DefaultValue("html") String outputType,
+                                  @QueryParam("createDashboard") @DefaultValue("false") boolean createDashboard,
+                                  @QueryParam("examineSource") @DefaultValue("false") boolean examineSource) {
+        log.info("Analyzing n={} outputType={} createDashboard={} examineSource={}", n, outputType, createDashboard, examineSource);
+
+        String analysis = telemetry.analyze(n, outputType);
+
+        String sources = null;
+        if (examineSource) {
+            sources = devmcp.examineSource(analysis);
+        }
+
+        String dashboard = null;
+        if (createDashboard) {
+            dashboard = devmcp.createDashboard(analysis);
+        }
+
+        return new AnalysisResult(analysis, sources, dashboard);
     }
 }

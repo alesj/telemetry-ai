@@ -7,7 +7,7 @@ import io.quarkiverse.langchain4j.testing.evaluation.EvaluationReport;
 import io.quarkiverse.langchain4j.testing.evaluation.EvaluationSample;
 import io.quarkiverse.langchain4j.testing.evaluation.Samples;
 import io.quarkiverse.langchain4j.testing.evaluation.Scorer;
-import io.quarkus.telemetry.ai.AiService;
+import io.quarkus.telemetry.ai.TelemetryAiService;
 import io.quarkus.telemetry.ai.ToolOutputCapture;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -41,7 +41,7 @@ class FullIntegrationTest {
     static final int PROXY_PORT = 8081;
 
     @Inject
-    AiService aiService;
+    TelemetryAiService aiService;
 
     @Inject
     ToolOutputCapture capture;
@@ -136,7 +136,7 @@ class FullIntegrationTest {
         TimeUnit.SECONDS.sleep(60);
 
         capture.start();
-        String analysis = aiService.analyze(traceCount, "markdown", false);
+        String analysis = aiService.analyze(traceCount, "markdown");
         capture.stop();
 
         System.out.println("\n=== " + label + " ANALYSIS OUTPUT ===");

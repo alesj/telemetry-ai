@@ -238,8 +238,6 @@ public class StripFunctions {
     }
 
     private static final Function<String, String> STRIP_METRICS = metrics -> {
-        System.out.println("=== STRIP_METRICS CALLED ===");
-
         if (metrics == null || metrics.isBlank()) {
             System.out.println("STRIP_METRICS: metrics is null or blank, returning as-is");
             return metrics;

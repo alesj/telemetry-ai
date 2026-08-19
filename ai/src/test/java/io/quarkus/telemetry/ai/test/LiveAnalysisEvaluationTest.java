@@ -3,7 +3,7 @@ package io.quarkus.telemetry.ai.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.langchain4j.model.chat.ChatModel;
-import io.quarkus.telemetry.ai.AiService;
+import io.quarkus.telemetry.ai.TelemetryAiService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
@@ -42,7 +42,7 @@ class LiveAnalysisEvaluationTest {
             """;
 
     @Inject
-    AiService aiService;
+    TelemetryAiService aiService;
 
     @Inject
     ChatModel chatModel;
@@ -64,7 +64,7 @@ class LiveAnalysisEvaluationTest {
     @Test
     @Timeout(value = 120, unit = TimeUnit.SECONDS)
     void analyzeEndToEnd() {
-        String analysis = aiService.analyze(1, "plain text", false);
+        String analysis = aiService.analyze(1, "plain text");
 
         assertNotNull(analysis, "AiService.analyze(1) returned null");
         assertFalse(analysis.isBlank(), "AiService.analyze(1) returned blank");

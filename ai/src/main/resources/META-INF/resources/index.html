@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telemetry AI Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 1.5rem 2rem;
+        }
+        header h1 { font-size: 1.5rem; font-weight: 600; }
+        header p { font-size: 0.875rem; color: #aab; margin-top: 0.25rem; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+        .input-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .input-panel h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .form-group input[type="number"],
+        .form-group select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background: #fafafa;
+        }
+        .form-group input[type="number"] { width: 80px; }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding-bottom: 0.35rem;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #1a1a2e;
+        }
+        .checkbox-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #555;
+            cursor: pointer;
+        }
+        button#analyze-btn {
+            padding: 0.5rem 1.5rem;
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button#analyze-btn:hover { background: #16213e; }
+        button#analyze-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .loading.visible { display: flex; }
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #ddd;
+            border-top-color: #1a1a2e;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: #666; font-size: 0.9rem; }
+        .loading-elapsed { color: #999; font-size: 0.8rem; margin-left: auto; }
+
+        .error-msg {
+            display: none;
+            padding: 1rem 1.5rem;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #991b1b;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .error-msg.visible { display: block; }
+
+        .result-section {
+            display: none;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .result-section.visible { display: block; }
+        .result-section .section-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .result-section .section-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .result-section .section-header .badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-analysis { background: #dbeafe; color: #1e40af; }
+        .badge-sources { background: #fef3c7; color: #92400e; }
+
+        .sources-content h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin: 1.5rem 0 0.75rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid #fef3c7;
+        }
+        .sources-content h2:first-child { margin-top: 0; }
+        .sources-content h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #92400e;
+            margin: 1.25rem 0 0.5rem;
+        }
+        .sources-content h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #555;
+            margin: 1rem 0 0.4rem;
+        }
+        .sources-content p {
+            margin: 0.4rem 0;
+            line-height: 1.6;
+        }
+        .sources-content ul, .sources-content ol {
+            margin: 0.4rem 0 0.4rem 1.5rem;
+        }
+        .sources-content li { margin: 0.25rem 0; line-height: 1.5; }
+        .sources-content strong { color: #333; }
+        .sources-content code {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.84em;
+            font-family: SFMono-Regular, Menlo, Consolas, monospace;
+        }
+        .sources-content hr {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 1.5rem 0;
+        }
+        .badge-dashboard { background: #d1fae5; color: #065f46; }
+        .result-section .section-body {
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+        .result-section .section-body > pre {
+            background: #f8f8f8;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .result-section .section-body > pre code {
+            background: transparent;
+            padding: 0;
+            font-size: inherit;
+        }
+        .result-section .section-body > code {
+            background: #f0f0f0;
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+        .result-section .section-body table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .result-section .section-body table th,
+        .result-section .section-body table td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .result-section .section-body table th {
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Telemetry AI Analysis</h1>
+        <p>Analyze distributed traces, logs, and metrics with AI-powered insights</p>
+    </header>
+
+    <div class="container">
+        <div class="input-panel">
+            <h2>Parameters</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="trace-count">Traces</label>
+                    <input type="number" id="trace-count" value="2" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label for="output-type">Output Format</label>
+                    <select id="output-type">
+                        <option value="html" selected>HTML</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="plain text">Plain Text</option>
+                        <option value="asciidoc">AsciiDoc</option>
+                    </select>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="examine-source">
+                    <label for="examine-source">Examine Source</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="create-dashboard">
+                    <label for="create-dashboard">Create Dashboard</label>
+                </div>
+                <button id="analyze-btn">Analyze</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <span class="loading-text">Analyzing traces...</span>
+            <span class="loading-elapsed" id="elapsed"></span>
+        </div>
+
+        <div class="error-msg" id="error-msg"></div>
+
+        <div class="result-section" id="section-analysis">
+            <div class="section-header">
+                <h3>Analysis</h3>
+                <span class="badge badge-analysis">Required</span>
+                <button id="copy-analysis-btn" title="Copy to clipboard" style="margin-left:auto; padding:0.3rem 0.75rem; font-size:0.8rem; background:#1e40af; color:#fff; border:none; border-radius:4px; cursor:pointer;">Copy</button>
+            </div>
+            <div class="section-body" id="content-analysis"></div>
+        </div>
+
+        <div class="result-section" id="section-sources">
+            <div class="section-header">
+                <h3>Examined Sources</h3>
+                <span class="badge badge-sources">Optional</span>
+                <button id="copy-sources-btn" title="Copy to clipboard" style="margin-left:auto; padding:0.3rem 0.75rem; font-size:0.8rem; background:#92400e; color:#fff; border:none; border-radius:4px; cursor:pointer;">Copy</button>
+            </div>
+            <div class="section-body" id="content-sources"></div>
+        </div>
+
+        <div class="result-section" id="section-dashboard">
+            <div class="section-header">
+                <h3>Dashboard</h3>
+                <span class="badge badge-dashboard">Optional</span>
+                <button id="copy-dashboard-btn" title="Copy JSON to clipboard" style="margin-left:auto; padding:0.3rem 0.75rem; font-size:0.8rem; background:#065f46; color:#fff; border:none; border-radius:4px; cursor:pointer;">Copy JSON</button>
+            </div>
+            <div class="section-body" id="content-dashboard"></div>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('analyze-btn');
+        const copyAnalysisBtn = document.getElementById('copy-analysis-btn');
+        const copySourcesBtn = document.getElementById('copy-sources-btn');
+        const copyDashboardBtn = document.getElementById('copy-dashboard-btn');
+        const loading = document.getElementById('loading');
+        const elapsedEl = document.getElementById('elapsed');
+        const errorMsg = document.getElementById('error-msg');
+        let rawAnalysis = '';
+        let rawSources = '';
+        let dashboardJson = '';
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => { button.textContent = orig; }, 1500);
+            });
+        }
+
+        copyAnalysisBtn.addEventListener('click', () => copyToClipboard(rawAnalysis, copyAnalysisBtn));
+        copySourcesBtn.addEventListener('click', () => copyToClipboard(rawSources, copySourcesBtn));
+        copyDashboardBtn.addEventListener('click', () => copyToClipboard(dashboardJson, copyDashboardBtn));
+
+        const sections = {
+            analysis: {
+                el: document.getElementById('section-analysis'),
+                body: document.getElementById('content-analysis')
+            },
+            sources: {
+                el: document.getElementById('section-sources'),
+                body: document.getElementById('content-sources')
+            },
+            dashboard: {
+                el: document.getElementById('section-dashboard'),
+                body: document.getElementById('content-dashboard')
+            }
+        };
+
+        function hideAll() {
+            errorMsg.classList.remove('visible');
+            Object.values(sections).forEach(s => s.el.classList.remove('visible'));
+        }
+
+        function renderMarkdown(md) {
+            return marked.parse(md);
+        }
+
+        function styleCodeBlocks(container) {
+            container.querySelectorAll('pre').forEach(pre => {
+                pre.style.cssText = 'background:#0d1117;color:#e6edf3;padding:1rem 1.25rem;border-radius:6px;overflow-x:auto;font-size:0.84rem;line-height:1.6;margin:0.75rem 0;border:1px solid #30363d;font-family:SFMono-Regular,Menlo,Consolas,monospace';
+                pre.querySelectorAll('code').forEach(code => {
+                    code.style.cssText = 'background:none;color:#e6edf3;padding:0;border-radius:0;font-size:inherit;font-family:inherit';
+                });
+            });
+        }
+
+        function renderContent(container, content, outputType) {
+            if (outputType === 'html') {
+                container.innerHTML = content;
+            } else if (outputType === 'markdown' || outputType === 'asciidoc') {
+                const pre = document.createElement('pre');
+                pre.textContent = content;
+                container.innerHTML = '';
+                container.appendChild(pre);
+            } else {
+                const pre = document.createElement('pre');
+                pre.textContent = content;
+                container.innerHTML = '';
+                container.appendChild(pre);
+            }
+        }
+
+        function formatElapsed(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return m > 0 ? `${m}m ${s}s` : `${s}s`;
+        }
+
+        btn.addEventListener('click', async () => {
+            const n = document.getElementById('trace-count').value;
+            const outputType = document.getElementById('output-type').value;
+            const examineSource = document.getElementById('examine-source').checked;
+            const createDashboard = document.getElementById('create-dashboard').checked;
+
+            hideAll();
+            btn.disabled = true;
+            loading.classList.add('visible');
+
+            let elapsed = 0;
+            elapsedEl.textContent = '0s';
+            const timer = setInterval(() => {
+                elapsed++;
+                elapsedEl.textContent = formatElapsed(elapsed);
+            }, 1000);
+
+            const params = new URLSearchParams({
+                outputType,
+                examineSource,
+                createDashboard
+            });
+
+            try {
+                const resp = await fetch(`/analyze/${n}?${params}`);
+                if (!resp.ok) {
+                    throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+                }
+                const data = await resp.json();
+
+                if (data.analysis) {
+                    rawAnalysis = data.analysis;
+                    renderContent(sections.analysis.body, data.analysis, outputType);
+                    sections.analysis.el.classList.add('visible');
+                }
+
+                if (data.examinedSources) {
+                    rawSources = data.examinedSources;
+                    sections.sources.body.innerHTML =
+                        '<div class="sources-content">' + renderMarkdown(data.examinedSources) + '</div>';
+                    styleCodeBlocks(sections.sources.body);
+                    sections.sources.el.classList.add('visible');
+                }
+
+                if (data.dashboard) {
+                    try {
+                        const json = JSON.parse(data.dashboard);
+                        dashboardJson = JSON.stringify(json, null, 2);
+                    } catch (e) {
+                        dashboardJson = data.dashboard;
+                    }
+                    const pre = document.createElement('pre');
+                    pre.textContent = dashboardJson;
+                    sections.dashboard.body.innerHTML = '';
+                    sections.dashboard.body.appendChild(pre);
+                    sections.dashboard.el.classList.add('visible');
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Analysis failed: ' + err.message;
+                errorMsg.classList.add('visible');
+            } finally {
+                clearInterval(timer);
+                loading.classList.remove('visible');
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
