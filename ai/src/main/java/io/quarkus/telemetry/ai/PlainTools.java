@@ -37,7 +37,7 @@ public class PlainTools {
         try {
             ToolExecutionRequest request = ToolExecutionRequest.builder()
                     .name("traceql-search")
-                    .arguments("{\"query\":\"{}\",\"limit\":" + n + "}")
+                    .arguments("{\"query\":\"{ nestedSetParent = -1 }\",\"limit\":" + n + "}")
                     .build();
             String result = tempoMcpClient.executeTool(request).resultText();
 
@@ -48,8 +48,11 @@ public class PlainTools {
             if (traces.isArray()) {
                 for (JsonNode trace : traces) {
                     String traceId = trace.path("traceID").asText();
-                    if (!traceId.isEmpty()) {
+                    if (!traceId.isEmpty() && !traceIds.contains(traceId)) {
                         traceIds.add(traceId);
+                        if (traceIds.size() >= n) {
+                            break;
+                        }
                     }
                 }
             }

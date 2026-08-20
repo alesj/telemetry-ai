@@ -81,6 +81,9 @@ public class PokeResource {
             case "cpu" -> chaosCpu(intensity != null ? intensity : 2000);
             case "leak" -> chaosLeak(intensity != null ? intensity : 50);
             case "error" -> chaosError();
+            case "exception" -> chaosException();
+            case "threadpool" -> chaosThreadPool(intensity != null ? intensity : 5000);
+            case "gc" -> chaosGc(intensity != null ? intensity : 200);
             default -> Response.status(400).entity("Unknown chaos type: " + type).build();
         };
     }
@@ -137,5 +140,52 @@ public class PokeResource {
                 "Chaos error: " + code,
                 Response.status(status).entity("Chaos error " + code).build()
         );
+    }
+
+    private Response chaosException() {
+        log.error("Chaos exception: throwing unhandled RuntimeException");
+        throw new RuntimeException("Chaos unhandled exception: simulated application failure");
+    }
+
+    private Response chaosThreadPool(int holdMillis) {
+        int threadCount = 10;
+        log.warn("Chaos threadpool: blocking " + threadCount + " threads for " + holdMillis + "ms");
+        var latch = new java.util.concurrent.CountDownLatch(threadCount);
+        for (int i = 0; i < threadCount; i++) {
+            int idx = i;
+            Thread.startVirtualThread(() -> {
+                log.warn("Chaos threadpool: thread " + idx + " blocked");
+                try {
+                    Thread.sleep(holdMillis);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        log.warn("Chaos threadpool: all " + threadCount + " threads released");
+        return Response.ok("Blocked " + threadCount + " threads for " + holdMillis + "ms").build();
+    }
+
+    private Response chaosGc(int totalMegabytes) {
+        log.warn("Chaos GC: churning " + totalMegabytes + "MB in 1MB chunks");
+        int chunkSize = 1024 * 1024;
+        int chunks = totalMegabytes;
+        long allocated = 0;
+        for (int i = 0; i < chunks; i++) {
+            byte[] chunk = new byte[chunkSize];
+            chunk[0] = (byte) i;
+            allocated += chunkSize;
+        }
+        System.gc();
+        long used = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        log.warn("Chaos GC: churned " + totalMegabytes + "MB, heap used " + (used / 1024 / 1024) + "MB after GC");
+        return Response.ok("GC churn " + totalMegabytes + "MB, heap used " + (used / 1024 / 1024) + "MB").build();
     }
 }

@@ -18,7 +18,7 @@ MANDATORY STEPS - Execute in this EXACT order:
    Returns: List of trace ID strings
    Save result as: traceIds
 
-2. For EACH traceId in traceIds, execute ALL THREE tool calls (NO EXCEPTIONS):
+2. FOR ALL traceIds returned in step 1 (no limit), execute ALL THREE tool calls (NO EXCEPTIONS):
 
    a) TOOL CALL: "Provide trace with trace id"
       Parameter: traceId (the trace ID string)
@@ -37,6 +37,8 @@ MANDATORY STEPS - Execute in this EXACT order:
    IMPORTANT: All three tool calls are REQUIRED for each trace ID.
    If you skip any tool call, your analysis will be rejected.
 
+   If >10 traces, still process every traceId to catch all latency spikes including ~5s delays.
+
 3. TOOL CALL: "Get all Prometheus metrics at specific time" for each unique timestamp
    Parameter: datetime (ISO-8601 timestamp string from step 2c)
    Returns: Prometheus metrics JSON at that specific time
@@ -52,6 +54,9 @@ MANDATORY STEPS - Execute in this EXACT order:
       - Span start/end times and durations from the trace
       - Log entries matched to spans by timestamp and service name
       - Metric snapshot values at the trace's timestamp
+      - Explicitly scan logs for unhandled RuntimeException, NullPointerException, IllegalStateException,
+        or any stack trace. When found, identify the exact span that was executing and report the full
+        exception class, message, and root cause from the stack trace.
       This timeline is the foundation — analyze it as ONE story, not three separate datasets.
 
    B. THREE-WAY TRIANGULATION (CRITICAL):
@@ -73,8 +78,33 @@ MANDATORY STEPS - Execute in this EXACT order:
       - Metrics show worker_pool_idle=0 → Find queued/delayed spans in trace → Look for thread starvation logs
       - Metrics show CPU spike → Identify compute-heavy spans → Look for processing-related log entries
 
+      CHAOS/TESTING LOG CORRELATION (CRITICAL):
+      BEFORE writing analysis for each trace, check its logs for ANY of these chaos keywords:
+      "Leaked", "heap used", "CPU burn", "Chaos received", "Blocked N threads", "GC churn",
+      "Chaos threadpool", "Delayed", "type=delay", "type=leak", "type=cpu", "type=gc",
+      "type=threadpool", "type=exception", "RuntimeException", "NullPointerException",
+      "IllegalStateException", "Internal Server Error".
+      If ANY keyword is found, that trace is a CHAOS TRACE — apply ALL rules below to it regardless of
+      what other traces in the batch look like.
+
+      For every chaos trace:
+      - Report it as intentional resource pressure. Quantify impact from logs (heap MB, delay ms, threads blocked).
+      - Flag as ROOT CAUSE even if worker_pool_idle>0 or jvm_gc_overhead=0 in metrics — state "Metrics
+        snapshot missed the pressure window" and cite the exact log line as authoritative.
+      - For delay chaos ("Delayed Nms"): report span duration as caused by Thread.sleep(N), cite the exact
+        delay value from logs, and compare span duration to the delay value.
+      - For exception chaos (HTTP 500 with stack trace in logs): report the full exception class, message,
+        and root cause chain from the stack trace. Tie each exception to the specific span that was executing.
+      - For threadpool chaos ("Blocked N threads"): flag thread pool saturation, report how many threads
+        were blocked and for how long, and correlate to worker_pool metrics.
+      - For GC chaos ("GC churn NMB"): flag GC pressure, report the churn amount and heap usage from logs,
+        correlate to jvm_gc_overhead and jvm_memory_used_bytes metrics.
+      - Severity MUST be at least MEDIUM. NEVER write "no issues detected", "no adverse effects",
+        "successful operation", or LOW severity for any chaos trace.
+      - When the same chaos type appears in multiple traces, report each as a separate instance.
+
    C. CAUSAL CHAIN REASONING:
-      Build cause → effect chains, not just lists of observations:
+      Build cause → effect chains, not just lists of observations.
 
       Resource pressure → Performance degradation → Error → User impact
       Example chains:
@@ -84,6 +114,7 @@ MANDATORY STEPS - Execute in this EXACT order:
       - "process_cpu_usage at 85% → all spans show 2x normal duration → no errors but degraded latency"
 
       Always analyze span durations critically in relation to system metrics:
+      - For EVERY span >1s, state whether the delay originates from explicit Thread.sleep, intentional chaos delay, or resource contention
       - For EVERY trace, state the span duration and correlate it with resource metrics
       - Healthy example: "Span duration 3.75ms — well within normal range. Confirmed by CPU at 12%, memory at 45% of max, GC overhead <1%. No resource pressure contributing to latency."
       - Unhealthy example: "Span duration 4200ms — 10x expected. CPU at 89%, memory at 93% of max → GC overhead 15% → likely cause of degraded performance."
@@ -107,13 +138,21 @@ MANDATORY STEPS - Execute in this EXACT order:
       - Match http_server metrics labels (uri, method, status) to trace attributes (http.route, http.method, http.status_code)
       - When a span shows an error for a specific endpoint, find the EXACT metric entry for that endpoint
 
-   F. CRITICAL THRESHOLDS TO FLAG:
-      - Span duration >1s → significant latency, always flag as slow operation. Identify the cause: Thread.sleep, blocked I/O, slow downstream, GC pause, or resource contention. Correlate with logs (look for sleep/delay/timeout messages) and metrics.
+   F. ERROR RATE ANALYSIS:
+      When multiple traces contain HTTP 4xx/5xx errors (even if caused by chaos logic or intentional
+      error injection), always explicitly flag error rate as a potential concern in Severity and
+      Recommendations sections. Assign at least MEDIUM severity to any trace that returned an HTTP
+      4xx/5xx error — NEVER label an error response as LOW severity or "no action needed".
+      Include specific error codes observed and any cross-trace error pattern.
+      Recommend monitoring and alerting on 5xx rates even when the errors are expected.
+
+   G. CRITICAL THRESHOLDS TO FLAG:
+      - Span duration >1s → significant latency, always flag as slow operation. Identify the cause: Thread.sleep, blocked I/O, slow downstream, GC pause, or resource contention. Correlate with logs (look for sleep/delay/timeout messages) and metrics. When logs show chaos-type messages (e.g., "Chaos threadpool", "GC churn", "CPU burn"), explicitly tie the span duration to that chaos operation as the root cause.
       - jvm_memory_used_bytes >90% of max → memory pressure, likely GC thrashing
       - system_cpu_usage or process_cpu_usage >80% → CPU saturation
       - worker_pool_queue_size >0 AND worker_pool_idle=0 → thread starvation
       - http_server_active_requests significantly above baseline → traffic spike or request pileup
-      - jvm_gc_overhead >10% → excessive garbage collection, correlate with slow spans
+      - jvm_gc_overhead >5% → GC pressure, correlate with slow spans and memory allocation patterns
       - http_client_queue_size >0 → downstream connection pool exhaustion
 
       **Use ACTUAL values:** Always cite specific metric values (e.g., "CPU usage: 87%", not just "CPU usage high")
@@ -140,7 +179,8 @@ MANDATORY STEPS - Execute in this EXACT order:
    ## Trace ID: [trace_id]
    **Timestamp:** [root span start time]
    **Duration:** [total duration in ms]
-   **Status:** [Success/Error - HTTP status code]
+   **Status:** [CRITICAL: Read the EXACT http.status_code from the span's attributes field in the trace JSON.
+   A /chaos endpoint returning 204 is NOT an error. Never assume 500 — use the actual value from trace data.]
 
    ### Request Details
    - Endpoint: [http.route or http.target]
@@ -152,11 +192,17 @@ MANDATORY STEPS - Execute in this EXACT order:
    [One-sentence description that includes specific resource concerns when present, e.g.:
     - "HTTP 500 error due to downstream service returning 403 Forbidden"
     - "Memory leak detected: 150MB allocated and never freed, indicating stability risk"
-    - "CPU saturation at 89% causing 3x latency degradation across all spans"]
+    - "CPU saturation at 89% causing 3x latency degradation across all spans"
+    NEVER write "No issues detected" when logs contain ANY chaos message ("Leaked", "CPU burn", "Delayed",
+    "GC churn", "Blocked N threads", etc.). A 50MB leak IS an issue. A 3s Thread.sleep IS a latency spike.
+    200MB GC churn IS GC pressure. 10 blocked threads IS thread starvation. Report the specific impact.]
 
    ### Trace Analysis
    - Root cause: Clearly explain the cause of delays or failures, including specific references to Thread.sleep or similar intentional delays affecting response times as critical latency factors. Identify blocked I/O, retry loops, or synchronous waits visible in span attributes or logs.
    - Slowest operations: [List ALL spans >100ms with their durations. Flag any span with abnormally high duration as a significant latency issue — especially intentional delays like Thread.sleep, blocked I/O, or retry waits visible in logs. State the duration, compare to expected/normal, and explain the impact on overall request time.]
+   - Thread starvation: [Check worker_pool_idle and worker_pool_queue_size metrics. If idle=0 and queue_size>0, explicitly flag thread pool saturation. Identify which spans were queued or delayed as a result.]
+   - GC pressure: [Check jvm_gc_overhead metric. If >5%, flag as GC pressure and correlate with allocation-heavy spans or memory churn patterns in logs, even if no explicit GC log messages are present.]
+   - Unhandled exceptions: [If logs contain RuntimeException, NullPointerException, IllegalStateException, or any stack trace, report the full exception class and message. Correlate to the failing span and distinguish from controlled WebApplicationException/HTTP errors.]
    - Error details: [Exception messages, error attributes from spans]
 
    ### Log Insights
@@ -184,6 +230,11 @@ MANDATORY STEPS - Execute in this EXACT order:
 
    ### Severity
    [CRITICAL/HIGH/MEDIUM/LOW] - [Justification based on impact, frequency, and causal chain]
+   If logs contain ANY chaos message ("Leaked", "CPU burn", "Blocked N threads", "GC churn", "Delayed",
+   etc.), severity MUST be at least MEDIUM — never LOW. A 50MB leak, 3s delay/Thread.sleep, 200MB GC churn,
+   or 10 blocked threads are resource concerns regardless of whether the span "succeeded".
+   When multiple traces contain HTTP 4xx/5xx errors (even if caused by chaos logic), always explicitly
+   flag error rate as a potential concern, including specific codes observed and any cross-trace error pattern.
 
    ### Recommendations
    1. [Specific action targeting the ROOT CAUSE, not symptoms]
@@ -200,6 +251,19 @@ MANDATORY STEPS - Execute in this EXACT order:
    - **Trend:** [Are things getting worse, stable, or improving across trace timestamps?]
    - **Root cause:** [Single underlying issue or multiple independent problems?]
    - **Priority actions:** [Ordered by impact, with specific metrics to monitor]
+
+FINAL CHECKLIST (MANDATORY — verify before outputting):
+   1. For EACH trace, did logs contain chaos keywords ("Leaked", "CPU burn", "Delayed", "Blocked",
+      "GC churn", "RuntimeException", "Internal Server Error")? If YES → severity MUST be >= MEDIUM,
+      issue summary MUST NOT say "no issues detected".
+   2. Did any logs contain a stack trace (RuntimeException, NullPointerException, IllegalStateException)?
+      If YES → report the full exception class, message, and stack trace. Tie to the failing span.
+   3. Did logs say "Blocked N threads"? If YES → flag thread pool saturation as ROOT CAUSE even if
+      worker_pool_idle>0 in metrics (metrics may have missed the pressure window).
+   4. Did logs say "GC churn"? If YES → flag GC pressure as ROOT CAUSE even if jvm_gc_overhead=0
+      in metrics (metrics may have missed the pressure window).
+   5. Did any span take >1s? If YES → identify the cause (Thread.sleep, chaos delay, resource contention)
+      and flag as a latency spike.
 
 VALIDATION: Before providing analysis, verify you made these TOOL CALLS:
 - "Provide trace with trace id": called ONCE per trace ID

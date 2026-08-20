@@ -1,6 +1,7 @@
 package io.quarkus.telemetry.ai.test;
 
 import dev.langchain4j.model.chat.ChatModel;
+import io.quarkiverse.langchain4j.ModelName;
 import io.quarkiverse.langchain4j.evaluation.junit5.Evaluate;
 import io.quarkiverse.langchain4j.evaluation.junit5.ScorerConfiguration;
 import io.quarkiverse.langchain4j.testing.evaluation.EvaluationReport;
@@ -47,6 +48,7 @@ class FullIntegrationTest {
     ToolOutputCapture capture;
 
     @Inject
+    @ModelName("scorer")
     ChatModel chatModel;
 
     @ScorerConfiguration
@@ -106,7 +108,7 @@ class FullIntegrationTest {
                 caused by Thread.sleep delays. Analysis should identify latency spikes,
                 flag slow operations, and note the unusually long response times.""";
 
-        waitAndAnalyze("LATENCY", 2, criteria);
+        waitAndAnalyze("LATENCY", 3, criteria);
     }
 
     @Test
@@ -123,6 +125,27 @@ class FullIntegrationTest {
                 such as memory usage, CPU pressure, or heap growth in traces/logs/metrics.""";
 
         waitAndAnalyze("RESOURCE PRESSURE", 3, criteria);
+    }
+
+    @Test
+    @Order(5)
+    void analyzeCascadingFailure() throws Exception {
+        chaosProxy("exception", null);
+        chaosProxy("threadpool", 5000);
+        chaosProxy("gc", 200);
+        pokeProxy(200);
+
+        String criteria = """
+                Multiple chaos types injected. Analysis should individually identify each:
+                (1) The exception trace: report HTTP 500 status, find the RuntimeException
+                    or stack trace in logs, and report the exception class and message.
+                (2) The threadpool trace: report that 10 threads were blocked for 5000ms
+                    from the log line, flag as thread pool saturation, note span duration >5s.
+                (3) The GC trace: report GC churn of 200MB from the log line, flag as GC
+                    pressure, note heap usage from logs.
+                Each chaos trace should have severity at least MEDIUM.""";
+
+        waitAndAnalyze("CASCADING FAILURE", 4, criteria);
     }
 
     @AfterAll

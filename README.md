@@ -78,3 +78,44 @@ You should see the AI analysis output in `ai` app's logs or browser / curl.
 ---
 
 You can check any app's DevUI on where the Grafana / LGTM is available - for any other queries, etc
+
+---
+
+## Web UI
+
+Once the `ai` app is running (step 3), open `http://localhost:8080` in a browser to access the **Telemetry AI Analysis** web UI.
+
+The UI provides:
+* **Traces** — number of recent traces to analyze (1–20)
+* **Output Format** — HTML, Markdown, Plain Text, or AsciiDoc
+* **Examine Source** — optionally include source code examination in the analysis
+* **Create Dashboard** — optionally generate a dashboard JSON from the analysis
+
+Click **Analyze** to call `/analyze/{n}` and view results in three collapsible sections:
+1. **Analysis** — the main AI-generated trace/log/metric analysis (always present)
+2. **Examined Sources** — source code insights rendered as Markdown (when enabled)
+3. **Dashboard** — generated dashboard definition as JSON (when enabled)
+
+Each section has a **Copy** button for clipboard export.
+
+---
+
+## Integration tests
+
+Use `run-integration-test.sh` to run `FullIntegrationTest` with flexible LLM selection.
+
+The script takes two optional arguments:
+1. **AI profile** — which LLM powers `TelemetryAiService` / `DevMcpAiService` (default: `openai`)
+2. **Scorer** — which LLM scores the test evaluation in `FullIntegrationTest` (default: `openai`)
+
+```bash
+./run-integration-test.sh                  # both openai
+./run-integration-test.sh grok             # AI=grok, scorer=openai
+./run-integration-test.sh openai grok      # AI=openai, scorer=grok
+./run-integration-test.sh grok grok        # both grok
+```
+
+Supported AI profiles: `openai`, `grok`, `gemini`, `watsonx`.
+
+Grok (xAI) reuses the `quarkus-langchain4j-openai` extension with `base-url=https://api.x.ai/v1`.
+Set `GROK_API_KEY` env var before running with grok.

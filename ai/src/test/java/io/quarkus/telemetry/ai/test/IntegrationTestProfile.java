@@ -19,6 +19,9 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
     @Override
     public String getConfigProfile() {
         String ai = System.getenv("AI");
+        if (ai == null) {
+            ai = System.getProperty("ai");
+        }
         return Optional.ofNullable(ai).orElse("openai");
     }
 }

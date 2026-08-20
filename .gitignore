@@ -43,3 +43,4 @@ quarkus.oidc.credentials.secret
 
 # AI
 .claude/
+.env
