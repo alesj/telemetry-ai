@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -44,8 +45,11 @@ public class DevMcpToolProviderSupplier implements Supplier<ToolProvider> {
     @Inject
     Vertx vertx;
 
+    private static final String DASHBOARD_PATH = "src/main/resources/META-INF/grafana/grafana-dashboard-generated-dashboard.json";
+
     private final List<McpClient> devMcpClients = Collections.synchronizedList(new ArrayList<>());
     private final Map<String, String> workspaceRoots = new ConcurrentHashMap<>();
+    private final Set<String> savedClients = ConcurrentHashMap.newKeySet();
     private volatile ToolProvider toolProvider;
 
     @Override
@@ -135,8 +139,43 @@ public class DevMcpToolProviderSupplier implements Supplier<ToolProvider> {
                             .build();
                 }
             }
-            return delegate.execute(request, memoryId);
+            var result = delegate.execute(request, memoryId);
+            if (clientKey != null && request.name().contains("saveWorkspaceItemContent")) {
+                savedClients.add(clientKey);
+                log.info("Dashboard saved to workspace: {}", clientKey);
+            }
+            return result;
         };
+    }
+
+    public void resetSaveTracking() {
+        savedClients.clear();
+    }
+
+    public void saveDashboardToUnsaved(String dashboardJson) {
+        for (McpClient client : devMcpClients) {
+            String key = client.key();
+            if (savedClients.contains(key)) {
+                continue;
+            }
+            String root = workspaceRoots.get(key);
+            if (root == null) {
+                log.warn("No workspace root for {}, skipping fallback dashboard save", key);
+                continue;
+            }
+            String filePath = root + (root.endsWith("/") ? "" : "/") + DASHBOARD_PATH;
+            try {
+                String args = MAPPER.writeValueAsString(Map.of("path", filePath, "content", dashboardJson));
+                ToolExecutionRequest req = ToolExecutionRequest.builder()
+                        .name("devui-workspace_saveWorkspaceItemContent")
+                        .arguments(args)
+                        .build();
+                client.executeTool(req);
+                log.info("Fallback: saved dashboard to {}", key);
+            } catch (Exception e) {
+                log.warn("Fallback: failed to save dashboard to {}: {}", key, e.getMessage());
+            }
+        }
     }
 
     String fixPathArgument(String clientKey, String args) {

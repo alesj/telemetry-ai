@@ -1,5 +1,6 @@
 package io.quarkus.telemetry.ai;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
@@ -12,10 +13,15 @@ import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.quarkus.telemetry.ai.DashboardUtils.sanitizeDashboardJson;
+
 @ApplicationScoped
 @Path("/")
 public class InputResource {
     private static final Logger log = LoggerFactory.getLogger(InputResource.class);
+
+    @Inject
+    ObjectMapper mapper;
 
     @Inject
     TelemetryAiService telemetry;
@@ -25,6 +31,9 @@ public class InputResource {
 
     @Inject
     AnalysisMetrics metrics;
+
+    @Inject
+    DevMcpToolProviderSupplier devMcpTools;
 
     @GET
     @Path("/analyze/{n}")
@@ -49,7 +58,9 @@ public class InputResource {
 
         String dashboard = null;
         if (createDashboard) {
-            dashboard = devmcp.createDashboard(analysis);
+            devMcpTools.resetSaveTracking();
+            dashboard = sanitizeDashboardJson(mapper, devmcp.createDashboard(analysis));
+            devMcpTools.saveDashboardToUnsaved(dashboard);
         }
 
         AnalysisResult.PerfInfo perf = metrics.snapshot(durationMs);

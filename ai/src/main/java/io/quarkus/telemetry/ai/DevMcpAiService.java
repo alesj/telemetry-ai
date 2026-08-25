@@ -19,7 +19,12 @@ public interface DevMcpAiService {
                       - Appropriate visualization type: timeseries for trends, gauge for current values, stat for single metrics
                       - Thresholds matching the critical thresholds from the analysis (e.g., red at 90% memory)
                     - Include a dashboard title like "Telemetry Analysis Dashboard" and appropriate tags ["generated", "telemetry-ai"]
-                    - The JSON must be valid and importable into Grafana as-is
+
+                    CRITICAL JSON FORMAT: The dashboard MUST be a single valid JSON object with this exact top-level structure:
+                    {"title":"...","uid":"telemetry-ai-generated","tags":[...],"panels":[...],"time":{"from":"now-1h","to":"now"},"schemaVersion":27,"version":1}
+                    Do NOT wrap it in {"dashboard":{...}}. The JSON must be a flat dashboard object.
+                    Do NOT add any trailing characters after the closing brace.
+                    Return ONLY the JSON object, no markdown fences, no explanation.
 
                     MANDATORY: You MUST save the dashboard JSON file to EVERY application workspace.
                     There are multiple workspace tool sets, one per application, each prefixed with a different

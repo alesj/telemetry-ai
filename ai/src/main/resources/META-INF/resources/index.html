@@ -349,11 +349,32 @@
         let dashboardJson = '';
 
         function copyToClipboard(text, button) {
-            navigator.clipboard.writeText(text).then(() => {
+            const showFeedback = (msg) => {
                 const orig = button.textContent;
-                button.textContent = 'Copied!';
+                button.textContent = msg;
                 setTimeout(() => { button.textContent = orig; }, 1500);
-            });
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => showFeedback('Copied!')).catch(() => fallbackCopy(text, showFeedback));
+            } else {
+                fallbackCopy(text, showFeedback);
+            }
+        }
+
+        function fallbackCopy(text, showFeedback) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showFeedback('Copied!');
+            } catch (e) {
+                showFeedback('Failed');
+            }
+            document.body.removeChild(ta);
         }
 
         copyAnalysisBtn.addEventListener('click', () => copyToClipboard(rawAnalysis, copyAnalysisBtn));
