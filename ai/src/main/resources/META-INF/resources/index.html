@@ -130,6 +130,21 @@
         }
         .error-msg.visible { display: block; }
 
+        .perf-bar {
+            display: none;
+            padding: 0.75rem 1.5rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: #166534;
+        }
+        .perf-bar.visible { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+        .perf-stat { display: flex; align-items: center; gap: 0.35rem; }
+        .perf-stat .label { font-weight: 600; }
+        .perf-stat .value { font-family: SFMono-Regular, Menlo, Consolas, monospace; }
+
         .result-section {
             display: none;
             background: #fff;
@@ -285,6 +300,14 @@
 
         <div class="error-msg" id="error-msg"></div>
 
+        <div class="perf-bar" id="perf-bar">
+            <div class="perf-stat"><span class="label">Duration:</span> <span class="value" id="perf-duration"></span></div>
+            <div class="perf-stat"><span class="label">LLM Calls:</span> <span class="value" id="perf-calls"></span></div>
+            <div class="perf-stat"><span class="label">Input Tokens:</span> <span class="value" id="perf-input"></span></div>
+            <div class="perf-stat"><span class="label">Output Tokens:</span> <span class="value" id="perf-output"></span></div>
+            <div class="perf-stat"><span class="label">Total Tokens:</span> <span class="value" id="perf-total"></span></div>
+        </div>
+
         <div class="result-section" id="section-analysis">
             <div class="section-header">
                 <h3>Analysis</h3>
@@ -352,9 +375,29 @@
             }
         };
 
+        const perfBar = document.getElementById('perf-bar');
+
         function hideAll() {
             errorMsg.classList.remove('visible');
+            perfBar.classList.remove('visible');
             Object.values(sections).forEach(s => s.el.classList.remove('visible'));
+        }
+
+        function formatDuration(ms) {
+            const s = Math.floor(ms / 1000);
+            const m = Math.floor(s / 60);
+            const rem = s % 60;
+            return m > 0 ? `${m}m ${rem}s` : `${s}s`;
+        }
+
+        function showPerf(perf) {
+            if (!perf) return;
+            document.getElementById('perf-duration').textContent = formatDuration(perf.durationMs);
+            document.getElementById('perf-calls').textContent = perf.llmCalls.toLocaleString();
+            document.getElementById('perf-input').textContent = perf.inputTokens.toLocaleString();
+            document.getElementById('perf-output').textContent = perf.outputTokens.toLocaleString();
+            document.getElementById('perf-total').textContent = perf.totalTokens.toLocaleString();
+            perfBar.classList.add('visible');
         }
 
         function renderMarkdown(md) {
@@ -421,6 +464,8 @@
                     throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
                 }
                 const data = await resp.json();
+
+                showPerf(data.perf);
 
                 if (data.analysis) {
                     rawAnalysis = data.analysis;

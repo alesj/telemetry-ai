@@ -23,6 +23,9 @@ public class InputResource {
     @Inject
     DevMcpAiService devmcp;
 
+    @Inject
+    AnalysisMetrics metrics;
+
     @GET
     @Path("/analyze/{n}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -32,7 +35,12 @@ public class InputResource {
                                   @QueryParam("examineSource") @DefaultValue("false") boolean examineSource) {
         log.info("Analyzing n={} outputType={} createDashboard={} examineSource={}", n, outputType, createDashboard, examineSource);
 
+        metrics.reset();
+        long startTime = System.nanoTime();
+
         String analysis = telemetry.analyze(n, outputType);
+
+        long durationMs = (System.nanoTime() - startTime) / 1_000_000;
 
         String sources = null;
         if (examineSource) {
@@ -44,6 +52,10 @@ public class InputResource {
             dashboard = devmcp.createDashboard(analysis);
         }
 
-        return new AnalysisResult(analysis, sources, dashboard);
+        AnalysisResult.PerfInfo perf = metrics.snapshot(durationMs);
+        log.info("Analysis completed in {}ms, {} LLM calls, {} input tokens, {} output tokens",
+                perf.durationMs(), perf.llmCalls(), perf.inputTokens(), perf.outputTokens());
+
+        return new AnalysisResult(analysis, sources, dashboard, perf);
     }
 }

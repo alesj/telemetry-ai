@@ -34,9 +34,9 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
 
         <!-- Quarkus -->
-        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>3.38.3</quarkus.platform.version>
+        <quarkus.platform.version>999-SNAPSHOT</quarkus.platform.version>
 
         <!-- LangChain4j directly, when needed -->
         <quarkus.langchain4j.version>1.13.0</quarkus.langchain4j.version>
