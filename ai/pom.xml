@@ -136,6 +136,20 @@
                     <artifactId>quarkus-langchain4j-ai-gemini</artifactId>
                 </dependency>
             </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/GrokChatModelCustomizer.java</exclude>
+                                <exclude>**/GrokScorerChatModelCustomizer.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <!-- WatsonX -->
@@ -150,6 +164,20 @@
                     <artifactId>quarkus-langchain4j-watsonx</artifactId>
                 </dependency>
             </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/GrokChatModelCustomizer.java</exclude>
+                                <exclude>**/GrokScorerChatModelCustomizer.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
     </profiles>

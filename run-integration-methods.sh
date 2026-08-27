@@ -40,11 +40,18 @@ case "$PROFILE" in
   *)    MAVEN_PROFILE="$PROFILE" ;;
 esac
 
-if [ "$SCORER" = "grok" ]; then
-  export SCORER_BASE_URL=https://api.x.ai/v1
-  export SCORER_API_KEY="${GROK_API_KEY}"
-  export SCORER_MODEL=grok-3-mini
-fi
+case "$SCORER" in
+  grok)
+    export SCORER_BASE_URL=https://api.x.ai/v1
+    export SCORER_API_KEY="${GROK_API_KEY}"
+    export SCORER_MODEL=grok-3-mini
+    ;;
+  watsonx)
+    export SCORER_BASE_URL="${WATSONX_BASE_URL}"
+    export SCORER_API_KEY="${WATSONX_API_KEY}"
+    export SCORER_MODEL=ibm/granite-4-h-small
+    ;;
+esac
 
 echo "=== Running FullIntegrationTest ==="
 echo "  AI profile: $PROFILE"

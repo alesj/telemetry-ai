@@ -113,12 +113,16 @@ The script takes two optional arguments:
 ./run-integration-test.sh grok             # AI=grok, scorer=openai
 ./run-integration-test.sh openai grok      # AI=openai, scorer=grok
 ./run-integration-test.sh grok grok        # both grok
+./run-integration-test.sh watsonx          # AI=watsonx, scorer=openai
+./run-integration-test.sh watsonx watsonx  # both watsonx
 ```
 
 Supported AI profiles: `openai`, `grok`, `gemini`, `watsonx`.
+Supported scorers: `openai` (default), `grok`, `watsonx`.
 
 Grok (xAI) reuses the `quarkus-langchain4j-openai` extension with `base-url=https://api.x.ai/v1`.
 Set `GROK_API_KEY` env var before running with grok.
+Set `WATSONX_BASE_URL`, `WATSONX_API_KEY`, and `WATSONX_PROJECT_ID` env vars before running with watsonx.
 
 ### Running specific test methods
 
@@ -129,6 +133,7 @@ Use `run-integration-methods.sh` to run individual test methods from `FullIntegr
 ```
 
 Pass an empty string `''` for scorer to use the default (openai).
+Supported scorers: `openai` (default), `grok`, `watsonx`.
 
 ```bash
 # AI=openai, scorer=grok, run 2 methods
@@ -136,6 +141,9 @@ Pass an empty string `''` for scorer to use the default (openai).
 
 # AI=grok, default scorer, run 1 method
 ./run-integration-methods.sh grok '' analyzeRequestFlood
+
+# AI=watsonx, scorer=watsonx, run 2 methods
+./run-integration-methods.sh watsonx watsonx analyzeNormalTraffic analyzeErrorTraffic
 
 # AI=openai, default scorer, run 3 specific methods
 ./run-integration-methods.sh openai '' analyzeIntermittentFailures analyzeNetworkPartition analyzeRequestFlood
