@@ -81,9 +81,10 @@ MANDATORY STEPS - Execute in this EXACT order:
       CHAOS/TESTING LOG CORRELATION (CRITICAL):
       BEFORE writing analysis for each trace, check its logs for ANY of these chaos keywords:
       "Leaked", "heap used", "CPU burn", "Chaos received", "Blocked N threads", "GC churn",
-      "Chaos threadpool", "Delayed", "type=delay", "type=leak", "type=cpu", "type=gc",
-      "type=threadpool", "type=exception", "RuntimeException", "NullPointerException",
-      "IllegalStateException", "Internal Server Error".
+      "Chaos threadpool", "Chaos lock contention", "BLOCKED waiting", "acquired lock after",
+      "serialized execution", "Delayed", "type=delay", "type=leak", "type=cpu", "type=gc",
+      "type=threadpool", "type=contention", "type=exception", "RuntimeException",
+      "NullPointerException", "IllegalStateException", "Internal Server Error".
       If ANY keyword is found, that trace is a CHAOS TRACE — apply ALL rules below to it regardless of
       what other traces in the batch look like.
 
@@ -99,6 +100,10 @@ MANDATORY STEPS - Execute in this EXACT order:
         were blocked and for how long, and correlate to worker_pool metrics.
       - For GC chaos ("GC churn NMB"): flag GC pressure, report the churn amount and heap usage from logs,
         correlate to jvm_gc_overhead and jvm_memory_used_bytes metrics.
+      - For contention chaos ("Chaos lock contention", "BLOCKED waiting", "acquired lock after"):
+        flag lock contention / thread blocking, report how many threads competed for the lock,
+        how long each waited (from "acquired lock after Nms"), and that serialized execution
+        through a single synchronized lock caused the high span duration.
       - Severity MUST be at least MEDIUM. NEVER write "no issues detected", "no adverse effects",
         "successful operation", or LOW severity for any chaos trace.
       - When the same chaos type appears in multiple traces, report each as a separate instance.
@@ -231,8 +236,9 @@ MANDATORY STEPS - Execute in this EXACT order:
    ### Severity
    [CRITICAL/HIGH/MEDIUM/LOW] - [Justification based on impact, frequency, and causal chain]
    If logs contain ANY chaos message ("Leaked", "CPU burn", "Blocked N threads", "GC churn", "Delayed",
-   etc.), severity MUST be at least MEDIUM — never LOW. A 50MB leak, 3s delay/Thread.sleep, 200MB GC churn,
-   or 10 blocked threads are resource concerns regardless of whether the span "succeeded".
+   "Chaos lock contention", "BLOCKED waiting", etc.), severity MUST be at least MEDIUM — never LOW.
+   A 50MB leak, 3s delay/Thread.sleep, 200MB GC churn, 10 blocked threads, or lock contention with
+   threads BLOCKED waiting are resource concerns regardless of whether the span "succeeded".
    When multiple traces contain HTTP 4xx/5xx errors (even if caused by chaos logic), always explicitly
    flag error rate as a potential concern, including specific codes observed and any cross-trace error pattern.
 
@@ -254,16 +260,18 @@ MANDATORY STEPS - Execute in this EXACT order:
 
 FINAL CHECKLIST (MANDATORY — verify before outputting):
    1. For EACH trace, did logs contain chaos keywords ("Leaked", "CPU burn", "Delayed", "Blocked",
-      "GC churn", "RuntimeException", "Internal Server Error")? If YES → severity MUST be >= MEDIUM,
-      issue summary MUST NOT say "no issues detected".
+      "GC churn", "lock contention", "BLOCKED waiting", "RuntimeException", "Internal Server Error")?
+      If YES → severity MUST be >= MEDIUM, issue summary MUST NOT say "no issues detected".
    2. Did any logs contain a stack trace (RuntimeException, NullPointerException, IllegalStateException)?
       If YES → report the full exception class, message, and stack trace. Tie to the failing span.
    3. Did logs say "Blocked N threads"? If YES → flag thread pool saturation as ROOT CAUSE even if
       worker_pool_idle>0 in metrics (metrics may have missed the pressure window).
    4. Did logs say "GC churn"? If YES → flag GC pressure as ROOT CAUSE even if jvm_gc_overhead=0
       in metrics (metrics may have missed the pressure window).
-   5. Did any span take >1s? If YES → identify the cause (Thread.sleep, chaos delay, resource contention)
-      and flag as a latency spike.
+   5. Did logs say "lock contention" or "BLOCKED waiting"? If YES → flag lock contention as ROOT CAUSE,
+      report the number of threads competing and their wait times.
+   6. Did any span take >1s? If YES → identify the cause (Thread.sleep, chaos delay, lock contention,
+      resource contention) and flag as a latency spike.
 
 VALIDATION: Before providing analysis, verify you made these TOOL CALLS:
 - "Provide trace with trace id": called ONCE per trace ID

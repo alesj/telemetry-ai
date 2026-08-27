@@ -84,6 +84,7 @@ public class PokeResource {
             case "exception" -> chaosException();
             case "threadpool" -> chaosThreadPool(intensity != null ? intensity : 5000);
             case "gc" -> chaosGc(intensity != null ? intensity : 200);
+            case "contention" -> chaosContention(intensity != null ? intensity : 3000);
             default -> Response.status(400).entity("Unknown chaos type: " + type).build();
         };
     }
@@ -171,6 +172,39 @@ public class PokeResource {
         }
         log.warn("Chaos threadpool: all " + threadCount + " threads released");
         return Response.ok("Blocked " + threadCount + " threads for " + holdMillis + "ms").build();
+    }
+
+    private final Object contentionLock = new Object();
+
+    private Response chaosContention(int holdMillis) {
+        int threadCount = 10;
+        int holdPerThread = holdMillis / threadCount;
+        log.warn("Chaos lock contention: " + threadCount + " threads competing for single synchronized lock, each holding " + holdPerThread + "ms, total serialized wait " + holdMillis + "ms");
+        var latch = new java.util.concurrent.CountDownLatch(threadCount);
+        for (int i = 0; i < threadCount; i++) {
+            int idx = i;
+            Thread.startVirtualThread(() -> {
+                long waitStart = System.currentTimeMillis();
+                log.warn("Chaos lock contention: thread " + idx + " BLOCKED waiting to acquire synchronized lock");
+                synchronized (contentionLock) {
+                    long waited = System.currentTimeMillis() - waitStart;
+                    log.warn("Chaos lock contention: thread " + idx + " acquired lock after " + waited + "ms blocked, holding for " + holdPerThread + "ms");
+                    try {
+                        Thread.sleep(holdPerThread);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                latch.countDown();
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        log.warn("Chaos lock contention: all " + threadCount + " threads completed after serialized execution through single lock");
+        return Response.ok("Lock contention: " + threadCount + " threads serialized through one lock, " + holdMillis + "ms total").build();
     }
 
     private Response chaosGc(int totalMegabytes) {

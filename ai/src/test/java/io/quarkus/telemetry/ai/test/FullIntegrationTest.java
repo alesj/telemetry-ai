@@ -148,6 +148,23 @@ class FullIntegrationTest {
         waitAndAnalyze("CASCADING FAILURE", 4, criteria);
     }
 
+    @Test
+    @Order(6)
+    void analyzeLockContention() throws Exception {
+        chaosProxy("contention", 5000);
+        chaosProxy("contention", 3000);
+
+        String criteria = """
+                Lock contention chaos was injected. Analysis should identify:
+                (1) High latency in the chaos/contention traces (span durations of several seconds)
+                (2) Mention lock contention, thread blocking, or synchronization issues
+                    based on log messages or span analysis
+                The analysis passes if it reports abnormal latency and attributes it to
+                contention, locking, or thread blocking.""";
+
+        waitAndAnalyze("LOCK CONTENTION", 2, criteria);
+    }
+
     @AfterAll
     void stopCompanionApps() {
         proxyProcess.stop();
