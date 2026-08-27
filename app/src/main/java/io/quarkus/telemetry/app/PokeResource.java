@@ -85,6 +85,7 @@ public class PokeResource {
             case "threadpool" -> chaosThreadPool(intensity != null ? intensity : 5000);
             case "gc" -> chaosGc(intensity != null ? intensity : 200);
             case "contention" -> chaosContention(intensity != null ? intensity : 3000);
+            case "intermittent" -> chaosIntermittent(intensity != null ? intensity : 40);
             default -> Response.status(400).entity("Unknown chaos type: " + type).build();
         };
     }
@@ -205,6 +206,26 @@ public class PokeResource {
         }
         log.warn("Chaos lock contention: all " + threadCount + " threads completed after serialized execution through single lock");
         return Response.ok("Lock contention: " + threadCount + " threads serialized through one lock, " + holdMillis + "ms total").build();
+    }
+
+    private Response chaosIntermittent(int failPercentage) {
+        boolean shouldFail = random.nextInt(100) < failPercentage;
+        if (shouldFail) {
+            int[] codes = {500, 502, 503};
+            int code = codes[random.nextInt(codes.length)];
+            log.warn("Chaos intermittent: failing with " + code + " (rate=" + failPercentage + "%)");
+            throw new WebApplicationException(
+                    "Chaos intermittent failure: " + code,
+                    Response.status(code).entity("Intermittent failure " + code).build()
+            );
+        }
+        try {
+            Thread.sleep(random.nextInt(50));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        log.info("Chaos intermittent: success (rate=" + failPercentage + "%)");
+        return Response.ok("Intermittent OK (fail rate=" + failPercentage + "%)").build();
     }
 
     private Response chaosGc(int totalMegabytes) {

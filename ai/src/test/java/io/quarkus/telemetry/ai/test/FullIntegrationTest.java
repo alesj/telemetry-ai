@@ -165,6 +165,87 @@ class FullIntegrationTest {
         waitAndAnalyze("LOCK CONTENTION", 2, criteria);
     }
 
+    @Test
+    @Order(7)
+    void analyzeIntermittentFailures() throws Exception {
+        for (int i = 0; i < 20; i++) {
+            chaosProxy("intermittent", 60);
+        }
+
+        String criteria = """
+                High failure rate (~60%%) across 20 requests to the same /chaos endpoint.
+                Analysis should detect:
+                (1) Multiple HTTP 5xx error responses (500, 502, or 503) across the analyzed traces
+                (2) Some successful HTTP 200 responses mixed in — not all requests fail
+                (3) Identify that the errors are application-level (WebApplicationException),
+                    not caused by resource pressure (CPU/memory should be normal)
+                (4) Report the severity as at least MEDIUM due to repeated failures""";
+
+        waitAndAnalyze("INTERMITTENT FAILURES", 8, criteria);
+    }
+
+    @Test
+    @Order(8)
+    void analyzeNetworkPartition() throws Exception {
+        pokeProxy(200);
+        pokeProxy(200);
+
+        System.out.println("[FullIntegrationTest] Stopping APP to simulate network partition...");
+        appProcess.stop();
+
+        for (int i = 0; i < 3; i++) {
+            pokeProxy(200);
+        }
+
+        System.out.println("[FullIntegrationTest] Restarting APP after partition...");
+        appProcess = CompanionApps.startDevMode("app", APP_PORT);
+
+        pokeProxy(200);
+        pokeProxy(200);
+
+        String criteria = """
+                Network partition scenario: app was stopped mid-test, causing proxy errors,
+                then restarted. Analysis should detect:
+                (1) Successful requests before the outage
+                (2) Connection errors during the partition (connection refused, timeout,
+                    or 5xx from proxy when downstream is unreachable)
+                (3) Recovery after restart (successful requests resume)
+                (4) Identify this as an infrastructure/availability issue, not an application bug
+                (5) Recommend health checks, circuit breakers, or retry policies""";
+
+        waitAndAnalyze("NETWORK PARTITION", 5, criteria);
+    }
+
+    @Test
+    @Order(9)
+    void analyzeRequestFlood() throws Exception {
+        int floodSize = 20;
+        Thread[] threads = new Thread[floodSize];
+        for (int i = 0; i < floodSize; i++) {
+            int idx = i;
+            threads[i] = new Thread(() -> {
+                chaosProxy("delay", 3000 + (idx % 5) * 1000);
+            });
+            threads[i].start();
+        }
+        for (Thread t : threads) {
+            t.join(30_000);
+        }
+        pokeProxy(200);
+        pokeProxy(500);
+
+        String criteria = """
+                Burst of %d concurrent requests, each with a 3-7 second delay, followed
+                by a normal request and an error request.
+                Analysis should detect:
+                (1) Traces with high latency (3-7 seconds per request from the injected delays)
+                (2) Multiple concurrent slow spans overlapping in time
+                (3) The HTTP 500 error request after the burst
+                (4) Report at least MEDIUM severity due to sustained high latency""".formatted(floodSize);
+
+        waitAndAnalyze("REQUEST FLOOD", 8, criteria);
+    }
+
     @AfterAll
     void stopCompanionApps() {
         proxyProcess.stop();

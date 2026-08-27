@@ -119,3 +119,38 @@ Supported AI profiles: `openai`, `grok`, `gemini`, `watsonx`.
 
 Grok (xAI) reuses the `quarkus-langchain4j-openai` extension with `base-url=https://api.x.ai/v1`.
 Set `GROK_API_KEY` env var before running with grok.
+
+### Running specific test methods
+
+Use `run-integration-methods.sh` to run individual test methods from `FullIntegrationTest`:
+
+```bash
+./run-integration-methods.sh <ai-profile> <scorer> <method1> [method2] ...
+```
+
+Pass an empty string `''` for scorer to use the default (openai).
+
+```bash
+# AI=openai, scorer=grok, run 2 methods
+./run-integration-methods.sh openai grok analyzeIntermittentFailures analyzeNetworkPartition
+
+# AI=grok, default scorer, run 1 method
+./run-integration-methods.sh grok '' analyzeRequestFlood
+
+# AI=openai, default scorer, run 3 specific methods
+./run-integration-methods.sh openai '' analyzeIntermittentFailures analyzeNetworkPartition analyzeRequestFlood
+```
+
+Available test methods:
+
+| Method | Scenario |
+|---|---|
+| `analyzeNormalTraffic` | Baseline healthy requests |
+| `analyzeErrorTraffic` | HTTP 500, 403, random 5xx |
+| `analyzeLatency` | Injected delays (3-5s) |
+| `analyzeResourcePressure` | Memory allocation, CPU burn, memory leaks |
+| `analyzeCascadingFailure` | Exception + threadpool + GC churn |
+| `analyzeLockContention` | Synchronized lock contention |
+| `analyzeIntermittentFailures` | ~60% random failure rate |
+| `analyzeNetworkPartition` | App stopped/restarted mid-test |
+| `analyzeRequestFlood` | 20 concurrent slow requests |
