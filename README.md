@@ -161,4 +161,4 @@ Available test methods:
 | `analyzeLockContention` | Synchronized lock contention |
 | `analyzeIntermittentFailures` | ~60% random failure rate |
 | `analyzeNetworkPartition` | App stopped/restarted mid-test |
-| `analyzeRequestFlood` | 20 concurrent slow requests |
+| `analyzeRequestFlood` | Multiple delayed requests + error |

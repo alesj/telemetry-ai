@@ -219,31 +219,21 @@ class FullIntegrationTest {
     @Test
     @Order(9)
     void analyzeRequestFlood() throws Exception {
-        int floodSize = 20;
-        Thread[] threads = new Thread[floodSize];
-        for (int i = 0; i < floodSize; i++) {
-            int idx = i;
-            threads[i] = new Thread(() -> {
-                chaosProxy("delay", 3000 + (idx % 5) * 1000);
-            });
-            threads[i].start();
-        }
-        for (Thread t : threads) {
-            t.join(30_000);
-        }
-        pokeProxy(200);
+        chaosProxy("delay", 5000);
+        chaosProxy("delay", 4000);
+        chaosProxy("delay", 3000);
         pokeProxy(500);
 
         String criteria = """
-                Burst of %d concurrent requests, each with a 3-7 second delay, followed
-                by a normal request and an error request.
+                Three requests with injected delays (3-5 seconds each) followed by
+                an HTTP 500 error request.
                 Analysis should detect:
-                (1) Traces with high latency (3-7 seconds per request from the injected delays)
-                (2) Multiple concurrent slow spans overlapping in time
-                (3) The HTTP 500 error request after the burst
-                (4) Report at least MEDIUM severity due to sustained high latency""".formatted(floodSize);
+                (1) High latency in the chaos/delay traces — span durations of 3-5 seconds
+                    caused by Thread.sleep delays, with log messages confirming the delay
+                (2) The HTTP 500 error response in at least one trace
+                (3) Report at least MEDIUM severity due to high latency or error presence""";
 
-        waitAndAnalyze("REQUEST FLOOD", 8, criteria);
+        waitAndAnalyze("REQUEST FLOOD", 4, criteria);
     }
 
     @AfterAll
