@@ -162,3 +162,4 @@ Available test methods:
 | `analyzeIntermittentFailures` | ~60% random failure rate |
 | `analyzeNetworkPartition` | App stopped/restarted mid-test |
 | `analyzeRequestFlood` | Multiple delayed requests + error |
+| `analyzeDeadlock` | Thread deadlock with timeout detection |

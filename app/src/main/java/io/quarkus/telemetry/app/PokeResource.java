@@ -86,6 +86,7 @@ public class PokeResource {
             case "gc" -> chaosGc(intensity != null ? intensity : 200);
             case "contention" -> chaosContention(intensity != null ? intensity : 3000);
             case "intermittent" -> chaosIntermittent(intensity != null ? intensity : 40);
+            case "deadlock" -> chaosDeadlock(intensity != null ? intensity : 10000);
             default -> Response.status(400).entity("Unknown chaos type: " + type).build();
         };
     }
@@ -226,6 +227,50 @@ public class PokeResource {
         }
         log.info("Chaos intermittent: success (rate=" + failPercentage + "%)");
         return Response.ok("Intermittent OK (fail rate=" + failPercentage + "%)").build();
+    }
+
+    private final Object deadlockA = new Object();
+    private final Object deadlockB = new Object();
+
+    private Response chaosDeadlock(int timeoutMillis) {
+        log.warn("Chaos deadlock: two threads competing for locks A and B with " + timeoutMillis + "ms timeout");
+        var latch = new java.util.concurrent.CountDownLatch(2);
+        var started = new java.util.concurrent.CountDownLatch(2);
+
+        Thread.startVirtualThread(() -> {
+            synchronized (deadlockA) {
+                log.warn("Chaos deadlock: thread-1 acquired lock A, waiting for lock B");
+                started.countDown();
+                try { started.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                synchronized (deadlockB) {
+                    log.warn("Chaos deadlock: thread-1 acquired lock B (unexpected)");
+                }
+            }
+            latch.countDown();
+        });
+
+        Thread.startVirtualThread(() -> {
+            synchronized (deadlockB) {
+                log.warn("Chaos deadlock: thread-2 acquired lock B, waiting for lock A");
+                started.countDown();
+                try { started.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                synchronized (deadlockA) {
+                    log.warn("Chaos deadlock: thread-2 acquired lock A (unexpected)");
+                }
+            }
+            latch.countDown();
+        });
+
+        try {
+            boolean completed = latch.await(timeoutMillis, java.util.concurrent.TimeUnit.MILLISECONDS);
+            if (!completed) {
+                log.error("Chaos deadlock: DEADLOCK DETECTED — threads did not complete within " + timeoutMillis + "ms timeout, 2 threads permanently blocked");
+                return Response.ok("Deadlock detected: 2 threads permanently blocked after " + timeoutMillis + "ms timeout").build();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return Response.ok("Deadlock timeout " + timeoutMillis + "ms (no deadlock occurred)").build();
     }
 
     private Response chaosGc(int totalMegabytes) {

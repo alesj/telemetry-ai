@@ -6,6 +6,19 @@ SCORER="${2:-}"
 
 shift 2 2>/dev/null || shift $# 2>/dev/null
 
+VALID_METHODS=(
+  analyzeNormalTraffic
+  analyzeErrorTraffic
+  analyzeLatency
+  analyzeResourcePressure
+  analyzeCascadingFailure
+  analyzeLockContention
+  analyzeIntermittentFailures
+  analyzeNetworkPartition
+  analyzeRequestFlood
+  analyzeDeadlock
+)
+
 if [ $# -eq 0 ]; then
   echo "Usage: $0 <ai-profile> [scorer] <method1> [method2] ..."
   echo ""
@@ -14,15 +27,9 @@ if [ $# -eq 0 ]; then
   echo "  methods:      test method names from FullIntegrationTest"
   echo ""
   echo "Available methods:"
-  echo "  analyzeNormalTraffic"
-  echo "  analyzeErrorTraffic"
-  echo "  analyzeLatency"
-  echo "  analyzeResourcePressure"
-  echo "  analyzeCascadingFailure"
-  echo "  analyzeLockContention"
-  echo "  analyzeIntermittentFailures"
-  echo "  analyzeNetworkPartition"
-  echo "  analyzeRequestFlood"
+  for m in "${VALID_METHODS[@]}"; do
+    echo "  $m"
+  done
   echo ""
   echo "Examples:"
   echo "  $0 openai grok analyzeIntermittentFailures analyzeNetworkPartition"
@@ -31,7 +38,29 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-METHODS=$(IFS=+; echo "$*")
+VALIDATED=()
+for method in "$@"; do
+  found=false
+  for valid in "${VALID_METHODS[@]}"; do
+    if [ "$method" = "$valid" ]; then
+      found=true
+      break
+    fi
+  done
+  if [ "$found" = true ]; then
+    VALIDATED+=("$method")
+  else
+    echo "WARNING: skipping unknown method '$method'"
+    echo "  Run '$0' with no methods to see available options."
+  fi
+done
+
+if [ ${#VALIDATED[@]} -eq 0 ]; then
+  echo "ERROR: no valid methods to run."
+  exit 1
+fi
+
+METHODS=$(IFS=+; echo "${VALIDATED[*]}")
 
 export AI="$PROFILE"
 

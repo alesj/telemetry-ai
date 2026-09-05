@@ -236,6 +236,25 @@ class FullIntegrationTest {
         waitAndAnalyze("REQUEST FLOOD", 4, criteria);
     }
 
+    @Test
+    @Order(10)
+    void analyzeDeadlock() throws Exception {
+        chaosProxy("deadlock", 8000);
+        chaosProxy("contention", 3000);
+
+        String criteria = """
+                A deadlock was injected: two threads each hold one lock and wait for the other,
+                causing a timeout. A lock contention request follows for contrast.
+                Analysis should detect:
+                (1) The deadlock trace: high latency (~8 seconds from the timeout), with log
+                    messages mentioning "DEADLOCK DETECTED" and "permanently blocked"
+                (2) Distinguish the deadlock from simple contention — deadlock logs mention
+                    two threads waiting for each other's locks, not just serialized access
+                (3) Report at least HIGH severity for the deadlock due to permanently blocked threads""";
+
+        waitAndAnalyze("DEADLOCK", 2, criteria);
+    }
+
     @AfterAll
     void stopCompanionApps() {
         proxyProcess.stop();
