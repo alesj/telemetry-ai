@@ -23,11 +23,6 @@
     <!-- Dependencies          -->
     <!-- ===================== -->
     <dependencies>
-        <dependency>
-            <groupId>io.quarkus.telemetry</groupId>
-            <artifactId>telemetry-ai-common</artifactId>
-        </dependency>
-
         <!-- LGTM -->
         <dependency>
             <groupId>io.quarkus</groupId>

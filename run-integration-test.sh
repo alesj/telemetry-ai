@@ -26,5 +26,4 @@ case "$SCORER" in
     ;;
 esac
 
-mvn clean install -DskipTests -pl common
 mvn clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true -Dtest=FullIntegrationTest

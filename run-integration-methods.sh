@@ -17,6 +17,8 @@ VALID_METHODS=(
   analyzeNetworkPartition
   analyzeRequestFlood
   analyzeDeadlock
+  examineSourceCode
+  generateDashboard
 )
 
 if [ $# -eq 0 ]; then
@@ -89,6 +91,5 @@ echo "  Scorer: ${SCORER:-openai (default)}"
 echo "  Methods: $METHODS"
 echo ""
 
-mvn clean install -DskipTests -pl common -q
 mvn clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true \
   -Dtest="FullIntegrationTest#${METHODS}"

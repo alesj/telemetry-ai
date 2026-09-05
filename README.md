@@ -71,10 +71,6 @@ Poke the `proxy` app via browser or curl: `http://localhost:8081/poke?value=<you
 
 Poke it a few times with different `http codes`, so we get different traces, logs, metrics, ...
 
-Then hit the `ai` app with the number of last request you want to analyze: `http://localhost:8080/analyze/<number of last requests>`
-
-You should see the AI analysis output in `ai` app's logs or browser / curl.
-
 ---
 
 You can check any app's DevUI on where the Grafana / LGTM is available - for any other queries, etc
@@ -163,3 +159,5 @@ Available test methods:
 | `analyzeNetworkPartition` | App stopped/restarted mid-test |
 | `analyzeRequestFlood` | Multiple delayed requests + error |
 | `analyzeDeadlock` | Thread deadlock with timeout detection |
+| `examineSourceCode` | Source code examination via Dev MCP |
+| `generateDashboard` | Grafana dashboard generation from analysis |

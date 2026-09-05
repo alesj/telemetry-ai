@@ -7,7 +7,7 @@ import org.jboss.logging.Logger;
 public class DashboardUtils {
     private static final Logger log = Logger.getLogger(DashboardUtils.class);
 
-    static String sanitizeDashboardJson(ObjectMapper mapper, String raw) {
+    public static String sanitizeDashboardJson(ObjectMapper mapper, String raw) {
         if (raw == null || raw.isBlank()) {
             return raw;
         }
