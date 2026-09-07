@@ -119,6 +119,20 @@
             </dependencies>
         </profile>
 
+        <!-- Grok (xAI) — reuses OpenAI extension with different base-url -->
+        <profile>
+            <id>grok</id>
+            <properties>
+                <quarkus.profile>grok</quarkus.profile>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkiverse.langchain4j</groupId>
+                    <artifactId>quarkus-langchain4j-openai</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+
         <!-- Gemini -->
         <profile>
             <id>gemini</id>

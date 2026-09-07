@@ -22,6 +22,9 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
         if (ai == null) {
             ai = System.getProperty("ai");
         }
-        return Optional.ofNullable(ai).orElse("openai");
+        String profile = Optional.ofNullable(ai).orElse("openai");
+        System.out.printf("INFO: IntegrationTestProfile using AI provider: %s (env.AI=%s, sys.ai=%s)%n",
+                profile, System.getenv("AI"), System.getProperty("ai"));
+        return profile;
     }
 }

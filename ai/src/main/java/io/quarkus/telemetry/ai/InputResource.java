@@ -1,7 +1,10 @@
 package io.quarkus.telemetry.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.langchain4j.model.chat.ChatModel;
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -10,6 +13,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +28,9 @@ public class InputResource {
     ObjectMapper mapper;
 
     @Inject
+    ChatModel chatModel;
+
+    @Inject
     TelemetryAiService telemetry;
 
     @Inject
@@ -34,6 +41,14 @@ public class InputResource {
 
     @Inject
     DevMcpToolProviderSupplier devMcpTools;
+
+    @ConfigProperty(name = "quarkus.profile", defaultValue = "unknown")
+    String activeProfile;
+
+    void onStart(@Observes StartupEvent event) {
+        String modelName = chatModel.defaultRequestParameters().modelName();
+        log.info("AI provider active: profile={}, model={}", activeProfile, modelName);
+    }
 
     @GET
     @Path("/analyze/{n}")
