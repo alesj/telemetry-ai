@@ -3,6 +3,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+TEST_TYPE="${1:-chaos}"
+
 CONFIGS=(
   "openai openai"
   "grok openai"
@@ -15,13 +17,13 @@ FAILED=()
 for config in "${CONFIGS[@]}"; do
   read -r ai scorer <<< "$config"
   echo "=========================================="
-  echo " Running: AI=$ai SCORER=$scorer"
+  echo " Running: TYPE=$TEST_TYPE AI=$ai SCORER=$scorer"
   echo "=========================================="
-  if "$SCRIPT_DIR/run-integration-test.sh" "$ai" "$scorer"; then
-    echo "PASSED: AI=$ai SCORER=$scorer"
+  if "$SCRIPT_DIR/run-integration-test.sh" "$TEST_TYPE" "$ai" "$scorer"; then
+    echo "PASSED: TYPE=$TEST_TYPE AI=$ai SCORER=$scorer"
   else
-    echo "FAILED: AI=$ai SCORER=$scorer"
-    FAILED+=("AI=$ai SCORER=$scorer")
+    echo "FAILED: TYPE=$TEST_TYPE AI=$ai SCORER=$scorer"
+    FAILED+=("TYPE=$TEST_TYPE AI=$ai SCORER=$scorer")
   fi
   echo ""
 done

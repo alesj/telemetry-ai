@@ -1,0 +1,10 @@
+INSERT INTO Person (id, name, surname, age) VALUES (1, 'John', 'Smith', 28);
+INSERT INTO Person (id, name, surname, age) VALUES (2, 'Sarah', 'Johnson', 35);
+INSERT INTO Person (id, name, surname, age) VALUES (3, 'Michael', 'Williams', 22);
+INSERT INTO Person (id, name, surname, age) VALUES (4, 'Emily', 'Brown', 41);
+INSERT INTO Person (id, name, surname, age) VALUES (5, 'James', 'Davis', 30);
+INSERT INTO Person (id, name, surname, age) VALUES (6, 'Emma', 'Smith', 55);
+INSERT INTO Person (id, name, surname, age) VALUES (7, 'Daniel', 'Wilson', 19);
+INSERT INTO Person (id, name, surname, age) VALUES (8, 'Olivia', 'Taylor', 37);
+INSERT INTO Person (id, name, surname, age) VALUES (9, 'Robert', 'Johnson', 28);
+INSERT INTO Person (id, name, surname, age) VALUES (10, 'Sophie', 'Anderson', 45);

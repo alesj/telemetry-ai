@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROFILE="${1:-openai}"
-SCORER="${2:-}"
+TEST_TYPE="${1:-chaos}"
+PROFILE="${2:-openai}"
+SCORER="${3:-}"
 
-shift 2 2>/dev/null || shift $# 2>/dev/null
+shift 3 2>/dev/null || shift $# 2>/dev/null
 
-VALID_METHODS=(
+case "$TEST_TYPE" in
+  chaos) TEST_CLASS="ChaosIntegrationTest" ;;
+  db)    TEST_CLASS="DbIntegrationTest" ;;
+  *)
+    echo "Unknown test type: $TEST_TYPE"
+    echo "Usage: $0 <chaos|db> <ai-profile> [scorer] <method1> [method2] ..."
+    exit 1
+    ;;
+esac
+
+CHAOS_METHODS=(
   analyzeNormalTraffic
   analyzeErrorTraffic
   analyzeLatency
@@ -21,22 +32,34 @@ VALID_METHODS=(
   generateDashboard
 )
 
+DB_METHODS=(
+  analyzeNormalTraffic
+  analyzeSlowQueries
+  analyzeDbOutage
+)
+
+case "$TEST_TYPE" in
+  chaos) VALID_METHODS=("${CHAOS_METHODS[@]}") ;;
+  db)    VALID_METHODS=("${DB_METHODS[@]}") ;;
+esac
+
 if [ $# -eq 0 ]; then
-  echo "Usage: $0 <ai-profile> [scorer] <method1> [method2] ..."
+  echo "Usage: $0 <chaos|db> <ai-profile> [scorer] <method1> [method2] ..."
   echo ""
+  echo "  test-type:   chaos | db"
   echo "  ai-profile:  openai | grok | gemini | watsonx"
-  echo "  scorer:       grok | (empty = openai default)"
-  echo "  methods:      test method names from FullIntegrationTest"
+  echo "  scorer:      grok | (empty = openai default)"
+  echo "  methods:     test method names from $TEST_CLASS"
   echo ""
-  echo "Available methods:"
+  echo "Available methods for '$TEST_TYPE':"
   for m in "${VALID_METHODS[@]}"; do
     echo "  $m"
   done
   echo ""
   echo "Examples:"
-  echo "  $0 openai grok analyzeIntermittentFailures analyzeNetworkPartition"
-  echo "  $0 grok '' analyzeRequestFlood"
-  echo "  $0 openai '' analyzeNormalTraffic analyzeErrorTraffic analyzeLatency"
+  echo "  $0 chaos openai grok analyzeIntermittentFailures analyzeNetworkPartition"
+  echo "  $0 chaos grok '' analyzeRequestFlood"
+  echo "  $0 db openai '' analyzeNormalTraffic"
   exit 1
 fi
 
@@ -52,8 +75,8 @@ for method in "$@"; do
   if [ "$found" = true ]; then
     VALIDATED+=("$method")
   else
-    echo "WARNING: skipping unknown method '$method'"
-    echo "  Run '$0' with no methods to see available options."
+    echo "WARNING: skipping unknown method '$method' for $TEST_TYPE"
+    echo "  Run '$0 $TEST_TYPE' with no methods to see available options."
   fi
 done
 
@@ -84,12 +107,12 @@ case "$SCORER" in
     ;;
 esac
 
-echo "=== Running FullIntegrationTest ==="
+echo "=== Running $TEST_CLASS ==="
+echo "  Test type: $TEST_TYPE"
 echo "  AI profile: $PROFILE"
-echo "  Maven profile: $MAVEN_PROFILE"
 echo "  Scorer: ${SCORER:-openai (default)}"
 echo "  Methods: $METHODS"
 echo ""
 
 mvn clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true \
-  -Dtest="FullIntegrationTest#${METHODS}"
+  -Dtest="${TEST_CLASS}#${METHODS}"

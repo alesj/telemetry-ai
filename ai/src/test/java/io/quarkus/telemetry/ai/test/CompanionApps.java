@@ -42,7 +42,7 @@ public class CompanionApps {
                     .start();
             forwardOutput(process.getInputStream(), label);
 
-            waitForHttp("http://localhost:" + port + "/poke?value=200", label, 120);
+            waitForHttp("http://localhost:" + port + "/poke", label, 120);
 
             System.out.println("=== " + label + " started ...");
             return new DevModeProcess(label, process);

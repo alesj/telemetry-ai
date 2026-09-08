@@ -98,19 +98,26 @@ Each section has a **Copy** button for clipboard export.
 
 ## Integration tests
 
-Use `run-integration-test.sh` to run `FullIntegrationTest` with flexible LLM selection.
+Use `run-integration-test.sh` to run integration tests with flexible LLM and test type selection.
 
-The script takes two optional arguments:
-1. **AI profile** — which LLM powers `TelemetryAiService` / `DevMcpAiService` (default: `openai`)
-2. **Scorer** — which LLM scores the test evaluation in `FullIntegrationTest` (default: `openai`)
+The script takes up to three arguments:
+1. **Test type** — `chaos` (ChaosIntegrationTest) or `db` (DbIntegrationTest) (default: `chaos`)
+2. **AI profile** — which LLM powers `TelemetryAiService` / `DevMcpAiService` (default: `openai`)
+3. **Scorer** — which LLM scores the test evaluation (default: `openai`)
 
 ```bash
-./run-integration-test.sh                  # both openai
-./run-integration-test.sh grok             # AI=grok, scorer=openai
-./run-integration-test.sh openai grok      # AI=openai, scorer=grok
-./run-integration-test.sh grok grok        # both grok
-./run-integration-test.sh watsonx          # AI=watsonx, scorer=openai
-./run-integration-test.sh watsonx watsonx  # both watsonx
+./run-integration-test.sh                       # chaos, both openai
+./run-integration-test.sh chaos grok            # chaos, AI=grok, scorer=openai
+./run-integration-test.sh chaos openai grok     # chaos, AI=openai, scorer=grok
+./run-integration-test.sh chaos grok grok       # chaos, both grok
+./run-integration-test.sh db openai             # db, AI=openai, scorer=openai
+./run-integration-test.sh db grok grok          # db, both grok
+```
+
+Run all provider combinations for a test type:
+```bash
+./run-all-integration-tests.sh chaos            # all 4 combos for chaos
+./run-all-integration-tests.sh db               # all 4 combos for db
 ```
 
 Supported AI profiles: `openai`, `grok`, `gemini`, `watsonx`.
@@ -122,30 +129,24 @@ Set `WATSONX_BASE_URL`, `WATSONX_API_KEY`, and `WATSONX_PROJECT_ID` env vars bef
 
 ### Running specific test methods
 
-Use `run-integration-methods.sh` to run individual test methods from `FullIntegrationTest`:
+Use `run-integration-methods.sh` to run individual test methods:
 
 ```bash
-./run-integration-methods.sh <ai-profile> <scorer> <method1> [method2] ...
+./run-integration-methods.sh <chaos|db> <ai-profile> [scorer] <method1> [method2] ...
 ```
 
 Pass an empty string `''` for scorer to use the default (openai).
-Supported scorers: `openai` (default), `grok`, `watsonx`.
 
 ```bash
-# AI=openai, scorer=grok, run 2 methods
-./run-integration-methods.sh openai grok analyzeIntermittentFailures analyzeNetworkPartition
+# Chaos tests
+./run-integration-methods.sh chaos openai grok analyzeIntermittentFailures analyzeNetworkPartition
+./run-integration-methods.sh chaos grok '' analyzeRequestFlood
 
-# AI=grok, default scorer, run 1 method
-./run-integration-methods.sh grok '' analyzeRequestFlood
-
-# AI=watsonx, scorer=watsonx, run 2 methods
-./run-integration-methods.sh watsonx watsonx analyzeNormalTraffic analyzeErrorTraffic
-
-# AI=openai, default scorer, run 3 specific methods
-./run-integration-methods.sh openai '' analyzeIntermittentFailures analyzeNetworkPartition analyzeRequestFlood
+# DB tests
+./run-integration-methods.sh db openai '' analyzeNormalTraffic
 ```
 
-Available test methods:
+Available chaos test methods:
 
 | Method | Scenario |
 |---|---|
@@ -161,3 +162,11 @@ Available test methods:
 | `analyzeDeadlock` | Thread deadlock with timeout detection |
 | `examineSourceCode` | Source code examination via Dev MCP |
 | `generateDashboard` | Grafana dashboard generation from analysis |
+
+Available db test methods:
+
+| Method | Scenario |
+|---|---|
+| `analyzeNormalTraffic` | Database person queries (by name, surname) |
+| `analyzeSlowQueries` | Slow queries via Toxiproxy latency injection (1s delay) |
+| `analyzeDbOutage` | Database outage via Toxiproxy connection cut |

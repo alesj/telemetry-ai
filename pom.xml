@@ -22,6 +22,7 @@
         <module>proxy</module>
         <module>app</module>
         <module>ai</module>
+        <module>db</module>
     </modules>
 
     <!-- ===================== -->

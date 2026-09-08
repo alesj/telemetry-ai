@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROFILE="${1:-openai}"
-SCORER="${2:-}"
+TEST_TYPE="${1:-chaos}"
+PROFILE="${2:-openai}"
+SCORER="${3:-}"
 
 export AI="$PROFILE"
+
+case "$TEST_TYPE" in
+  chaos) TEST_CLASS="ChaosIntegrationTest" ;;
+  db)    TEST_CLASS="DbIntegrationTest" ;;
+  *)
+    echo "Unknown test type: $TEST_TYPE"
+    echo "Usage: $0 <chaos|db> [ai-profile] [scorer]"
+    exit 1
+    ;;
+esac
 
 # Map AI profile to Maven profile (grok reuses openai's dependency)
 case "$PROFILE" in
@@ -26,4 +37,10 @@ case "$SCORER" in
     ;;
 esac
 
-mvn clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true -Dtest=FullIntegrationTest
+echo "=== Running $TEST_CLASS ==="
+echo "  Test type: $TEST_TYPE"
+echo "  AI profile: $PROFILE"
+echo "  Scorer: ${SCORER:-openai (default)}"
+echo ""
+
+mvn clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true -Dtest="$TEST_CLASS"
