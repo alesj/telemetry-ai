@@ -13,6 +13,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @QuarkusTest
@@ -34,7 +39,9 @@ class DbIntegrationTest extends AppsTestBase {
         dbProcess = CompanionApps.startDevMode("db", DB_PORT,
                 "quarkus.datasource.jdbc.url=" + ToxiproxySetup.jdbcUrl(),
                 "quarkus.datasource.username=root",
-                "quarkus.datasource.password=root");
+                "quarkus.datasource.password=root",
+                "quarkus.datasource.jdbc.max-size=2",
+                "quarkus.datasource.jdbc.acquisition-timeout=2");
     }
 
     @Test
@@ -78,6 +85,37 @@ class DbIntegrationTest extends AppsTestBase {
 
     @Test
     @Order(3)
+    void analyzePoolExhaustion() throws Exception {
+        ToxiproxySetup.addLatency(4000);
+        try {
+            ExecutorService executor = Executors.newFixedThreadPool(6);
+            List<Future<?>> futures = new ArrayList<>();
+            String[] params = {"surname", "name", "surname", "age", "name", "surname"};
+            String[] values = {"Johnson", "Alice", "Smith", "28", "Bob", "Davis"};
+            for (int i = 0; i < params.length; i++) {
+                final int idx = i;
+                futures.add(executor.submit(() -> pokeDb(params[idx], values[idx])));
+                Thread.sleep(200);
+            }
+            for (Future<?> f : futures) {
+                try { f.get(30, TimeUnit.SECONDS); } catch (Exception ignored) {}
+            }
+            executor.shutdown();
+        } finally {
+            ToxiproxySetup.removeLatency();
+        }
+
+        String criteria = """
+                Some requests completed successfully but with significantly elevated latency.
+                Other requests failed with connection errors or timeouts.
+                The analysis should detect a mixed pattern of degraded performance and failures.
+                The root cause should point to infrastructure or connectivity issues, not application bugs.""";
+
+        waitAndAnalyze("DB POOL EXHAUSTION", 3, criteria);
+    }
+
+    @Test
+    @Order(4)
     void analyzeDbOutage() throws Exception {
         ToxiproxySetup.cutConnection();
         try {

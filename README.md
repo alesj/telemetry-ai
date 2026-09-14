@@ -75,6 +75,22 @@ Poke it a few times with different `http codes`, so we get different traces, log
 
 You can check any app's DevUI on where the Grafana / LGTM is available - for any other queries, etc
 
+### Manual LGTM (without DevServices)
+
+To connect to an externally started LGTM stack instead of using Quarkus DevServices, start LGTM manually:
+
+```bash
+docker run -p 3000:3000 -p 4317:4317 -p 4318:4318 -p 3200:3200 grafana/otel-lgtm:0.24.0
+```
+
+Then run each Quarkus app with the `lgtm` profile. The `ai` module also needs an LLM profile (e.g. `openai`, `grok`) — Quarkus supports multiple comma-separated profiles:
+
+```bash
+./mvn.proxy.sh quarkus:dev -Dquarkus.profile=lgtm
+./mvn.app.sh quarkus:dev -Dquarkus.profile=lgtm
+./mvn.ai.sh quarkus:dev -Dquarkus.profile=lgtm,openai
+```
+
 ---
 
 ## Web UI
@@ -168,5 +184,6 @@ Available db test methods:
 | Method | Scenario |
 |---|---|
 | `analyzeNormalTraffic` | Database person queries (by name, surname) |
-| `analyzeSlowQueries` | Slow queries via Toxiproxy latency injection (1s delay) |
+| `analyzeSlowQueries` | Slow queries via Toxiproxy latency injection (3s delay) |
+| `analyzePoolExhaustion` | Connection pool exhaustion via 8s latency + concurrent requests |
 | `analyzeDbOutage` | Database outage via Toxiproxy connection cut |

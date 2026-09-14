@@ -35,6 +35,7 @@ CHAOS_METHODS=(
 DB_METHODS=(
   analyzeNormalTraffic
   analyzeSlowQueries
+  analyzePoolExhaustion
   analyzeDbOutage
 )
 
