@@ -115,5 +115,5 @@ echo "  Scorer: ${SCORER:-openai (default)}"
 echo "  Methods: $METHODS"
 echo ""
 
-mvn clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true \
+./mvnw clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true \
   -Dtest="${TEST_CLASS}#${METHODS}"

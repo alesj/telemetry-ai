@@ -1,5 +1,13 @@
 # Telemetry AI
 
+[![Build](https://github.com/quarkiverse/quarkus-telemetry-ai/actions/workflows/build.yml/badge.svg)](https://github.com/quarkiverse/quarkus-telemetry-ai/actions/workflows/build.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/io.quarkiverse.telemetry/telemetry-ai.svg?label=Maven%20Central)](https://search.maven.org/artifact/io.quarkiverse.telemetry/telemetry-ai)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+LLM-powered root-cause analysis of distributed telemetry data using Quarkus, LangChain4j, and Grafana LGTM via MCP.
+
+For detailed documentation, see the [Antora docs](docs/modules/ROOT/pages/index.adoc).
+
 ## How to run / test the AI part
 
 From project root, run this 3 commands
@@ -185,5 +193,5 @@ Available db test methods:
 |---|---|
 | `analyzeNormalTraffic` | Database person queries (by name, surname) |
 | `analyzeSlowQueries` | Slow queries via Toxiproxy latency injection (3s delay) |
-| `analyzePoolExhaustion` | Connection pool exhaustion via 8s latency + concurrent requests |
+| `analyzePoolExhaustion` | Connection pool exhaustion via 4s latency + small pool + concurrent requests |
 | `analyzeDbOutage` | Database outage via Toxiproxy connection cut |

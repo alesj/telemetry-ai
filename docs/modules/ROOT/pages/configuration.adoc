@@ -1,0 +1,102 @@
+= Configuration
+
+== LLM Provider Profiles
+
+Each LLM provider is configured via Quarkus profiles in `ai/src/main/resources/application.properties`.
+
+=== OpenAI (default)
+
+[source,properties]
+----
+%openai.quarkus.langchain4j.openai.api-key=${OPENAI_API_KEY}
+%openai.quarkus.langchain4j.openai.chat-model.model-name=gpt-4o-mini
+%openai.quarkus.langchain4j.openai.timeout=120s
+----
+
+=== Grok/xAI
+
+Reuses the OpenAI extension with a different base URL:
+
+[source,properties]
+----
+%grok.quarkus.langchain4j.openai.base-url=https://api.x.ai/v1
+%grok.quarkus.langchain4j.openai.api-key=${GROK_API_KEY}
+%grok.quarkus.langchain4j.openai.chat-model.model-name=grok-3-mini
+----
+
+=== Gemini
+
+[source,properties]
+----
+%gemini.quarkus.langchain4j.ai.gemini.api-key=${GEMINI_API_KEY}
+----
+
+=== WatsonX
+
+[source,properties]
+----
+%watsonx.quarkus.langchain4j.watsonx.base-url=${WATSONX_BASE_URL}
+%watsonx.quarkus.langchain4j.watsonx.api-key=${WATSONX_API_KEY}
+%watsonx.quarkus.langchain4j.watsonx.project-id=${WATSONX_PROJECT_ID}
+%watsonx.quarkus.langchain4j.watsonx.chat-model.model-name=ibm/granite-4-h-small
+----
+
+== Scorer Configuration
+
+The test evaluation scorer defaults to OpenAI but can be overridden:
+
+[source,bash]
+----
+export SCORER_BASE_URL=https://api.x.ai/v1
+export SCORER_API_KEY=$GROK_API_KEY
+export SCORER_MODEL=grok-3-mini
+----
+
+== MCP Client Configuration
+
+=== Tempo MCP
+
+Connects to Tempo via streamable HTTP for trace retrieval:
+
+[source,properties]
+----
+quarkus.langchain4j.mcp.tempo.transport-type=streamable-http
+quarkus.langchain4j.mcp.tempo.url=${tempo-mcp.endpoint}/api/mcp
+----
+
+=== Grafana MCP
+
+Connects to Grafana via stdio process for Loki logs and Prometheus metrics:
+
+[source,properties]
+----
+quarkus.langchain4j.mcp.grafana.transport-type=stdio
+quarkus.langchain4j.mcp.grafana.command=uvx,mcp-grafana
+quarkus.langchain4j.mcp.grafana.environment.GRAFANA_URL=${grafana.endpoint}
+----
+
+== Application Ports
+
+[cols="1,1"]
+|===
+| Module | Port
+
+| AI | 8080
+| Proxy | 8081
+| App | 8082
+| DB | 8083
+|===
+
+== LGTM Profile
+
+For manual LGTM connection (without DevServices), use the `lgtm` profile. Key properties:
+
+[source,properties]
+----
+%lgtm.quarkus.observability.enabled=false
+%lgtm.grafana.endpoint=http://localhost:3000
+%lgtm.tempo-mcp.endpoint=http://localhost:3200
+%lgtm.otel-collector.url=localhost:4318
+----
+
+LGTM Docker ports: Grafana=3000, OTLP gRPC=4317, OTLP HTTP=4318, Tempo=3200.

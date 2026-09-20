@@ -1,0 +1,121 @@
+= Integration Testing
+
+== Overview
+
+Telemetry AI includes 16 end-to-end integration test scenarios that exercise the full stack: monitored apps generate telemetry under controlled failure conditions, the AI module analyzes it, and an LLM-as-judge scores the analysis quality (threshold: 70/100).
+
+== Running Tests
+
+=== Full Test Suite
+
+[source,bash]
+----
+./run-integration-test.sh <chaos|db> [ai-profile] [scorer]
+----
+
+Examples:
+
+[source,bash]
+----
+./run-integration-test.sh chaos                    # chaos, both openai
+./run-integration-test.sh chaos grok               # AI=grok, scorer=openai
+./run-integration-test.sh chaos openai grok        # AI=openai, scorer=grok
+./run-integration-test.sh db grok grok             # DB tests, both grok
+----
+
+=== All Provider Combinations
+
+[source,bash]
+----
+./run-all-integration-tests.sh chaos    # all 4 combos for chaos
+./run-all-integration-tests.sh db       # all 4 combos for db
+----
+
+=== Specific Test Methods
+
+[source,bash]
+----
+./run-integration-methods.sh <chaos|db> <ai-profile> [scorer] <method1> [method2] ...
+----
+
+Pass an empty string `''` for scorer to use the default (openai).
+
+[source,bash]
+----
+./run-integration-methods.sh chaos openai grok analyzeLatency analyzeDeadlock
+./run-integration-methods.sh db grok '' analyzeSlowQueries
+----
+
+== Chaos Test Scenarios
+
+[cols="1,2,3"]
+|===
+| # | Method | What It Tests
+
+| 1 | `analyzeNormalTraffic` | Healthy requests -- no false positives
+| 2 | `analyzeErrorTraffic` | HTTP 4xx/5xx -- error pattern detection
+| 3 | `analyzeLatency` | Thread.sleep delays -- latency spike detection
+| 4 | `analyzeResourcePressure` | Memory + CPU + leaks -- resource concern detection
+| 5 | `analyzeCascadingFailure` | Exception + threadpool + GC -- multi-chaos correlation
+| 6 | `analyzeLockContention` | Synchronized lock contention -- thread blocking
+| 7 | `analyzeIntermittentFailures` | ~60% random failure rate -- flaky error detection
+| 8 | `analyzeNetworkPartition` | App stopped/restarted -- outage detection
+| 9 | `analyzeRequestFlood` | Multiple delayed requests + error -- latency detection
+| 10 | `analyzeDeadlock` | Thread deadlock -- deadlock detection
+| 11 | `examineSourceCode` | Dev MCP source analysis -- code correlation
+| 12 | `generateDashboard` | Grafana dashboard JSON -- visualization quality
+|===
+
+== DB Test Scenarios
+
+DB tests use Toxiproxy for infrastructure-level chaos injection:
+
+[cols="1,2,3"]
+|===
+| # | Method | What It Tests
+
+| 13 | `analyzeNormalTraffic` | Database queries -- healthy state confirmation
+| 14 | `analyzeSlowQueries` | Toxiproxy 3s latency -- DB slowness detection
+| 15 | `analyzePoolExhaustion` | 4s latency + small pool -- mixed success/failure pattern
+| 16 | `analyzeDbOutage` | Toxiproxy connection cut -- outage detection
+|===
+
+== Chaos Types
+
+The app module supports 11 chaos types via `GET /chaos?type={type}&intensity={value}`:
+
+[cols="1,2"]
+|===
+| Type | Effect
+
+| `delay` | Thread.sleep (configurable ms)
+| `memory` | Allocate N MB (released after request)
+| `cpu` | CPU burn loop for N ms
+| `leak` | Allocate N MB (never freed)
+| `error` | Random 5xx WebApplicationException
+| `exception` | Unhandled RuntimeException (HTTP 500)
+| `threadpool` | Block 10 threads via CountDownLatch
+| `contention` | 10 threads competing for single synchronized lock
+| `gc` | Rapid alloc/dealloc loop causing GC pressure
+| `intermittent` | Random failures at configurable rate
+| `deadlock` | Two threads deadlocked on competing locks
+|===
+
+== Environment Variables
+
+Required for integration tests:
+
+[source,bash]
+----
+export OPENAI_API_KEY=sk-...       # required for openai profile
+export GROK_API_KEY=xai-...        # required for grok profile
+----
+
+Optional scorer overrides:
+
+[source,bash]
+----
+export SCORER_BASE_URL=https://api.x.ai/v1
+export SCORER_API_KEY=$GROK_API_KEY
+export SCORER_MODEL=grok-3-mini
+----

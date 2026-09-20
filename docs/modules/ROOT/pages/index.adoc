@@ -1,0 +1,60 @@
+= Telemetry AI
+
+LLM-powered root-cause analysis of distributed telemetry data.
+
+== What It Is
+
+Telemetry AI is a Quarkus-based system that uses LLMs to automatically analyze distributed telemetry data (traces, logs, metrics) from instrumented applications. It connects to a Grafana LGTM stack via MCP (Model Context Protocol) clients, gathers correlated telemetry, and produces structured root-cause analysis reports.
+
+== Architecture
+
+----
+User (browser / curl)
+       |
+  localhost:8080        localhost:8081        localhost:8082
+       |                     |                     |
+  +----v-----+         +-----v-----+         +-----v-----+
+  | AI Module|         |   Proxy   | ------> |    App    |
+  | analyze  |         |  forward  |  REST   |  poke/    |
+  | Web UI   |         |  requests |  client |  chaos    |
+  +----+-----+         +-----------+         +-----------+
+       |                     |                     |
+       |              OpenTelemetry spans, logs, metrics
+       |                     |                     v
+       v                     v               +-----v-----+
+  +----------+         +------------------+  |    DB     |
+  | LLM      |         | LGTM Stack       |  |  MySQL    |
+  | (OpenAI, |         | Tempo | Loki     |  |  Toxiproxy|
+  |  Grok,   |         | Prometheus       |  +-----------+
+  |  Gemini) |         +------------------+
+  +----------+
+----
+
+=== Modules
+
+* **ai** (port 8080) -- Core analysis engine with Web UI, LLM integration, MCP telemetry access
+* **proxy** (port 8081) -- Forwards requests to app, creates distributed trace chain
+* **app** (port 8082) -- Synthetic application with 11 configurable chaos failure modes
+* **db** (port 8083) -- Database-backed application with JPA/Panache, MySQL via Toxiproxy for infrastructure chaos
+
+== Analysis Pipeline
+
+1. User triggers analysis via `GET /analyze/{n}` (n = number of traces)
+2. AI module sends system prompt and tools to the LLM
+3. LLM iterates over traces, retrieving trace data and logs from LGTM via MCP
+4. LLM queries Prometheus metrics for the trace time window
+5. LLM produces a structured root-cause analysis report
+6. Optionally: source code examination and Grafana dashboard generation via Dev MCP
+
+== LLM Providers
+
+[cols="1,1,1,2"]
+|===
+| Provider | Model | Status | Notes
+
+| OpenAI | gpt-4o-mini | Fully tested | Default provider
+| Grok/xAI | grok-3-mini | Fully tested | OpenAI-compatible API
+| Gemini | gemini-pro | Configured | Not yet integration-tested
+| WatsonX | Granite | Configured | JSON validator guardrail
+| Anthropic | -- | Planned | API key config exists
+|===

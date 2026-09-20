@@ -43,4 +43,4 @@ echo "  AI profile: $PROFILE"
 echo "  Scorer: ${SCORER:-openai (default)}"
 echo ""
 
-mvn clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true -Dtest="$TEST_CLASS"
+./mvnw clean test -pl ai -P"$MAVEN_PROFILE" -Dintegration.run=true -Dtest="$TEST_CLASS"

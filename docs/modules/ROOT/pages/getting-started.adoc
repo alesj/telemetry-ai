@@ -1,0 +1,84 @@
+= Getting Started
+
+== Prerequisites
+
+* JDK 21+
+* Maven 3.9+ (or use the included `mvnw` wrapper)
+* Docker (for LGTM stack and DB tests)
+* API key for at least one LLM provider (OpenAI or Grok)
+
+== Quick Start
+
+Start the three modules in separate terminals. The proxy must start first so other modules share the same LGTM DevServices container.
+
+[source,bash]
+----
+# Terminal 1: Start proxy (launches LGTM DevServices)
+./mvn.proxy.sh quarkus:dev
+
+# Terminal 2: Start app (wait for proxy to fully start)
+./mvn.app.sh quarkus:dev
+
+# Terminal 3: Start AI module
+./mvn.ai.sh quarkus:dev
+----
+
+=== LLM Provider Selection
+
+The AI module uses Maven profiles to select the LLM provider:
+
+[source,bash]
+----
+./mvn.ai.sh quarkus:dev           # OpenAI (default)
+./mvn.ai.sh quarkus:dev -Pgrok    # Grok/xAI
+./mvn.ai.sh quarkus:dev -Pgemini  # Gemini
+----
+
+=== Environment Variables
+
+Set the API key for your chosen provider:
+
+[source,bash]
+----
+export OPENAI_API_KEY=sk-...
+export GROK_API_KEY=xai-...
+export GEMINI_API_KEY=...
+----
+
+== Generate Traffic
+
+Poke the proxy app to generate traces:
+
+[source,bash]
+----
+curl http://localhost:8081/poke?value=200    # healthy request
+curl http://localhost:8081/poke?value=500    # error request
+curl http://localhost:8081/chaos?type=delay&intensity=3000  # 3s delay
+----
+
+== Analyze
+
+Open the Web UI at http://localhost:8080 or call the API directly:
+
+[source,bash]
+----
+curl http://localhost:8080/analyze/5   # analyze last 5 traces
+----
+
+== Manual LGTM (without DevServices)
+
+To connect to an externally started LGTM stack:
+
+[source,bash]
+----
+docker run -p 3000:3000 -p 4317:4317 -p 4318:4318 -p 3200:3200 grafana/otel-lgtm:0.24.0
+----
+
+Then run each app with the `lgtm` profile:
+
+[source,bash]
+----
+./mvn.proxy.sh quarkus:dev -Dquarkus.profile=lgtm
+./mvn.app.sh quarkus:dev -Dquarkus.profile=lgtm
+./mvn.ai.sh quarkus:dev -Dquarkus.profile=lgtm,openai
+----

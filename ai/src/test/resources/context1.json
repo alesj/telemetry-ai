@@ -310,7 +310,7 @@
                       {
                         "key": "code.function.name",
                         "value": {
-                          "stringValue": "io.quarkus.telemetry.app.PokeResource.poke"
+                          "stringValue": "io.quarkiverse.telemetry.app.PokeResource.poke"
                         }
                       },
                       {
@@ -524,7 +524,7 @@
                       {
                         "key": "code.function.name",
                         "value": {
-                          "stringValue": "io.quarkus.telemetry.app.PokeResource.poke"
+                          "stringValue": "io.quarkiverse.telemetry.app.PokeResource.poke"
                         }
                       },
                       {
@@ -560,7 +560,7 @@
                           {
                             "key": "exception.stacktrace",
                             "value": {
-                              "stringValue": "jakarta.ws.rs.WebApplicationException: App error: 404\n\tat io.quarkus.telemetry.app.PokeResource.poke(PokeResource.java:30)\n\tat io.quarkus.telemetry.app.PokeResource_ClientProxy.poke(Unknown Source)\n\tat io.quarkus.telemetry.app.PokeResource$quarkusrestinvoker$poke_aab2b8badde2c398dc5dc139e2d1cb56bf4ecae0.invoke(Unknown Source)\n\tat org.jboss.resteasy.reactive.server.handlers.InvocationHandler.handle(InvocationHandler.java:29)\n\tat io.quarkus.resteasy.reactive.server.runtime.QuarkusResteasyReactiveRequestContext.invokeHandler(QuarkusResteasyReactiveRequestContext.java:183)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.run(AbstractResteasyReactiveContext.java:147)\n\tat io.quarkus.vertx.core.runtime.VertxCoreRecorder$15.runWith(VertxCoreRecorder.java:645)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2651)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2630)\n\tat org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1622)\n\tat org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1589)\n\tat org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)\n\tat org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)\n\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+                              "stringValue": "jakarta.ws.rs.WebApplicationException: App error: 404\n\tat io.quarkiverse.telemetry.app.PokeResource.poke(PokeResource.java:30)\n\tat io.quarkiverse.telemetry.app.PokeResource_ClientProxy.poke(Unknown Source)\n\tat io.quarkiverse.telemetry.app.PokeResource$quarkusrestinvoker$poke_aab2b8badde2c398dc5dc139e2d1cb56bf4ecae0.invoke(Unknown Source)\n\tat org.jboss.resteasy.reactive.server.handlers.InvocationHandler.handle(InvocationHandler.java:29)\n\tat io.quarkus.resteasy.reactive.server.runtime.QuarkusResteasyReactiveRequestContext.invokeHandler(QuarkusResteasyReactiveRequestContext.java:183)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.run(AbstractResteasyReactiveContext.java:147)\n\tat io.quarkus.vertx.core.runtime.VertxCoreRecorder$15.runWith(VertxCoreRecorder.java:645)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2651)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2630)\n\tat org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1622)\n\tat org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1589)\n\tat org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)\n\tat org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)\n\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
                             }
                           }
                         ],
@@ -667,7 +667,7 @@
                           {
                             "key": "code.function.name",
                             "value": {
-                              "stringValue": "io.quarkus.telemetry.app.PokeResource.poke"
+                              "stringValue": "io.quarkiverse.telemetry.app.PokeResource.poke"
                             }
                           },
                           {
@@ -751,7 +751,7 @@
                               {
                                 "key": "exception.stacktrace",
                                 "value": {
-                                  "stringValue": "jakarta.ws.rs.WebApplicationException: App error: 500\n\tat io.quarkus.telemetry.app.PokeResource.poke(PokeResource.java:30)\n\tat io.quarkus.telemetry.app.PokeResource_ClientProxy.poke(Unknown Source)\n\tat io.quarkus.telemetry.app.PokeResource$quarkusrestinvoker$poke_aab2b8badde2c398dc5dc139e2d1cb56bf4ecae0.invoke(Unknown Source)\n\tat org.jboss.resteasy.reactive.server.handlers.InvocationHandler.handle(InvocationHandler.java:29)\n\tat io.quarkus.resteasy.reactive.server.runtime.QuarkusResteasyReactiveRequestContext.invokeHandler(QuarkusResteasyReactiveRequestContext.java:183)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.run(AbstractResteasyReactiveContext.java:147)\n\tat io.quarkus.vertx.core.runtime.VertxCoreRecorder$15.runWith(VertxCoreRecorder.java:645)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2651)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2630)\n\tat org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1622)\n\tat org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1589)\n\tat org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)\n\tat org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)\n\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+                                  "stringValue": "jakarta.ws.rs.WebApplicationException: App error: 500\n\tat io.quarkiverse.telemetry.app.PokeResource.poke(PokeResource.java:30)\n\tat io.quarkiverse.telemetry.app.PokeResource_ClientProxy.poke(Unknown Source)\n\tat io.quarkiverse.telemetry.app.PokeResource$quarkusrestinvoker$poke_aab2b8badde2c398dc5dc139e2d1cb56bf4ecae0.invoke(Unknown Source)\n\tat org.jboss.resteasy.reactive.server.handlers.InvocationHandler.handle(InvocationHandler.java:29)\n\tat io.quarkus.resteasy.reactive.server.runtime.QuarkusResteasyReactiveRequestContext.invokeHandler(QuarkusResteasyReactiveRequestContext.java:183)\n\tat org.jboss.resteasy.reactive.common.core.AbstractResteasyReactiveContext.run(AbstractResteasyReactiveContext.java:147)\n\tat io.quarkus.vertx.core.runtime.VertxCoreRecorder$15.runWith(VertxCoreRecorder.java:645)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2651)\n\tat org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2630)\n\tat org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1622)\n\tat org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1589)\n\tat org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)\n\tat org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)\n\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
                                 }
                               }
                             ],

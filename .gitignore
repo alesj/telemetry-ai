@@ -45,8 +45,12 @@ quarkus.oidc.credentials.secret
 .claude/
 .env
 
-# Internal
+# Secrets / credentials
+rhtai.txt
+*.key
+*.pem
 
-docs/
+# Internal
 reports/
 todo.txt
+plan.txt

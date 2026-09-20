@@ -1,3 +1,3 @@
 #!/bin/bash -v
 
-mvn --projects :telemetry-ai-proxy --also-make $*
+./mvnw --projects :telemetry-ai-proxy --also-make $*

@@ -1,0 +1,33 @@
+name: Pre-Release Check
+
+on:
+  pull_request:
+    paths:
+      - '.github/project.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate release metadata
+    steps:
+      - uses: radcortez/project-metadata-action@main
+        name: Retrieve project metadata
+        id: metadata
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          metadata-file-path: '.github/project.yml'
+
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Validate build
+        run: |
+          echo "Release version: ${{ steps.metadata.outputs.current-version }}"
+          echo "Next version: ${{ steps.metadata.outputs.next-version }}"
+          ./mvnw -B clean verify -DskipCompanion -Dno-format

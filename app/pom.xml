@@ -8,9 +8,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.quarkus.telemetry</groupId>
+        <groupId>io.quarkiverse.telemetry</groupId>
         <artifactId>telemetry-ai-build</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>999-SNAPSHOT</version>
     </parent>
 
     <artifactId>telemetry-ai-app</artifactId>
@@ -18,6 +18,14 @@
 
     <name>Telemetry AI Application</name>
     <description>Main Quarkus runtime application</description>
+
+    <!-- ===================== -->
+    <!-- Properties            -->
+    <!-- ===================== -->
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 
     <!-- ===================== -->
     <!-- Dependencies          -->

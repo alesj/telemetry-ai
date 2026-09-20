@@ -6,7 +6,7 @@
           "timestamp": "2026-02-05T08:13:03.358+01",
           "sequence": 13986,
           "loggerClassName": "org.slf4j.impl.Slf4jLogger",
-          "loggerName": "io.quarkus.telemetry.proxy.ProxyResource",
+          "loggerName": "io.quarkiverse.telemetry.proxy.ProxyResource",
           "level": "INFO",
           "message": "Proxying pokeFwd ... 200",
           "threadName": "executor-thread-1",
@@ -25,7 +25,7 @@
           "timestamp": "2026-02-05T08:13:03.421+01",
           "sequence": 13987,
           "loggerClassName": "org.slf4j.impl.Slf4jLogger",
-          "loggerName": "io.quarkus.telemetry.proxy.ProxyResource",
+          "loggerName": "io.quarkiverse.telemetry.proxy.ProxyResource",
           "level": "INFO",
           "message": "Proxy received: Poked with 200",
           "threadName": "executor-thread-1",
@@ -63,7 +63,7 @@
           "timestamp": "2026-02-05T08:13:03.406+01",
           "sequence": 13534,
           "loggerClassName": "org.slf4j.impl.Slf4jLogger",
-          "loggerName": "io.quarkus.telemetry.app.PokeResource",
+          "loggerName": "io.quarkiverse.telemetry.app.PokeResource",
           "level": "INFO",
           "message": "Poking ... 200",
           "threadName": "executor-thread-1",
@@ -292,7 +292,7 @@
                       {
                         "key": "code.function.name",
                         "value": {
-                          "stringValue": "io.quarkus.telemetry.proxy.ProxyResource.pokeFwd"
+                          "stringValue": "io.quarkiverse.telemetry.proxy.ProxyResource.pokeFwd"
                         }
                       },
                       {
@@ -436,7 +436,7 @@
                       {
                         "key": "code.function.name",
                         "value": {
-                          "stringValue": "io.quarkus.telemetry.app.PokeResource.poke"
+                          "stringValue": "io.quarkiverse.telemetry.app.PokeResource.poke"
                         }
                       },
                       {

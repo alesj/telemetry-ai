@@ -7,22 +7,33 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.quarkus.telemetry</groupId>
+    <parent>
+        <groupId>io.quarkiverse</groupId>
+        <artifactId>quarkiverse-parent</artifactId>
+        <version>22</version>
+    </parent>
+
+    <groupId>io.quarkiverse.telemetry</groupId>
     <artifactId>telemetry-ai-build</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>999-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Telemetry AI Build</name>
     <description>Root build for telemetry app and AI infrastructure modules</description>
 
+    <url>https://github.com/quarkiverse/quarkus-telemetry-ai</url>
+
+    <scm>
+        <connection>scm:git:git@github.com:quarkiverse/quarkus-telemetry-ai.git</connection>
+        <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-telemetry-ai.git</developerConnection>
+        <url>https://github.com/quarkiverse/quarkus-telemetry-ai</url>
+    </scm>
+
     <!-- ===================== -->
     <!-- Modules               -->
     <!-- ===================== -->
     <modules>
-        <module>proxy</module>
-        <module>app</module>
         <module>ai</module>
-        <module>db</module>
     </modules>
 
     <!-- ===================== -->
@@ -44,6 +55,8 @@
         <!-- Build -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <format.skip>true</format.skip>
 
         <!-- Plugin Versions -->
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
@@ -147,6 +160,20 @@
             <properties>
                 <quarkus.package.type>native</quarkus.package.type>
             </properties>
+        </profile>
+
+        <profile>
+            <id>companion-apps</id>
+            <activation>
+                <property>
+                    <name>!skipCompanion</name>
+                </property>
+            </activation>
+            <modules>
+                <module>proxy</module>
+                <module>app</module>
+                <module>db</module>
+            </modules>
         </profile>
 
     </profiles>
