@@ -22,6 +22,7 @@ Wait for (1) to **fully** start, so (2) and (3) share the **same** LGTM resource
 
 In (3) you have 3 profiles:
 * default - OpenAI
+* -Pgrok - Grok xAI
 * -Pwatsonx - WatsonX
 * -Pgemini - Gemini
 
@@ -73,6 +74,19 @@ and picking up the right Quarkus LangChain4J dependencies.
 
 (3) Starts the actual AI analysis application.
 
+Set the API key for your chosen LLM provider before starting the AI module:
+
+```bash
+export OPENAI_API_KEY=sk-...   # for default/openai profile
+export GROK_API_KEY=xai-...    # for -Pgrok profile
+```
+
+To enable Dev MCP (source examination, dashboard generation), the companion apps must have `quarkus.dev-mcp.enabled=true` in their `application.properties`, and the AI module needs to know their ports:
+
+```bash
+./mvn.ai.sh quarkus:dev -Dapp.ports=8081,8082
+```
+
 ---
 
 Poke the `proxy` app via browser or curl: `http://localhost:8081/poke?value=<your choice of http code>`
@@ -85,7 +99,14 @@ You can check any app's DevUI on where the Grafana / LGTM is available - for any
 
 ### Manual LGTM (without DevServices)
 
-To connect to an externally started LGTM stack instead of using Quarkus DevServices, start LGTM manually:
+Use `run-lgtm.sh` to start LGTM and the AI module in one command:
+
+```bash
+./run-lgtm.sh                  # no app.ports
+./run-lgtm.sh 8081,8082        # with app.ports for Dev MCP
+```
+
+Or do it manually. To connect to an externally started LGTM stack instead of using Quarkus DevServices, start LGTM manually:
 
 ```bash
 docker run -p 3000:3000 -p 4317:4317 -p 4318:4318 -p 3200:3200 grafana/otel-lgtm:0.24.0
