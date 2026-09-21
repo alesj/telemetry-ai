@@ -47,10 +47,10 @@
         <!-- Quarkus -->
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>3.39.0</quarkus.platform.version>
+        <quarkus.platform.version>3.39.4</quarkus.platform.version>
 
         <!-- LangChain4j directly, when needed -->
-        <quarkus.langchain4j.version>1.13.0</quarkus.langchain4j.version>
+        <quarkus.langchain4j.version>1.13.3</quarkus.langchain4j.version>
 
         <!-- Build -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -59,9 +59,9 @@
         <format.skip>true</format.skip>
 
         <!-- Plugin Versions -->
-        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.6.0</maven-failsafe-plugin.version>
     </properties>
 
     <!-- ===================== -->
