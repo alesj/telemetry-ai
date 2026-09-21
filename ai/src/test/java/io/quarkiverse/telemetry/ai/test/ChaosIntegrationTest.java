@@ -16,7 +16,7 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import java.util.concurrent.TimeUnit;
 
 @QuarkusTest
-@TestProfile(IntegrationTestProfile.class)
+@TestProfile(IntegrationTestProfile.Chaos.class)
 @EnabledIfSystemProperty(named = "integration.run", matches = "true")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

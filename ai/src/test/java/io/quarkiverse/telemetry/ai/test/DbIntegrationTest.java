@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @QuarkusTest
-@TestProfile(IntegrationTestProfile.class)
+@TestProfile(IntegrationTestProfile.Db.class)
 @EnabledIfSystemProperty(named = "integration.run", matches = "true")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

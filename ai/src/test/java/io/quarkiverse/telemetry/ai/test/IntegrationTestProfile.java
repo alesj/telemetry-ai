@@ -2,17 +2,41 @@ package io.quarkiverse.telemetry.ai.test;
 
 import io.quarkus.test.junit.QuarkusTestProfile;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class IntegrationTestProfile implements QuarkusTestProfile {
 
+    protected String appPorts() {
+        return null;
+    }
+
     @Override
     public Map<String, String> getConfigOverrides() {
-        return Map.of(
-                "test.fixture-mcp", "false",
-                "quarkus.observability.enabled-in-tests", "true",
-                "quarkus.http.test-port", "0");
+        Map<String, String> config = new HashMap<>();
+        config.put("test.fixture-mcp", "false");
+        config.put("quarkus.observability.enabled-in-tests", "true");
+        config.put("quarkus.http.test-port", "0");
+        String ports = appPorts();
+        if (ports != null) {
+            config.put("app.ports", ports);
+        }
+        return config;
+    }
+
+    public static class Chaos extends IntegrationTestProfile {
+        @Override
+        protected String appPorts() {
+            return "8081,8082";
+        }
+    }
+
+    public static class Db extends IntegrationTestProfile {
+        @Override
+        protected String appPorts() {
+            return "8083";
+        }
     }
 
     @Override
