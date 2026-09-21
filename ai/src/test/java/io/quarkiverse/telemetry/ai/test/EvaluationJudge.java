@@ -64,8 +64,7 @@ class EvaluationJudge {
                     "Judge: %d/100 (%s)\n  Completeness: %d/25, Accuracy: %d/25, Correlation: %d/25, Actionability: %d/25\n  %s",
                     total(), passes() ? "PASS" : "FAIL",
                     completeness, accuracy, correlationQuality, actionability,
-                    justification
-            );
+                    justification);
         }
     }
 
@@ -90,8 +89,7 @@ class EvaluationJudge {
         try {
             List<ChatMessage> messages = List.of(
                     new SystemMessage(SYSTEM_PROMPT),
-                    new UserMessage(userPrompt)
-            );
+                    new UserMessage(userPrompt));
             ChatResponse response = model.chat(messages);
             return parseScore(response.aiMessage().text());
         } catch (Exception e) {
@@ -112,8 +110,7 @@ class EvaluationJudge {
                     node.path("accuracy").asInt(0),
                     node.path("correlationQuality").asInt(0),
                     node.path("actionability").asInt(0),
-                    node.path("justification").asText("No justification provided")
-            );
+                    node.path("justification").asText("No justification provided"));
         } catch (Exception e) {
             return new JudgeScore(0, 0, 0, 0, "Failed to parse judge response: " + json);
         }

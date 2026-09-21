@@ -38,19 +38,23 @@ class StructuralValidator {
             boolean hasSeverityValue,
             boolean hasNumberedRecommendations,
             boolean hasCausalChain,
-            boolean hasRuleOut
-    ) {
+            boolean hasRuleOut) {
         boolean passes() {
             return sectionCount >= 9;
         }
 
         int score() {
             int s = sectionCount * 2;
-            if (hasCrossTraceSummary) s += 2;
-            if (hasSeverityValue) s += 1;
-            if (hasNumberedRecommendations) s += 1;
-            if (hasCausalChain) s += 2;
-            if (hasRuleOut) s += 2;
+            if (hasCrossTraceSummary)
+                s += 2;
+            if (hasSeverityValue)
+                s += 1;
+            if (hasNumberedRecommendations)
+                s += 1;
+            if (hasCausalChain)
+                s += 2;
+            if (hasRuleOut)
+                s += 2;
             return s;
         }
 
@@ -66,12 +70,10 @@ class StructuralValidator {
                     passes() ? "PASS" : "FAIL",
                     score(), maxScore(),
                     missingSections.isEmpty() ? "" : "\n  Missing: " + String.join(", ", missingSections),
-                    (!hasCausalChain || !hasRuleOut) ?
-                            "\n  Correlation gaps:" +
-                                    (!hasCausalChain ? " [no causal chain]" : "") +
-                                    (!hasRuleOut ? " [no rule-out]" : "")
-                            : ""
-            );
+                    (!hasCausalChain || !hasRuleOut) ? "\n  Correlation gaps:" +
+                            (!hasCausalChain ? " [no causal chain]" : "") +
+                            (!hasRuleOut ? " [no rule-out]" : "")
+                            : "");
         }
     }
 
@@ -95,7 +97,6 @@ class StructuralValidator {
                 SEVERITY_VALUE.matcher(analysis).find(),
                 NUMBERED_RECOMMENDATIONS.matcher(analysis).find(),
                 CAUSAL_CHAIN.matcher(analysis).find(),
-                RULE_OUT.matcher(analysis).find()
-        );
+                RULE_OUT.matcher(analysis).find());
     }
 }

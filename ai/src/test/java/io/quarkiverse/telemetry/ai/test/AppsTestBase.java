@@ -80,10 +80,11 @@ abstract class AppsTestBase {
 
         String capturedContext = capture.toFormattedString();
         System.out.println("=== " + label + " CAPTURED TOOL OUTPUTS ===");
-        System.out.println("Captured " + capture.getOutputs().size() + " tool outputs, context length: " + capturedContext.length());
+        System.out.println(
+                "Captured " + capture.getOutputs().size() + " tool outputs, context length: " + capturedContext.length());
 
         var strategy = new AnalysisEvaluationStrategy(mapper, chatModel, capturedContext, capture.getSystemPrompt());
-        var sample = EvaluationSample.<String>builder()
+        var sample = EvaluationSample.<String> builder()
                 .withName(label.toLowerCase().replace(' ', '-'))
                 .withParameter(label)
                 .withExpectedOutput(criteria)
@@ -92,8 +93,7 @@ abstract class AppsTestBase {
         EvaluationReport<String> report = scorer.evaluate(
                 new Samples<>(sample),
                 params -> analysis,
-                strategy
-        );
+                strategy);
 
         var result = report.evaluations().getFirst();
         double score = result.score() * 100.0;
@@ -137,7 +137,7 @@ abstract class AppsTestBase {
                 "Source examination should be substantive (got " + sources.length() + " chars)");
 
         var strategy = new SourceExaminationEvaluationStrategy(mapper, chatModel, analysis, getSystemPrompt("examineSource"));
-        var sample = EvaluationSample.<String>builder()
+        var sample = EvaluationSample.<String> builder()
                 .withName("source-examination")
                 .withParameter("SOURCE EXAMINATION")
                 .withExpectedOutput(criteria)
@@ -146,8 +146,7 @@ abstract class AppsTestBase {
         EvaluationReport<String> report = scorer.evaluate(
                 new Samples<>(sample),
                 params -> sources,
-                strategy
-        );
+                strategy);
 
         var result = report.evaluations().getFirst();
         double score = result.score() * 100.0;
@@ -182,7 +181,7 @@ abstract class AppsTestBase {
         assertTrue(dashboard.contains("panels"), "Dashboard should contain panels");
 
         var strategy = new DashboardEvaluationStrategy(mapper, chatModel, analysis, getSystemPrompt("createDashboard"));
-        var sample = EvaluationSample.<String>builder()
+        var sample = EvaluationSample.<String> builder()
                 .withName("dashboard-generation")
                 .withParameter("DASHBOARD GENERATION")
                 .withExpectedOutput(criteria)
@@ -191,8 +190,7 @@ abstract class AppsTestBase {
         EvaluationReport<String> report = scorer.evaluate(
                 new Samples<>(sample),
                 params -> dashboard,
-                strategy
-        );
+                strategy);
 
         var result = report.evaluations().getFirst();
         double score = result.score() * 100.0;

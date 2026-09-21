@@ -103,7 +103,8 @@ public class PlainTools {
         System.out.println("Getting start time for trace ID: " + traceId);
         String startTime = traceIdToStartTime.remove(traceId);
         if (startTime == null) {
-            System.out.println("WARNING: Start time not found for trace ID " + traceId + ". Call 'Provide trace with trace id' first.");
+            System.out.println(
+                    "WARNING: Start time not found for trace ID " + traceId + ". Call 'Provide trace with trace id' first.");
             return null;
         }
         System.out.println("Found start time: " + startTime);
@@ -123,15 +124,14 @@ public class PlainTools {
             Instant start = now.minus(java.time.Duration.ofHours(24));
             String logql = "{service_name=~\".+\"} | trace_id=`" + traceId + "`";
             String args = String.format(
-                "{\"datasourceUid\":\"loki\"," +
-                "\"logql\":\"%s\"," +
-                "\"startRfc3339\":\"%s\"," +
-                "\"endRfc3339\":\"%s\"," +
-                "\"limit\":1000}",
-                logql.replace("\"", "\\\""),
-                toPrometheusTime(start),
-                toPrometheusTime(now)
-            );
+                    "{\"datasourceUid\":\"loki\"," +
+                            "\"logql\":\"%s\"," +
+                            "\"startRfc3339\":\"%s\"," +
+                            "\"endRfc3339\":\"%s\"," +
+                            "\"limit\":1000}",
+                    logql.replace("\"", "\\\""),
+                    toPrometheusTime(start),
+                    toPrometheusTime(now));
             ToolExecutionRequest request = ToolExecutionRequest.builder()
                     .name("query_loki_logs")
                     .arguments(args)
@@ -186,12 +186,11 @@ public class PlainTools {
     private String queryPrometheusAt(String prometheusTime) {
         System.out.println("Querying Prometheus at: " + prometheusTime);
         String args = String.format(
-            "{\"datasourceUid\":\"prometheus\"," +
-            "\"expr\":\"{__name__=~'.+', job!=\\\"opentelemetry-collector\\\"}\"," +
-            "\"queryType\":\"instant\"," +
-            "\"endTime\":\"%s\"}",
-            prometheusTime
-        );
+                "{\"datasourceUid\":\"prometheus\"," +
+                        "\"expr\":\"{__name__=~'.+', job!=\\\"opentelemetry-collector\\\"}\"," +
+                        "\"queryType\":\"instant\"," +
+                        "\"endTime\":\"%s\"}",
+                prometheusTime);
         ToolExecutionRequest request = ToolExecutionRequest.builder()
                 .name("query_prometheus")
                 .arguments(args)

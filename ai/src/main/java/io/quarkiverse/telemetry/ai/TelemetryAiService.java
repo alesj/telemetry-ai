@@ -5,9 +5,7 @@ import dev.langchain4j.service.V;
 import io.quarkiverse.langchain4j.RegisterAiService;
 import io.quarkiverse.langchain4j.ToolBox;
 
-@RegisterAiService(
-        systemMessageProviderSupplier = StaticModelSystemMessageProvider.class,
-        toolProviderSupplier = NoToolProviderSupplier.class // so we ignore dev-mcp tools
+@RegisterAiService(systemMessageProviderSupplier = StaticModelSystemMessageProvider.class, toolProviderSupplier = NoToolProviderSupplier.class // so we ignore dev-mcp tools
 )
 public interface TelemetryAiService {
     @ToolBox(PlainTools.class)

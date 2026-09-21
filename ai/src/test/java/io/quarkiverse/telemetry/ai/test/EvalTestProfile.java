@@ -20,7 +20,6 @@ public class EvalTestProfile implements QuarkusTestProfile {
                 "grafana.endpoint", "http://localhost:0",
                 "quarkus.langchain4j.openai.api-key", apiKey,
                 "quarkus.langchain4j.openai.chat-model.model-name", model,
-                "quarkus.http.test-port", "0"
-        );
+                "quarkus.http.test-port", "0");
     }
 }

@@ -57,7 +57,8 @@ public class DashboardEvaluationStrategy extends AbstractEvaluationStrategy {
 
                 Respond with ONLY a JSON object (no markdown, no extra text):
                 {"score": <0.0-1.0>, "passed": <true if score >= 0.7>, "explanation": "<brief explanation>", "promptSuggestion": "<specific prompt changes, or null if passed>"}
-                """.formatted(analysis, truncate(dashboardJson), originalPrompt, sample.expectedOutput());
+                """
+                .formatted(analysis, truncate(dashboardJson), originalPrompt, sample.expectedOutput());
     }
 
     @Override

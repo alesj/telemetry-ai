@@ -59,8 +59,7 @@ public class McpClientConfiguration {
 
         Map<String, Function<ToolExecutionResult, ToolExecutionResult>> toolSpecificFns = Map.of(
                 "query_loki_logs", StripFunctions.LOG_DATA,
-                "query_prometheus", StripFunctions.METRICS
-        );
+                "query_prometheus", StripFunctions.METRICS);
 
         return new StripMcpClient(client, Function.identity(), toolSpecificFns);
     }

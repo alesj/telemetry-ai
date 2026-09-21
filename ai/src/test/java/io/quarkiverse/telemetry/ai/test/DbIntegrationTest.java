@@ -90,15 +90,18 @@ class DbIntegrationTest extends AppsTestBase {
         try {
             ExecutorService executor = Executors.newFixedThreadPool(6);
             List<Future<?>> futures = new ArrayList<>();
-            String[] params = {"surname", "name", "surname", "age", "name", "surname"};
-            String[] values = {"Johnson", "Alice", "Smith", "28", "Bob", "Davis"};
+            String[] params = { "surname", "name", "surname", "age", "name", "surname" };
+            String[] values = { "Johnson", "Alice", "Smith", "28", "Bob", "Davis" };
             for (int i = 0; i < params.length; i++) {
                 final int idx = i;
                 futures.add(executor.submit(() -> pokeDb(params[idx], values[idx])));
                 Thread.sleep(200);
             }
             for (Future<?> f : futures) {
-                try { f.get(30, TimeUnit.SECONDS); } catch (Exception ignored) {}
+                try {
+                    f.get(30, TimeUnit.SECONDS);
+                } catch (Exception ignored) {
+                }
             }
             executor.shutdown();
         } finally {

@@ -10,7 +10,8 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class ToolOutputCapture implements Consumer<String> {
 
-    public record CapturedOutput(String tool, String key, Object data) {}
+    public record CapturedOutput(String tool, String key, Object data) {
+    }
 
     private final List<CapturedOutput> outputs = new CopyOnWriteArrayList<>();
     private volatile boolean capturing;

@@ -56,93 +56,92 @@ class StripFunctionsTest {
     @Test
     void testExtractRootSpanStartTime_NoRootSpan() {
         String json = """
-            {
-              "trace": {
-                "services": [{
-                  "scopes": [{
-                    "spans": [{
-                      "spanId": "child",
-                      "parentSpanId": "parent",
-                      "startTimeUnixNano": "1778598649074740000"
+                {
+                  "trace": {
+                    "services": [{
+                      "scopes": [{
+                        "spans": [{
+                          "spanId": "child",
+                          "parentSpanId": "parent",
+                          "startTimeUnixNano": "1778598649074740000"
+                        }]
+                      }]
                     }]
-                  }]
-                }]
-              }
-            }
-            """;
+                  }
+                }
+                """;
         assertNull(StripFunctions.extractRootSpanStartTime(json));
     }
 
     @Test
     void testStripMetrics() {
         String metricsJson = """
-            {
-              "data": [
                 {
-                  "metric": {
-                    "__name__": "jvm_memory_used_bytes",
-                    "area": "heap"
-                  },
-                  "value": [1778614717.591, "1000000"]
-                },
-                {
-                  "metric": {
-                    "__name__": "netty_allocator_pooled_arenas",
-                    "allocator_type": "PooledByteBufAllocator"
-                  },
-                  "value": [1778614717.591, "20"]
-                },
-                {
-                  "metric": {
-                    "__name__": "system_cpu_usage"
-                  },
-                  "value": [1778614717.591, "0.15"]
-                },
-                {
-                  "metric": {
-                    "__name__": "jvm_info_total",
-                    "version": "21"
-                  },
-                  "value": [1778614717.591, "1.0"]
-                },
-                {
-                  "metric": {
-                    "__name__": "poke_value",
-                    "app": "poke"
-                  },
-                  "value": [1778614717.591, "401"]
-                },
-                {
-                  "metric": {
-                    "__name__": "otel_sdk_processor_log_queue_size",
-                    "job": "telemetry-ai-app"
-                  },
-                  "value": [1778614717.591, "0"]
-                },
-                {
-                  "metric": {
-                    "__name__": "target_info",
-                    "job": "telemetry-ai-app"
-                  },
-                  "value": [1778614717.591, "1"]
-                },
-                {
-                  "metric": {
-                    "__name__": "http_server_requests_max_milliseconds",
-                    "uri": "/poke"
-                  },
-                  "value": [1778614717.591, "125.5"]
+                  "data": [
+                    {
+                      "metric": {
+                        "__name__": "jvm_memory_used_bytes",
+                        "area": "heap"
+                      },
+                      "value": [1778614717.591, "1000000"]
+                    },
+                    {
+                      "metric": {
+                        "__name__": "netty_allocator_pooled_arenas",
+                        "allocator_type": "PooledByteBufAllocator"
+                      },
+                      "value": [1778614717.591, "20"]
+                    },
+                    {
+                      "metric": {
+                        "__name__": "system_cpu_usage"
+                      },
+                      "value": [1778614717.591, "0.15"]
+                    },
+                    {
+                      "metric": {
+                        "__name__": "jvm_info_total",
+                        "version": "21"
+                      },
+                      "value": [1778614717.591, "1.0"]
+                    },
+                    {
+                      "metric": {
+                        "__name__": "poke_value",
+                        "app": "poke"
+                      },
+                      "value": [1778614717.591, "401"]
+                    },
+                    {
+                      "metric": {
+                        "__name__": "otel_sdk_processor_log_queue_size",
+                        "job": "telemetry-ai-app"
+                      },
+                      "value": [1778614717.591, "0"]
+                    },
+                    {
+                      "metric": {
+                        "__name__": "target_info",
+                        "job": "telemetry-ai-app"
+                      },
+                      "value": [1778614717.591, "1"]
+                    },
+                    {
+                      "metric": {
+                        "__name__": "http_server_requests_max_milliseconds",
+                        "uri": "/poke"
+                      },
+                      "value": [1778614717.591, "125.5"]
+                    }
+                  ]
                 }
-              ]
-            }
-            """;
+                """;
 
         var stripFn = StripFunctions.METRICS;
         var result = stripFn.apply(
-            dev.langchain4j.service.tool.ToolExecutionResult.builder()
-                .resultText(metricsJson)
-                .build()
-        );
+                dev.langchain4j.service.tool.ToolExecutionResult.builder()
+                        .resultText(metricsJson)
+                        .build());
 
         String stripped = result.resultText();
 
@@ -150,7 +149,8 @@ class StripFunctionsTest {
         assertTrue(stripped.contains("jvm_memory_used_bytes"), "Should keep jvm_memory_used_bytes");
         assertTrue(stripped.contains("system_cpu_usage"), "Should keep system_cpu_usage");
         assertTrue(stripped.contains("poke_value"), "Should keep poke_value");
-        assertTrue(stripped.contains("http_server_requests_max_milliseconds"), "Should keep http_server_requests_max_milliseconds");
+        assertTrue(stripped.contains("http_server_requests_max_milliseconds"),
+                "Should keep http_server_requests_max_milliseconds");
 
         // Should remove useless metrics
         assertFalse(stripped.contains("netty_allocator_pooled_arenas"), "Should remove netty_allocator_pooled_arenas");

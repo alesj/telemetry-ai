@@ -37,7 +37,8 @@ public class DashboardUtils {
             int endIndex = -1;
             for (int i = 0; i < json.length(); i++) {
                 char c = json.charAt(i);
-                if (c == '{') depth++;
+                if (c == '{')
+                    depth++;
                 else if (c == '}') {
                     depth--;
                     if (depth == 0) {

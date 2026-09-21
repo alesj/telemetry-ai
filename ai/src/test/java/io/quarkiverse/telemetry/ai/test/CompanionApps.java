@@ -17,7 +17,8 @@ public class CompanionApps {
     private static final Path PROJECT_ROOT = Path.of("..").toAbsolutePath().normalize();
 
     private static final String MVN = PROJECT_ROOT.resolve("mvnw").toFile().exists()
-            ? PROJECT_ROOT.resolve("mvnw").toString() : "mvn";
+            ? PROJECT_ROOT.resolve("mvnw").toString()
+            : "mvn";
 
     public static DevModeProcess startDevMode(String module, int port, String... extraProps) {
         String label = module.toUpperCase();
@@ -29,8 +30,7 @@ public class CompanionApps {
                 "-Ddebug=false",
                 "-Dquarkus.http.port=" + port,
                 "-Dquarkus.console.enabled=false",
-                "-Dquarkus.test.continuous-testing=disabled"
-        ));
+                "-Dquarkus.test.continuous-testing=disabled"));
         for (String prop : extraProps) {
             command.add("-D" + prop);
         }
@@ -53,8 +53,7 @@ public class CompanionApps {
 
     public static int pokeHttp(String url) {
         try {
-            HttpURLConnection conn = (HttpURLConnection)
-                    URI.create(url).toURL().openConnection();
+            HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(10000);
             int status = conn.getResponseCode();
@@ -69,8 +68,7 @@ public class CompanionApps {
         long deadline = System.currentTimeMillis() + timeoutSeconds * 1000L;
         while (System.currentTimeMillis() < deadline) {
             try {
-                HttpURLConnection conn = (HttpURLConnection)
-                        URI.create(url).toURL().openConnection();
+                HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
                 conn.setConnectTimeout(2000);
                 conn.setReadTimeout(2000);
                 int code = conn.getResponseCode();
@@ -93,8 +91,7 @@ public class CompanionApps {
 
     public static String httpGet(String url, String user, String password) {
         try {
-            HttpURLConnection conn = (HttpURLConnection)
-                    URI.create(url).toURL().openConnection();
+            HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(10000);
             String auth = Base64.getEncoder().encodeToString(

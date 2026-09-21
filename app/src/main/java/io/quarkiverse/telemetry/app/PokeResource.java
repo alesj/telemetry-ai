@@ -57,8 +57,7 @@ public class PokeResource {
                     "App error: " + status.getStatusCode(),
                     Response.status(status)
                             .entity(status.getReasonPhrase())
-                            .build()
-            );
+                            .build());
         }
         Integer copy = value;
         if (!inRange(200, 600, value)) {
@@ -131,18 +130,19 @@ public class PokeResource {
         leaks.add(blob);
         long used = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         log.warn("Chaos leak: total leaked " + (leaks.size() * megabytes) + "MB, heap used " + (used / 1024 / 1024) + "MB");
-        return Response.ok("Leaked " + megabytes + "MB, total chunks " + leaks.size() + ", heap used " + (used / 1024 / 1024) + "MB").build();
+        return Response
+                .ok("Leaked " + megabytes + "MB, total chunks " + leaks.size() + ", heap used " + (used / 1024 / 1024) + "MB")
+                .build();
     }
 
     private Response chaosError() {
-        int[] codes = {500, 502, 503};
+        int[] codes = { 500, 502, 503 };
         int code = codes[random.nextInt(codes.length)];
         log.error("Chaos error: throwing " + code);
         Response.Status status = Response.Status.fromStatusCode(code);
         throw new WebApplicationException(
                 "Chaos error: " + code,
-                Response.status(status).entity("Chaos error " + code).build()
-        );
+                Response.status(status).entity("Chaos error " + code).build());
     }
 
     private Response chaosException() {
@@ -181,7 +181,8 @@ public class PokeResource {
     private Response chaosContention(int holdMillis) {
         int threadCount = 10;
         int holdPerThread = holdMillis / threadCount;
-        log.warn("Chaos lock contention: " + threadCount + " threads competing for single synchronized lock, each holding " + holdPerThread + "ms, total serialized wait " + holdMillis + "ms");
+        log.warn("Chaos lock contention: " + threadCount + " threads competing for single synchronized lock, each holding "
+                + holdPerThread + "ms, total serialized wait " + holdMillis + "ms");
         var latch = new java.util.concurrent.CountDownLatch(threadCount);
         for (int i = 0; i < threadCount; i++) {
             int idx = i;
@@ -190,7 +191,8 @@ public class PokeResource {
                 log.warn("Chaos lock contention: thread " + idx + " BLOCKED waiting to acquire synchronized lock");
                 synchronized (contentionLock) {
                     long waited = System.currentTimeMillis() - waitStart;
-                    log.warn("Chaos lock contention: thread " + idx + " acquired lock after " + waited + "ms blocked, holding for " + holdPerThread + "ms");
+                    log.warn("Chaos lock contention: thread " + idx + " acquired lock after " + waited
+                            + "ms blocked, holding for " + holdPerThread + "ms");
                     try {
                         Thread.sleep(holdPerThread);
                     } catch (InterruptedException e) {
@@ -205,20 +207,22 @@ public class PokeResource {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        log.warn("Chaos lock contention: all " + threadCount + " threads completed after serialized execution through single lock");
-        return Response.ok("Lock contention: " + threadCount + " threads serialized through one lock, " + holdMillis + "ms total").build();
+        log.warn("Chaos lock contention: all " + threadCount
+                + " threads completed after serialized execution through single lock");
+        return Response
+                .ok("Lock contention: " + threadCount + " threads serialized through one lock, " + holdMillis + "ms total")
+                .build();
     }
 
     private Response chaosIntermittent(int failPercentage) {
         boolean shouldFail = random.nextInt(100) < failPercentage;
         if (shouldFail) {
-            int[] codes = {500, 502, 503};
+            int[] codes = { 500, 502, 503 };
             int code = codes[random.nextInt(codes.length)];
             log.warn("Chaos intermittent: failing with " + code + " (rate=" + failPercentage + "%)");
             throw new WebApplicationException(
                     "Chaos intermittent failure: " + code,
-                    Response.status(code).entity("Intermittent failure " + code).build()
-            );
+                    Response.status(code).entity("Intermittent failure " + code).build());
         }
         try {
             Thread.sleep(random.nextInt(50));
@@ -241,7 +245,11 @@ public class PokeResource {
             synchronized (deadlockA) {
                 log.warn("Chaos deadlock: thread-1 acquired lock A, waiting for lock B");
                 started.countDown();
-                try { started.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    started.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
                 synchronized (deadlockB) {
                     log.warn("Chaos deadlock: thread-1 acquired lock B (unexpected)");
                 }
@@ -253,7 +261,11 @@ public class PokeResource {
             synchronized (deadlockB) {
                 log.warn("Chaos deadlock: thread-2 acquired lock B, waiting for lock A");
                 started.countDown();
-                try { started.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                try {
+                    started.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
                 synchronized (deadlockA) {
                     log.warn("Chaos deadlock: thread-2 acquired lock A (unexpected)");
                 }
@@ -264,8 +276,10 @@ public class PokeResource {
         try {
             boolean completed = latch.await(timeoutMillis, java.util.concurrent.TimeUnit.MILLISECONDS);
             if (!completed) {
-                log.error("Chaos deadlock: DEADLOCK DETECTED — threads did not complete within " + timeoutMillis + "ms timeout, 2 threads permanently blocked");
-                return Response.ok("Deadlock detected: 2 threads permanently blocked after " + timeoutMillis + "ms timeout").build();
+                log.error("Chaos deadlock: DEADLOCK DETECTED — threads did not complete within " + timeoutMillis
+                        + "ms timeout, 2 threads permanently blocked");
+                return Response.ok("Deadlock detected: 2 threads permanently blocked after " + timeoutMillis + "ms timeout")
+                        .build();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

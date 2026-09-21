@@ -27,9 +27,12 @@ public class AnalysisMetrics implements ChatModelListener {
         llmCalls.incrementAndGet();
         TokenUsage usage = context.chatResponse().tokenUsage();
         if (usage != null) {
-            if (usage.inputTokenCount() != null) inputTokens.addAndGet(usage.inputTokenCount());
-            if (usage.outputTokenCount() != null) outputTokens.addAndGet(usage.outputTokenCount());
-            if (usage.totalTokenCount() != null) totalTokens.addAndGet(usage.totalTokenCount());
+            if (usage.inputTokenCount() != null)
+                inputTokens.addAndGet(usage.inputTokenCount());
+            if (usage.outputTokenCount() != null)
+                outputTokens.addAndGet(usage.outputTokenCount());
+            if (usage.totalTokenCount() != null)
+                totalTokens.addAndGet(usage.totalTokenCount());
         }
     }
 
@@ -39,7 +42,6 @@ public class AnalysisMetrics implements ChatModelListener {
                 inputTokens.get(),
                 outputTokens.get(),
                 totalTokens.get(),
-                llmCalls.get()
-        );
+                llmCalls.get());
     }
 }

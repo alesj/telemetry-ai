@@ -38,7 +38,11 @@ abstract class AbstractEvaluationStrategy implements EvaluationStrategy<String> 
                 if (attempt < MAX_RETRIES && isRateLimitError(e)) {
                     long backoff = attempt * 5_000L;
                     System.out.println("[" + logPrefix() + "] Rate limited, retrying in " + backoff + "ms...");
-                    try { Thread.sleep(backoff); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                    try {
+                        Thread.sleep(backoff);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
                 } else {
                     throw e;
                 }
@@ -48,14 +52,17 @@ abstract class AbstractEvaluationStrategy implements EvaluationStrategy<String> 
     }
 
     protected static String truncate(String text) {
-        if (text == null) return "";
-        if (text.length() <= MAX_CONTEXT_CHARS) return text;
+        if (text == null)
+            return "";
+        if (text.length() <= MAX_CONTEXT_CHARS)
+            return text;
         return text.substring(0, MAX_CONTEXT_CHARS) + "\n... [truncated, " + text.length() + " total chars]";
     }
 
     private static boolean isRateLimitError(Throwable e) {
         String msg = e.getMessage();
-        if (msg != null && msg.contains("rate_limit")) return true;
+        if (msg != null && msg.contains("rate_limit"))
+            return true;
         return e.getCause() != null && isRateLimitError(e.getCause());
     }
 

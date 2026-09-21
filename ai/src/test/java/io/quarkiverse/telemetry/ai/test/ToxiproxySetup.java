@@ -65,10 +65,10 @@ public class ToxiproxySetup {
         System.out.println("[TOXIPROXY] Cutting connection ...");
         httpPost(toxicsUrl(),
                 """
-                {"name":"cut-down","type":"bandwidth","stream":"downstream","attributes":{"rate":0}}""");
+                        {"name":"cut-down","type":"bandwidth","stream":"downstream","attributes":{"rate":0}}""");
         httpPost(toxicsUrl(),
                 """
-                {"name":"cut-up","type":"bandwidth","stream":"upstream","attributes":{"rate":0}}""");
+                        {"name":"cut-up","type":"bandwidth","stream":"upstream","attributes":{"rate":0}}""");
     }
 
     public static void restoreConnection() {
@@ -113,8 +113,7 @@ public class ToxiproxySetup {
         long deadline = System.currentTimeMillis() + timeoutSec * 1000L;
         while (System.currentTimeMillis() < deadline) {
             try {
-                HttpURLConnection conn = (HttpURLConnection)
-                        URI.create(url).toURL().openConnection();
+                HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
                 conn.setConnectTimeout(2000);
                 conn.setReadTimeout(2000);
                 if (conn.getResponseCode() < 400) {
@@ -131,8 +130,7 @@ public class ToxiproxySetup {
 
     private static void httpPost(String url, String json) {
         try {
-            HttpURLConnection conn = (HttpURLConnection)
-                    URI.create(url).toURL().openConnection();
+            HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
@@ -154,8 +152,7 @@ public class ToxiproxySetup {
 
     private static void httpDelete(String url) {
         try {
-            HttpURLConnection conn = (HttpURLConnection)
-                    URI.create(url).toURL().openConnection();
+            HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
             conn.setRequestMethod("DELETE");
             int code = conn.getResponseCode();
             if (code >= 400) {
@@ -170,10 +167,11 @@ public class ToxiproxySetup {
 
     private static String readResponse(HttpURLConnection conn) {
         try (var is = conn.getErrorStream() != null ? conn.getErrorStream() : conn.getInputStream();
-             var reader = new BufferedReader(new InputStreamReader(is))) {
+                var reader = new BufferedReader(new InputStreamReader(is))) {
             StringBuilder sb = new StringBuilder();
             String line;
-            while ((line = reader.readLine()) != null) sb.append(line);
+            while ((line = reader.readLine()) != null)
+                sb.append(line);
             return sb.toString();
         } catch (Exception e) {
             return "(unreadable)";

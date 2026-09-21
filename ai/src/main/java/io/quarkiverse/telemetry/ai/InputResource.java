@@ -54,10 +54,11 @@ public class InputResource {
     @Path("/analyze/{n}")
     @Produces(MediaType.APPLICATION_JSON)
     public AnalysisResult analyze(@PathParam("n") int n,
-                                  @QueryParam("outputType") @DefaultValue("html") String outputType,
-                                  @QueryParam("createDashboard") @DefaultValue("false") boolean createDashboard,
-                                  @QueryParam("examineSource") @DefaultValue("false") boolean examineSource) {
-        log.info("Analyzing n={} outputType={} createDashboard={} examineSource={}", n, outputType, createDashboard, examineSource);
+            @QueryParam("outputType") @DefaultValue("html") String outputType,
+            @QueryParam("createDashboard") @DefaultValue("false") boolean createDashboard,
+            @QueryParam("examineSource") @DefaultValue("false") boolean examineSource) {
+        log.info("Analyzing n={} outputType={} createDashboard={} examineSource={}", n, outputType, createDashboard,
+                examineSource);
 
         metrics.reset();
         long startTime = System.nanoTime();

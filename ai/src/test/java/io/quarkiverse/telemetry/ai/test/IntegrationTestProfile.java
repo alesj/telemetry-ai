@@ -12,8 +12,7 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
         return Map.of(
                 "test.fixture-mcp", "false",
                 "quarkus.observability.enabled-in-tests", "true",
-                "quarkus.http.test-port", "0"
-        );
+                "quarkus.http.test-port", "0");
     }
 
     @Override

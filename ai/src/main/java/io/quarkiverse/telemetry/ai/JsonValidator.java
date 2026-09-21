@@ -44,7 +44,6 @@ public class JsonValidator implements ToolInputGuardrail {
                         .id(request.executionRequest().id())
                         .name(request.executionRequest().name())
                         .arguments(raw)
-                        .build()
-        );
+                        .build());
     }
 }

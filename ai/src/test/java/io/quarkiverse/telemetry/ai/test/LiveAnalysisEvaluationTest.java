@@ -94,7 +94,7 @@ class LiveAnalysisEvaluationTest {
     }
 
     private void saveResults(String analysis, StructuralValidator.Result structural,
-                             EvaluationJudge.JudgeScore judgeScore) {
+            EvaluationJudge.JudgeScore judgeScore) {
         try {
             ObjectNode root = MAPPER.createObjectNode();
             root.put("timestamp", Instant.now().toString());

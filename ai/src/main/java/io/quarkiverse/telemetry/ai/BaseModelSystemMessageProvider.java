@@ -21,7 +21,8 @@ public abstract class BaseModelSystemMessageProvider implements SystemMessagePro
 
     protected Consumer<String> capture() {
         InstanceHandle<ToolOutputCapture> instance = Arc.container().instance(ToolOutputCapture.class);
-        return instance.isAvailable() ? instance.get() : s -> {};
+        return instance.isAvailable() ? instance.get() : s -> {
+        };
     }
 
     @Override

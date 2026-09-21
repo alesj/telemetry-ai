@@ -27,8 +27,8 @@ public class StripMcpClient implements McpClient {
     }
 
     public StripMcpClient(McpClient delegate,
-                          Function<ToolExecutionResult, ToolExecutionResult> defaultFn,
-                          Map<String, Function<ToolExecutionResult, ToolExecutionResult>> toolSpecificFns) {
+            Function<ToolExecutionResult, ToolExecutionResult> defaultFn,
+            Map<String, Function<ToolExecutionResult, ToolExecutionResult>> toolSpecificFns) {
         this.delegate = delegate;
         this.defaultFn = defaultFn;
         this.toolSpecificFns = toolSpecificFns;
@@ -56,14 +56,14 @@ public class StripMcpClient implements McpClient {
 
     @Override
     public ToolExecutionResult executeTool(ToolExecutionRequest executionRequest,
-                                           InvocationContext invocationContext) {
+            InvocationContext invocationContext) {
         System.out.println("MCP Tool Call: " + executionRequest.name() + " with args: " + executionRequest.arguments());
         ToolExecutionResult result = delegate.executeTool(executionRequest, invocationContext);
         //System.out.println("rawRes = " + result.resultText());
 
         // Choose the appropriate stripping function based on tool name
-        Function<ToolExecutionResult, ToolExecutionResult> stripFn =
-            toolSpecificFns.getOrDefault(executionRequest.name(), defaultFn);
+        Function<ToolExecutionResult, ToolExecutionResult> stripFn = toolSpecificFns.getOrDefault(executionRequest.name(),
+                defaultFn);
 
         ToolExecutionResult transformed = stripFn.apply(result);
         //System.out.println("transformedRes = " + transformed.resultText());

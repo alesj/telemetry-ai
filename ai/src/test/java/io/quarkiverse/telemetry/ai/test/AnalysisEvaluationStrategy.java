@@ -49,7 +49,8 @@ public class AnalysisEvaluationStrategy extends AbstractEvaluationStrategy {
 
                 Respond with ONLY a JSON object (no markdown, no extra text):
                 {"score": <0.0-1.0>, "passed": <true if score >= 0.7, false otherwise>, "explanation": "<brief explanation>", "promptSuggestion": "<specific system prompt changes, or null if passed>"}
-                """.formatted(toolOutputContext, analysis, originalPrompt, sample.expectedOutput());
+                """
+                .formatted(toolOutputContext, analysis, originalPrompt, sample.expectedOutput());
     }
 
     @Override

@@ -94,8 +94,7 @@ class AnalysisEvaluationTest {
                 "Memory Pressure Error",
                 "memory-pressure.md",
                 MEMORY_PRESSURE_SPEC,
-                "CRITICAL"
-        );
+                "CRITICAL");
 
         assertTrue(result.structural.passes(),
                 "Structural validation failed. " + result.structural);
@@ -112,8 +111,7 @@ class AnalysisEvaluationTest {
                 "Thread Starvation",
                 "thread-starvation.md",
                 THREAD_STARVATION_SPEC,
-                "HIGH"
-        );
+                "HIGH");
 
         assertTrue(result.structural.passes(),
                 "Structural validation failed. " + result.structural);
@@ -130,8 +128,7 @@ class AnalysisEvaluationTest {
                 "Downstream Service Error",
                 "downstream-error.md",
                 DOWNSTREAM_ERROR_SPEC,
-                "HIGH"
-        );
+                "HIGH");
 
         assertTrue(result.structural.passes(),
                 "Structural validation failed. " + result.structural);
@@ -148,8 +145,7 @@ class AnalysisEvaluationTest {
                 "Healthy Request (No False Positives)",
                 "healthy-request.md",
                 HEALTHY_REQUEST_SPEC,
-                "LOW"
-        );
+                "LOW");
 
         assertTrue(result.structural.passes(),
                 "Structural validation failed. " + result.structural);
@@ -202,7 +198,8 @@ class AnalysisEvaluationTest {
 
     @AfterAll
     void reportResults() {
-        if (results.isEmpty()) return;
+        if (results.isEmpty())
+            return;
 
         System.out.println("\n=== EVALUATION REPORT ===");
         for (EvaluationRecord r : results) {
@@ -228,7 +225,7 @@ class AnalysisEvaluationTest {
     }
 
     private EvaluationRecord evaluate(String testCaseName, String fixtureFile,
-                                      String expectedFindings, String expectedSeverity) throws IOException {
+            String expectedFindings, String expectedSeverity) throws IOException {
         String analysis = loadFixture(fixtureFile);
 
         StructuralValidator.Result structural = StructuralValidator.validate(analysis);
@@ -307,8 +304,7 @@ class AnalysisEvaluationTest {
             String testCaseName,
             String fixtureFile,
             StructuralValidator.Result structural,
-            EvaluationJudge.JudgeScore judge
-    ) {
+            EvaluationJudge.JudgeScore judge) {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();

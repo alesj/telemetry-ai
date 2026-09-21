@@ -20,8 +20,7 @@ public class EvalMcpProducers {
     McpClient tempoMcpClient() {
         return new FixtureMcpClient("tempo", Map.of(
                 "traceql-search", loadFixture("evaluation/mcp/traceql-search.json"),
-                "get-trace", loadFixture("evaluation/mcp/get-trace.json")
-        ));
+                "get-trace", loadFixture("evaluation/mcp/get-trace.json")));
     }
 
     @Produces
@@ -30,8 +29,7 @@ public class EvalMcpProducers {
     McpClient grafanaMcpClient() {
         return new FixtureMcpClient("grafana", Map.of(
                 "query_loki_logs", loadFixture("evaluation/mcp/query_loki_logs.json"),
-                "query_prometheus", loadFixture("evaluation/mcp/query_prometheus.json")
-        ));
+                "query_prometheus", loadFixture("evaluation/mcp/query_prometheus.json")));
     }
 
     private static String loadFixture(String path) {

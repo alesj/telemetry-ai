@@ -25,43 +25,40 @@ public class StripFunctions {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final Set<String> USELESS_TRACE_FIELDS = new HashSet<>(Arrays.asList(
-        // SDK metadata
-        "telemetry.sdk.language",
-        "telemetry.sdk.name",
-        "telemetry.sdk.version",
-        "webengine.name",
-        "webengine.version",
-        // Local development artifacts
-        "host.name",
-        // Response body size
-        "http.response.body.size",
-        // Span kind
-        "kind",
-        // Metrics section
-        "metrics"
-    ));
+            // SDK metadata
+            "telemetry.sdk.language",
+            "telemetry.sdk.name",
+            "telemetry.sdk.version",
+            "webengine.name",
+            "webengine.version",
+            // Local development artifacts
+            "host.name",
+            // Response body size
+            "http.response.body.size",
+            // Span kind
+            "kind",
+            // Metrics section
+            "metrics"));
 
     private static final Set<String> USELESS_LOG_FIELDS = new HashSet<>(Arrays.asList(
-        // SDK metadata
-        "telemetry_sdk_language",
-        "telemetry_sdk_name",
-        "telemetry_sdk_version",
-        "webengine_name",
-        "webengine_version",
-        // Local development artifacts
-        "host_name",
-        // Redundant or low-value fields
-        "flags",
-        "log_logger_namespace",
-        "observed_timestamp",
-        "severity_number",
-        "detected_level"
-    ));
+            // SDK metadata
+            "telemetry_sdk_language",
+            "telemetry_sdk_name",
+            "telemetry_sdk_version",
+            "webengine_name",
+            "webengine_version",
+            // Local development artifacts
+            "host_name",
+            // Redundant or low-value fields
+            "flags",
+            "log_logger_namespace",
+            "observed_timestamp",
+            "severity_number",
+            "detected_level"));
 
     private static final Set<String> LOCALHOST_FIELDS = new HashSet<>(Arrays.asList(
-        "client.address",
-        "server.address"
-    ));
+            "client.address",
+            "server.address"));
 
     private static void removeUselessFields(JsonNode node, Set<String> uselessFields) {
         if (node.isObject()) {
@@ -80,8 +77,8 @@ public class StripFunctions {
 
                 // Remove localhost addresses
                 if (LOCALHOST_FIELDS.contains(fieldName) &&
-                    fieldValue.isTextual() &&
-                    (fieldValue.asText().equals("127.0.0.1") || fieldValue.asText().equals("localhost"))) {
+                        fieldValue.isTextual() &&
+                        (fieldValue.asText().equals("127.0.0.1") || fieldValue.asText().equals("localhost"))) {
                     fieldNames.remove();
                     continue;
                 }
@@ -137,43 +134,42 @@ public class StripFunctions {
     public static Function<ToolExecutionResult, ToolExecutionResult> LOG_DATA = wrap(STRIP_LOG_DATA);
 
     private static final Set<String> USELESS_METRIC_PREFIXES = new HashSet<>(Arrays.asList(
-        // ALL Netty metrics - too low level for app troubleshooting
-        "netty_",
-        // Static/constant metrics
-        "jvm_info",
-        "target_info",
-        "system_cpu_count",
-        "process_files_max",
-        "process_start_time",
-        "jvm_memory_max_bytes",
-        // ALL JVM buffer metrics - too low level
-        "jvm_buffer_",
-        // JVM classes metrics - rarely actionable
-        "jvm_classes_",
-        // Most thread metrics - keep only jvm_threads_live
-        "jvm_threads_started",
-        "jvm_threads_states",
-        "jvm_threads_peak",
-        "jvm_threads_daemon",
-        // GC detail metrics - keep only jvm_gc_overhead
-        "jvm_gc_live_data",
-        "jvm_gc_max_data",
-        "jvm_memory_usage_after_gc",
-        // Committed bytes when we have used bytes
-        "jvm_memory_committed_bytes",
-        // Monotonic counters
-        "process_cpu_time",
-        "worker_pool_completed_total",
-        // ALL OpenTelemetry SDK internals
-        "otel_sdk_",
-        // Connection duration summaries (keep max only for requests)
-        "http_server_connections_duration",
-        "http_client_connections_duration"
-    ));
+            // ALL Netty metrics - too low level for app troubleshooting
+            "netty_",
+            // Static/constant metrics
+            "jvm_info",
+            "target_info",
+            "system_cpu_count",
+            "process_files_max",
+            "process_start_time",
+            "jvm_memory_max_bytes",
+            // ALL JVM buffer metrics - too low level
+            "jvm_buffer_",
+            // JVM classes metrics - rarely actionable
+            "jvm_classes_",
+            // Most thread metrics - keep only jvm_threads_live
+            "jvm_threads_started",
+            "jvm_threads_states",
+            "jvm_threads_peak",
+            "jvm_threads_daemon",
+            // GC detail metrics - keep only jvm_gc_overhead
+            "jvm_gc_live_data",
+            "jvm_gc_max_data",
+            "jvm_memory_usage_after_gc",
+            // Committed bytes when we have used bytes
+            "jvm_memory_committed_bytes",
+            // Monotonic counters
+            "process_cpu_time",
+            "worker_pool_completed_total",
+            // ALL OpenTelemetry SDK internals
+            "otel_sdk_",
+            // Connection duration summaries (keep max only for requests)
+            "http_server_connections_duration",
+            "http_client_connections_duration"));
 
     private static final Set<String> USELESS_METRIC_SUFFIXES = new HashSet<>(Arrays.asList(
-        "_bucket", // Histogram buckets - creates dozens of entries
-        "_created" // Metric creation timestamp - not useful
+            "_bucket", // Histogram buckets - creates dozens of entries
+            "_created" // Metric creation timestamp - not useful
     ));
 
     private static boolean isUselessMetric(String metricName) {
@@ -198,7 +194,7 @@ public class StripFunctions {
         // Filter out histogram _sum and _count when we prefer _max
         // e.g., keep http_server_requests_max_milliseconds, drop http_server_requests_milliseconds_sum/count
         if ((metricName.endsWith("_sum") || metricName.endsWith("_count")) &&
-            (metricName.contains("_milliseconds") || metricName.contains("_bytes"))) {
+                (metricName.contains("_milliseconds") || metricName.contains("_bytes"))) {
             // These are histogram aggregations - we prefer the _max variant
             return true;
         }
@@ -287,8 +283,8 @@ public class StripFunctions {
             }
 
             int keptCount = filteredData.size();
-//            System.out.println("STRIP_METRICS: Filtered out " + filteredByName + " by name, " +
-//                             filteredByLabels + " by labels. Kept " + keptCount + " metrics.");
+            //            System.out.println("STRIP_METRICS: Filtered out " + filteredByName + " by name, " +
+            //                             filteredByLabels + " by labels. Kept " + keptCount + " metrics.");
 
             result.set("data", filteredData);
             return MAPPER.writeValueAsString(result);
