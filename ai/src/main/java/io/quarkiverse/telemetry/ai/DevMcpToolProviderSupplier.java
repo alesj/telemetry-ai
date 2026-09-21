@@ -10,6 +10,7 @@ import dev.langchain4j.service.tool.ToolProvider;
 import dev.langchain4j.service.tool.ToolProviderResult;
 import io.quarkiverse.langchain4j.mcp.runtime.http.QuarkusStreamableHttpMcpTransport;
 import io.quarkus.runtime.Shutdown;
+import io.quarkus.runtime.Startup;
 import io.vertx.core.Vertx;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -52,6 +53,13 @@ public class DevMcpToolProviderSupplier implements Supplier<ToolProvider> {
     private final Set<String> savedClients = ConcurrentHashMap.newKeySet();
     private volatile ToolProvider toolProvider;
 
+    @Startup
+    void checkConfig() {
+        if (appPorts.isEmpty()) {
+            log.warn("Missing app.ports configuration, Quarkus dev-mcp cannot be used then.");
+        }
+    }
+
     @Override
     public ToolProvider get() {
         if (toolProvider == null) {
@@ -82,8 +90,6 @@ public class DevMcpToolProviderSupplier implements Supplier<ToolProvider> {
                 devMcpClients.add(devClient);
                 fetchWorkspaceRoot(devClient);
             }
-        } else {
-            log.warn("Missing app.ports configuration, Quarkus dev-mcp cannot be used then.");
         }
 
         ToolProvider mcpProvider = McpToolProvider.builder()
