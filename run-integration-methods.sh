@@ -8,11 +8,12 @@ SCORER="${3:-}"
 shift 3 2>/dev/null || shift $# 2>/dev/null
 
 case "$TEST_TYPE" in
-  chaos) TEST_CLASS="ChaosIntegrationTest" ;;
-  db)    TEST_CLASS="DbIntegrationTest" ;;
+  chaos)   TEST_CLASS="ChaosIntegrationTest" ;;
+  db)      TEST_CLASS="DbIntegrationTest" ;;
+  weather) TEST_CLASS="WeatherIntegrationTest" ;;
   *)
     echo "Unknown test type: $TEST_TYPE"
-    echo "Usage: $0 <chaos|db> <ai-profile> [scorer] <method1> [method2] ..."
+    echo "Usage: $0 <chaos|db|weather> <ai-profile> [scorer] <method1> [method2] ..."
     exit 1
     ;;
 esac
@@ -39,15 +40,22 @@ DB_METHODS=(
   analyzeDbOutage
 )
 
+WEATHER_METHODS=(
+  analyzeWeatherNormal
+  analyzeWeatherSlowApi
+  analyzeWeatherApiOutage
+)
+
 case "$TEST_TYPE" in
-  chaos) VALID_METHODS=("${CHAOS_METHODS[@]}") ;;
-  db)    VALID_METHODS=("${DB_METHODS[@]}") ;;
+  chaos)   VALID_METHODS=("${CHAOS_METHODS[@]}") ;;
+  db)      VALID_METHODS=("${DB_METHODS[@]}") ;;
+  weather) VALID_METHODS=("${WEATHER_METHODS[@]}") ;;
 esac
 
 if [ $# -eq 0 ]; then
-  echo "Usage: $0 <chaos|db> <ai-profile> [scorer] <method1> [method2] ..."
+  echo "Usage: $0 <chaos|ext> <ai-profile> [scorer] <method1> [method2] ..."
   echo ""
-  echo "  test-type:   chaos | db"
+  echo "  test-type:   chaos | db | weather"
   echo "  ai-profile:  openai | grok | gemini | watsonx"
   echo "  scorer:      grok | (empty = openai default)"
   echo "  methods:     test method names from $TEST_CLASS"
@@ -61,6 +69,7 @@ if [ $# -eq 0 ]; then
   echo "  $0 chaos openai grok analyzeIntermittentFailures analyzeNetworkPartition"
   echo "  $0 chaos grok '' analyzeRequestFlood"
   echo "  $0 db openai '' analyzeNormalTraffic"
+  echo "  $0 weather openai grok analyzeWeatherNormal"
   exit 1
 fi
 

@@ -3,7 +3,9 @@
 ## Prerequisites
 
 - JDK 21+
-- Docker (for LGTM stack and DB tests)
+- Maven
+- Docker (for LGTM stack and ext tests)
+- `uvx` for Grafana MCP 
 - API key for at least one LLM provider (OpenAI or Grok)
 
 ## Building
@@ -12,7 +14,7 @@
 ./mvnw clean verify
 ```
 
-To skip companion apps (proxy, app, db):
+To skip companion apps (proxy, app, ext):
 
 ```bash
 ./mvnw clean verify -DskipCompanion
@@ -25,7 +27,7 @@ Start modules in order (proxy first to initialize shared LGTM DevServices):
 ```bash
 ./mvn.proxy.sh quarkus:dev
 ./mvn.app.sh quarkus:dev
-./mvn.ai.sh quarkus:dev
+./mvn.ai.sh quarkus:dev -Dapp.ports=8081,8082
 ```
 
 ## Running Integration Tests
@@ -34,7 +36,7 @@ Full suite:
 
 ```bash
 ./run-integration-test.sh chaos openai grok
-./run-integration-test.sh db grok openai
+./run-integration-test.sh ext grok openai
 ```
 
 Specific methods:
@@ -47,7 +49,7 @@ All provider combinations:
 
 ```bash
 ./run-all-integration-tests.sh chaos
-./run-all-integration-tests.sh db
+./run-all-integration-tests.sh ext
 ```
 
 ## Pull Requests

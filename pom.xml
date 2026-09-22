@@ -172,7 +172,7 @@
             <modules>
                 <module>proxy</module>
                 <module>app</module>
-                <module>db</module>
+                <module>ext</module>
             </modules>
         </profile>
 

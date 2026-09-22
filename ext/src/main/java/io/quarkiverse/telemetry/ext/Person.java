@@ -1,4 +1,4 @@
-package io.quarkiverse.telemetry.db;
+package io.quarkiverse.telemetry.ext;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;

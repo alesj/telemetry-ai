@@ -13,6 +13,7 @@ on:
         options:
           - chaos
           - db
+          - weather
           - all
       ai-profile:
         description: 'AI provider profile'
@@ -101,7 +102,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run DB tests (AI=${{ matrix.ai }}, Scorer=${{ matrix.scorer }})
+      - name: Run db tests (AI=${{ matrix.ai }}, Scorer=${{ matrix.scorer }})
         run: ./run-integration-test.sh db ${{ matrix.ai }} ${{ matrix.scorer }}
 
       - name: Upload test reports
@@ -109,5 +110,45 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: db-reports-${{ matrix.ai }}-${{ matrix.scorer }}
+          path: '**/target/surefire-reports/'
+          retention-days: 14
+
+  weather-tests:
+    if: >-
+      github.event_name == 'schedule' ||
+      inputs.test-type == 'weather' ||
+      inputs.test-type == 'all'
+    runs-on: ubuntu-latest
+    name: Weather Integration Tests
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ai: openai
+            scorer: grok
+          - ai: grok
+            scorer: openai
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run weather tests (AI=${{ matrix.ai }}, Scorer=${{ matrix.scorer }})
+        run: ./run-integration-test.sh weather ${{ matrix.ai }} ${{ matrix.scorer }}
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: weather-reports-${{ matrix.ai }}-${{ matrix.scorer }}
           path: '**/target/surefire-reports/'
           retention-days: 14

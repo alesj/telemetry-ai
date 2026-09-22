@@ -1,4 +1,4 @@
-package io.quarkiverse.telemetry.db;
+package io.quarkiverse.telemetry.ext;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -19,11 +19,18 @@ public class PokeResource {
     private static final Logger log = Logger.getLogger(PokeResource.class);
 
     @GET
+    @Path("/ready")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String ready() {
+        return "OK";
+    }
+
+    @GET
     @Path("/poke")
     @Produces(MediaType.APPLICATION_JSON)
     public Response poke(@QueryParam("name") String name,
-                         @QueryParam("surname") String surname,
-                         @QueryParam("age") Integer age) {
+            @QueryParam("surname") String surname,
+            @QueryParam("age") Integer age) {
         log.infof("Poke query: name=%s, surname=%s, age=%s", name, surname, age);
 
         List<Person> results;
@@ -45,8 +52,8 @@ public class PokeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response create(@QueryParam("name") String name,
-                           @QueryParam("surname") String surname,
-                           @QueryParam("age") Integer age) {
+            @QueryParam("surname") String surname,
+            @QueryParam("age") Integer age) {
         log.infof("Creating person: name=%s, surname=%s, age=%s", name, surname, age);
 
         Person person = new Person();

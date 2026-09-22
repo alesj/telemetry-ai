@@ -42,7 +42,7 @@ public class CompanionApps {
                     .start();
             forwardOutput(process.getInputStream(), label);
 
-            waitForHttp("http://localhost:" + port + "/poke", label, 120);
+            waitForHttp("http://localhost:" + port + "/ready", label, 120);
 
             System.out.println("=== " + label + " started ...");
             return new DevModeProcess(label, process);
@@ -55,7 +55,7 @@ public class CompanionApps {
         try {
             HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
             conn.setConnectTimeout(5000);
-            conn.setReadTimeout(10000);
+            conn.setReadTimeout(30000);
             int status = conn.getResponseCode();
             conn.disconnect();
             return status;

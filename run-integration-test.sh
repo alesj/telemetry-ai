@@ -8,11 +8,12 @@ SCORER="${3:-}"
 export AI="$PROFILE"
 
 case "$TEST_TYPE" in
-  chaos) TEST_CLASS="ChaosIntegrationTest" ;;
-  db)    TEST_CLASS="DbIntegrationTest" ;;
+  chaos)   TEST_CLASS="ChaosIntegrationTest" ;;
+  db)      TEST_CLASS="DbIntegrationTest" ;;
+  weather) TEST_CLASS="WeatherIntegrationTest" ;;
   *)
     echo "Unknown test type: $TEST_TYPE"
-    echo "Usage: $0 <chaos|db> [ai-profile] [scorer]"
+    echo "Usage: $0 <chaos|db|weather> [ai-profile] [scorer]"
     exit 1
     ;;
 esac

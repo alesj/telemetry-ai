@@ -13,11 +13,11 @@
         <version>999-SNAPSHOT</version>
     </parent>
 
-    <artifactId>telemetry-ai-db</artifactId>
+    <artifactId>telemetry-ai-ext</artifactId>
     <packaging>quarkus</packaging>
 
-    <name>Telemetry AI DB Application</name>
-    <description>Database-backed application with JPA entities</description>
+    <name>Telemetry AI Ext Application</name>
+    <description>Extended application with database and external service integrations</description>
 
     <!-- ===================== -->
     <!-- Properties            -->
@@ -40,6 +40,12 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+
+        <!-- REST Client for external API calls -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client-jackson</artifactId>
         </dependency>
 
         <!-- Hibernate ORM + Panache -->

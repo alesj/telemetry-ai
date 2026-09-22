@@ -17,8 +17,15 @@ public class ToxiproxySetup {
     private static final int PROXY_PORT = 33061;
     private static final String PROXY_NAME = "mysql";
 
+    private static final int WEATHER_PROXY_PORT = 33080;
+    private static final String WEATHER_PROXY_NAME = "weather";
+
     public static String jdbcUrl() {
         return "jdbc:mysql://localhost:" + PROXY_PORT + "/quarkus";
+    }
+
+    public static String weatherApiUrl() {
+        return "http://localhost:" + WEATHER_PROXY_PORT;
     }
 
     public static void start() {
@@ -44,8 +51,25 @@ public class ToxiproxySetup {
                 .formatted(PROXY_NAME, PROXY_PORT, MYSQL_HOST_PORT);
         httpPost("http://localhost:" + TOXIPROXY_API_PORT + "/proxies", proxyConfig);
 
-        System.out.println("[TOXIPROXY] Ready — proxy at localhost:" + PROXY_PORT
-                + " → host.docker.internal:" + MYSQL_HOST_PORT);
+        System.out.println("[TOXIPROXY] Ready — mysql proxy at localhost:" + PROXY_PORT);
+    }
+
+    public static void startWeatherOnly() {
+        System.out.println("[TOXIPROXY] Starting Toxiproxy (weather only) ...");
+
+        docker("run", "-d", "--rm", "--name", TOXIPROXY_CONTAINER,
+                "-p", TOXIPROXY_API_PORT + ":8474",
+                "-p", WEATHER_PROXY_PORT + ":" + WEATHER_PROXY_PORT,
+                "ghcr.io/shopify/toxiproxy:2.5.0");
+
+        waitForHttp("http://localhost:" + TOXIPROXY_API_PORT + "/version", 30);
+
+        String weatherProxyConfig = """
+                {"name":"%s","listen":"0.0.0.0:%d","upstream":"api.open-meteo.com:80"}"""
+                .formatted(WEATHER_PROXY_NAME, WEATHER_PROXY_PORT);
+        httpPost("http://localhost:" + TOXIPROXY_API_PORT + "/proxies", weatherProxyConfig);
+
+        System.out.println("[TOXIPROXY] Ready — weather proxy at localhost:" + WEATHER_PROXY_PORT);
     }
 
     public static void addLatency(int latencyMs) {
@@ -59,6 +83,35 @@ public class ToxiproxySetup {
     public static void removeLatency() {
         System.out.println("[TOXIPROXY] Removing latency ...");
         httpDelete(toxicsUrl() + "/latency");
+    }
+
+    public static void addWeatherLatency(int latencyMs) {
+        System.out.println("[TOXIPROXY] Adding " + latencyMs + "ms weather latency ...");
+        String toxic = """
+                {"name":"weather-latency","type":"latency","stream":"downstream","attributes":{"latency":%d}}"""
+                .formatted(latencyMs);
+        httpPost(weatherToxicsUrl(), toxic);
+    }
+
+    public static void removeWeatherLatency() {
+        System.out.println("[TOXIPROXY] Removing weather latency ...");
+        httpDelete(weatherToxicsUrl() + "/weather-latency");
+    }
+
+    public static void cutWeatherConnection() {
+        System.out.println("[TOXIPROXY] Cutting weather connection ...");
+        httpPost(weatherToxicsUrl(),
+                """
+                        {"name":"weather-cut-down","type":"bandwidth","stream":"downstream","attributes":{"rate":0}}""");
+        httpPost(weatherToxicsUrl(),
+                """
+                        {"name":"weather-cut-up","type":"bandwidth","stream":"upstream","attributes":{"rate":0}}""");
+    }
+
+    public static void restoreWeatherConnection() {
+        System.out.println("[TOXIPROXY] Restoring weather connection ...");
+        httpDelete(weatherToxicsUrl() + "/weather-cut-down");
+        httpDelete(weatherToxicsUrl() + "/weather-cut-up");
     }
 
     public static void cutConnection() {
@@ -84,8 +137,18 @@ public class ToxiproxySetup {
         System.out.println("[TOXIPROXY] Stopped");
     }
 
+    public static void stopWeatherOnly() {
+        System.out.println("[TOXIPROXY] Stopping (weather only) ...");
+        dockerQuiet("stop", TOXIPROXY_CONTAINER);
+        System.out.println("[TOXIPROXY] Stopped");
+    }
+
     private static String toxicsUrl() {
         return "http://localhost:" + TOXIPROXY_API_PORT + "/proxies/" + PROXY_NAME + "/toxics";
+    }
+
+    private static String weatherToxicsUrl() {
+        return "http://localhost:" + TOXIPROXY_API_PORT + "/proxies/" + WEATHER_PROXY_NAME + "/toxics";
     }
 
     private static void waitForMySql(int timeoutSec) {

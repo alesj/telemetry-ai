@@ -6,7 +6,14 @@
 
 LLM-powered root-cause analysis of distributed telemetry data using Quarkus, LangChain4j, and Grafana LGTM via MCP.
 
-For detailed documentation, see the [Antora docs](docs/modules/ROOT/pages/index.adoc).
+For detailed documentation, see the [docs](docs/modules/ROOT/pages/index.adoc).
+
+## Requirements
+
+* **Java 21+** and **Maven 3.9+** (or use the included `./mvnw` wrapper)
+* **Docker** or **Podman** — Quarkus Dev Services automatically starts LGTM (Grafana, Tempo, Loki, Prometheus), MySQL, and Toxiproxy containers
+* **[uvx](https://docs.astral.sh/uv/)** — used to run the `mcp-grafana` MCP server (`pip install uv` or `brew install uv`)
+* **LLM API key** — at least one of: `OPENAI_API_KEY`, `GROK_API_KEY`, `GEMINI_API_KEY`, or `WATSONX_API_KEY`
 
 ## How to run / test the AI part
 

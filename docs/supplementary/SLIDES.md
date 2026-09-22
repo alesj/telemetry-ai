@@ -1,5 +1,6 @@
 ---
 marp: true
+html: true
 theme: default
 paginate: true
 size: 16:9
@@ -86,10 +87,11 @@ App1[App 1]
 App2[App 2]
 App3[App 3]
 end
-subgraph DB[DB Module]
-DbApp[DB App]
+subgraph Ext[Ext Module]
+ExtApp[Ext App]
 Toxi[Toxiproxy]
 MySQL[MySQL]
+OpenMeteo[Open-Meteo API]
 end
 subgraph LGTM[LGTM Stack]
 Tempo[Tempo]
@@ -106,25 +108,27 @@ User --> AI
 User --> App1
 App1 -->|REST| App2
 App2 -->|REST| App3
-DbApp -->|JDBC| Toxi
+ExtApp -->|JDBC| Toxi
+ExtApp -->|REST| Toxi
 Toxi --> MySQL
+Toxi --> OpenMeteo
 Apps -.->|OTel| LGTM
-DB -.->|OTel| LGTM
+Ext -.->|OTel| LGTM
 Tempo <-->|MCP| AI
 Loki <-->|MCP| AI
 Prom <-->|MCP| AI
 AI <-->|Dev MCP| Apps
-AI <-->|Dev MCP| DB
+AI <-->|Dev MCP| Ext
 AI -->|LangChain4j| LLMs
 style AI fill:#3498db,color:#fff
 style Apps fill:#f5f5f5,stroke:#2ecc71
-style DB fill:#f5f5f5,stroke:#e67e22
+style Ext fill:#f5f5f5,stroke:#e67e22
 style LGTM fill:#f5f5f5,stroke:#bbb
 style LLMs fill:#f5f5f5,stroke:#bbb
 </pre>
 
 Monitored apps expose **Dev MCP** for source examination and dashboard creation.
-**DB module** routes JDBC through **Toxiproxy** for chaos injection (latency, connection cuts).
+**Ext module** routes JDBC and Weather API calls through **Toxiproxy** for chaos injection.
 
 ---
 
@@ -176,6 +180,30 @@ Note over AI: sanitizeDashboardJson +<br/>fallback save to unsaved workspaces
 </pre>
 
 Both steps use **Dev MCP** tools — the LLM reads app source and writes Grafana dashboards directly into each workspace via `saveWorkspaceItemContent`.
+
+---
+
+# Screenshots — Analysis UI
+
+![Trace Analysis](images/screenshot-analysis-ui.png)
+
+Telemetry AI Web UI showing trace analysis with HTTP 500 error on `/poke` endpoint — parameters panel, duration/LLM stats bar, and analysis output with trace details.
+
+---
+
+# Screenshots — Source Examination
+
+![Source Examination](images/screenshot-source-examination.png)
+
+Source code examination output showing findings with code snippets, telemetry evidence, root cause analysis, and architecture overview.
+
+---
+
+# Screenshots — Dashboard Generation
+
+![Dashboard Generation](images/screenshot-dashboard-generation.png)
+
+Generated Grafana dashboard JSON with panels for JVM Memory, CPU Usage, and application metrics.
 
 ---
 
@@ -244,7 +272,7 @@ Test JVM → Toxiproxy (localhost:33061) → MySQL (localhost:33060)
 
 # Integration Test Scenarios
 
-**16 end-to-end scenarios** with LLM-as-judge scoring (threshold: 70/100):
+**19 end-to-end scenarios** with LLM-as-judge scoring (threshold: 70/100):
 
 | # | Module | Scenario | What It Tests |
 |---|--------|----------|--------------|
@@ -264,25 +292,29 @@ Test JVM → Toxiproxy (localhost:33061) → MySQL (localhost:33060)
 | 14 | DB | Slow Queries | Toxiproxy 3s latency → DB slowness detection |
 | 15 | DB | Pool Exhaustion | 4s latency + small pool → mixed failures |
 | 16 | DB | DB Outage | Toxiproxy connection cut → outage detection |
+| 17 | Weather | Normal Weather | Weather API queries → healthy operation |
+| 18 | Weather | Slow API | Toxiproxy 3s latency → external API slowness |
+| 19 | Weather | API Outage | Toxiproxy cut → external service unavailability |
 
-Full stack: **App/DB → Telemetry → AI Analysis → LLM Scorer**
+Full stack: **App/DB/Weather → Telemetry → AI Analysis → LLM Scorer**
 
 ---
 
 # Test Results — Cross-Provider Matrix
 
-All 16 scenarios pass across tested provider combinations:
+All 19 scenarios pass across tested provider combinations:
 
-| AI Provider | Scorer | Chaos 1-6 | Chaos 7-10 | Chaos 11-12 | DB 13-16 |
-|-------------|--------|-----------|------------|-------------|----------|
-| OpenAI | OpenAI | ✅ **6/6** | — | — | — |
-| Grok | OpenAI | ✅ **6/6** | ✅ **4/4** | ✅ **2/2** | ✅ **4/4** |
-| OpenAI | Grok | ✅ **6/6** | ✅ **4/4** | ✅ **2/2** | ✅ **4/4** |
-| Grok | Grok | ✅ **6/6** | — | — | — |
+| AI Provider | Scorer | Chaos 1-6 | Chaos 7-10 | Chaos 11-12 | DB 13-16 | Weather 17-19 |
+|-------------|--------|-----------|------------|-------------|----------|---------------|
+| OpenAI | OpenAI | ✅ **6/6** | — | — | — | — |
+| Grok | OpenAI | ✅ **6/6** | ✅ **4/4** | ✅ **2/2** | ✅ **4/4** | ✅ **3/3** |
+| OpenAI | Grok | ✅ **6/6** | ✅ **4/4** | ✅ **2/2** | ✅ **4/4** | ✅ **3/3** |
+| Grok | Grok | ✅ **6/6** | — | — | — | — |
 
 ```bash
-./run-integration-test.sh chaos openai grok   # AI=openai, scorer=grok
-./run-integration-test.sh db openai grok      # DB tests, AI=openai, scorer=grok
+./run-integration-test.sh chaos openai grok     # AI=openai, scorer=grok
+./run-integration-test.sh db openai grok        # DB tests
+./run-integration-test.sh weather openai grok   # Weather tests
 ./run-integration-methods.sh db openai grok analyzeSlowQueries
 ```
 
@@ -294,8 +326,8 @@ All 16 scenarios pass across tested provider combinations:
 |-----------|--------|-----------------|
 | **M1** Core Analysis | ✅ Done | MCP integration, prompt engineering, Web UI |
 | **M2** Multi-Provider | ✅ Done | OpenAI, Grok, Gemini, WatsonX profiles |
-| **M3** Chaos & Eval | ✅ Done | 11 chaos types, 15 test scenarios, LLM-as-judge |
-| **M4** Advanced | ✅ Done | Source exam, dashboard gen, DB chaos via Toxiproxy |
+| **M3** Chaos & Eval | ✅ Done | 11 chaos types, 19 test scenarios, LLM-as-judge |
+| **M4** Advanced | ✅ Done | Source exam, dashboard gen, DB + Weather chaos via Toxiproxy |
 | **M5** Production | 🔄 In Progress | Provider matrix ✅, Anthropic, native image, perf |
 
 ---
@@ -336,6 +368,8 @@ All 16 scenarios pass across tested provider combinations:
 - **Content**: Getting started guide, configuration reference, chaos type catalog, API docs
 - **Slides**: Auto-build `slides.html` from `SLIDES.md` via Marp in CI
 - **Update workflow**: PRs that touch `docs/` trigger preview builds
+
+---
 
 <script type="module">
 import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';

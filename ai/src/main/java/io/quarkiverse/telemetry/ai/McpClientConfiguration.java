@@ -40,7 +40,7 @@ public class McpClientConfiguration {
         DefaultMcpClient client = new DefaultMcpClient.Builder()
                 .clientName("tempo")
                 .transport(transport)
-                .autoHealthCheckInterval(java.time.Duration.ofMinutes(2))
+                .autoHealthCheck(false)
                 .build();
         return new StripMcpClient(client, StripFunctions.TRACE);
     }
@@ -56,7 +56,7 @@ public class McpClientConfiguration {
         DefaultMcpClient client = new DefaultMcpClient.Builder()
                 .clientName("grafana")
                 .transport(transport)
-                .autoHealthCheckInterval(java.time.Duration.ofMinutes(2))
+                .autoHealthCheck(false)
                 .build();
 
         Map<String, Function<ToolExecutionResult, ToolExecutionResult>> toolSpecificFns = Map.of(

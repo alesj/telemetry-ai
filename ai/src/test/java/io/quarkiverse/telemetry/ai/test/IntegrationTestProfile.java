@@ -39,6 +39,13 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
         }
     }
 
+    public static class Weather extends IntegrationTestProfile {
+        @Override
+        protected String appPorts() {
+            return "8084";
+        }
+    }
+
     @Override
     public String getConfigProfile() {
         String ai = System.getenv("AI");

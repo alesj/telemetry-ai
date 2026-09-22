@@ -31,12 +31,12 @@ class DbIntegrationTest extends AppsTestBase {
 
     static final int DB_PORT = 8083;
 
-    DevModeProcess dbProcess;
+    DevModeProcess extProcess;
 
     @BeforeAll
     void startCompanionApps() {
         ToxiproxySetup.start();
-        dbProcess = CompanionApps.startDevMode("db", DB_PORT,
+        extProcess = CompanionApps.startDevMode("ext", DB_PORT,
                 "quarkus.datasource.jdbc.url=" + ToxiproxySetup.jdbcUrl(),
                 "quarkus.datasource.username=root",
                 "quarkus.datasource.password=root",
@@ -129,7 +129,6 @@ class DbIntegrationTest extends AppsTestBase {
             ToxiproxySetup.restoreConnection();
         }
 
-        // Recovery requests after connection restored
         pokeDb("age", "28");
         pokeDb("surname", "Johnson");
 
@@ -144,7 +143,7 @@ class DbIntegrationTest extends AppsTestBase {
 
     @AfterAll
     void stopCompanionApps() {
-        dbProcess.stop();
+        extProcess.stop();
         ToxiproxySetup.stop();
     }
 
