@@ -23,7 +23,7 @@ public class WeatherResource {
     public Response forecast(@QueryParam("city") String city,
             @QueryParam("days") Integer days) {
         if (city == null) {
-            city = "london";
+            city = "vrhnika";
         }
         if (days == null || days < 1) {
             days = 3;
@@ -53,7 +53,8 @@ public class WeatherResource {
             case "tokyo" -> new double[] { 35.68, 139.69 };
             case "berlin" -> new double[] { 52.52, 13.41 };
             case "sydney" -> new double[] { -33.87, 151.21 };
-            default -> new double[] { 51.51, -0.13 };
+            case "vrhnika" -> new double[] { 45.97, 14.30 };
+            default -> new double[] { 45.97, 14.30 };
         };
     }
 }
