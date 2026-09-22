@@ -41,7 +41,6 @@ public class McpClientConfiguration {
         DefaultMcpClient client = new DefaultMcpClient.Builder()
                 .clientName("tempo")
                 .transport(transport)
-                .autoHealthCheck(false)
                 .build();
         return new StripMcpClient(client, StripFunctions.TRACE);
     }
@@ -58,7 +57,6 @@ public class McpClientConfiguration {
         DefaultMcpClient client = new DefaultMcpClient.Builder()
                 .clientName("grafana")
                 .transport(transport)
-                .autoHealthCheck(false)
                 .toolExecutionTimeout(Duration.ofSeconds(15))
                 // mcp-grafana v1.5.1 speaks "2025-03-26"; the client's default "2026-07-28" causes a handshake timeout
                 .protocolVersion("2025-03-26")
