@@ -54,6 +54,12 @@ style: |
   code {
     font-size: 0.85em;
   }
+  img {
+    max-height: 440px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+  }
   ul, ol {
     font-size: 0.92em;
     margin: 4px 0;
@@ -187,7 +193,7 @@ Both steps use **Dev MCP** tools — the LLM reads app source and writes Grafana
 
 ![Trace Analysis](images/screenshot-analysis-ui.png)
 
-Telemetry AI Web UI showing trace analysis with HTTP 500 error on `/poke` endpoint — parameters panel, duration/LLM stats bar, and analysis output with trace details.
+Web UI: parameters panel, duration/LLM stats, and analysis output with trace details.
 
 ---
 
@@ -195,7 +201,7 @@ Telemetry AI Web UI showing trace analysis with HTTP 500 error on `/poke` endpoi
 
 ![Source Examination](images/screenshot-source-examination.png)
 
-Source code examination output showing findings with code snippets, telemetry evidence, root cause analysis, and architecture overview.
+Source examination: code snippets, telemetry evidence, root cause analysis.
 
 ---
 
@@ -203,7 +209,7 @@ Source code examination output showing findings with code snippets, telemetry ev
 
 ![Dashboard Generation](images/screenshot-dashboard-generation.png)
 
-Generated Grafana dashboard JSON with panels for JVM Memory, CPU Usage, and application metrics.
+Generated Grafana dashboard JSON with JVM Memory, CPU Usage, and application metrics panels.
 
 ---
 
@@ -270,24 +276,53 @@ Test JVM → Toxiproxy (localhost:33061) → MySQL (localhost:33060)
 
 ---
 
-# Integration Test Scenarios
+# Weather Chaos Testing
+
+**Weather module** with REST client calling **Open-Meteo API**, routed through **Toxiproxy** for external-dependency chaos:
+
+```
+Test JVM → Ext App → Toxiproxy (localhost:8888) → Open-Meteo API (api.open-meteo.com)
+                          ↕ REST API (:8474)
+                   addLatency / cutConnection
+```
+
+| Toxic | Effect | Test Scenario |
+|-------|--------|---------------|
+| `latency` (3s downstream) | Slow weather API responses | Slow API |
+| `bandwidth` (0 rate) | Connection cut to weather API | API Outage |
+| _(none)_ | Normal operation | Normal Weather |
+
+- **REST client auto-instrumented** by `quarkus-opentelemetry` — no extra config needed
+- AI sees `GET /weather (3012ms) → GET /v1/forecast (3008ms)` and identifies **external API** latency
+- Outage test verifies both failure detection and recovery after connection restore
+
+---
+
+# Integration Tests — Chaos (1-12)
 
 **19 end-to-end scenarios** with LLM-as-judge scoring (threshold: 70/100):
 
+| # | Scenario | What It Tests |
+|---|----------|--------------|
+| 1 | Normal Traffic | Healthy requests → no false positives |
+| 2 | Error Traffic | HTTP 4xx/5xx → error pattern detection |
+| 3 | Latency | Thread.sleep delays → latency spike detection |
+| 4 | Resource Pressure | Memory + CPU + leaks → resource concern detection |
+| 5 | Cascading Failure | Exception + threadpool + GC → multi-chaos correlation |
+| 6 | Lock Contention | Synchronized lock contention → thread blocking |
+| 7 | Intermittent Failures | ~60% random failure rate → flaky error detection |
+| 8 | Network Partition | App stopped/restarted → outage detection |
+| 9 | Request Flood | Multiple delayed requests + error → latency detection |
+| 10 | Deadlock | Thread deadlock → deadlock detection |
+| 11 | Source Examination | Dev MCP source analysis → code correlation |
+| 12 | Dashboard Generation | Grafana dashboard JSON → visualization quality |
+
+---
+
+# Integration Tests — DB & Weather (13-19)
+
 | # | Module | Scenario | What It Tests |
 |---|--------|----------|--------------|
-| 1 | Chaos | Normal Traffic | Healthy requests → no false positives |
-| 2 | Chaos | Error Traffic | HTTP 4xx/5xx → error pattern detection |
-| 3 | Chaos | Latency | Thread.sleep delays → latency spike detection |
-| 4 | Chaos | Resource Pressure | Memory + CPU + leaks → resource concern detection |
-| 5 | Chaos | Cascading Failure | Exception + threadpool + GC → multi-chaos correlation |
-| 6 | Chaos | Lock Contention | Synchronized lock contention → thread blocking |
-| 7 | Chaos | Intermittent Failures | ~60% random failure rate → flaky error detection |
-| 8 | Chaos | Network Partition | App stopped/restarted → outage detection |
-| 9 | Chaos | Request Flood | Multiple delayed requests + error → latency detection |
-| 10 | Chaos | Deadlock | Thread deadlock → deadlock detection |
-| 11 | Chaos | Source Examination | Dev MCP source analysis → code correlation |
-| 12 | Chaos | Dashboard Generation | Grafana dashboard JSON → visualization quality |
 | 13 | DB | Normal Traffic | Database queries → healthy state confirmation |
 | 14 | DB | Slow Queries | Toxiproxy 3s latency → DB slowness detection |
 | 15 | DB | Pool Exhaustion | 4s latency + small pool → mixed failures |
