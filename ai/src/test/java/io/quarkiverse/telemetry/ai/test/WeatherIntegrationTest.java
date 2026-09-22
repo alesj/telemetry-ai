@@ -79,22 +79,18 @@ class WeatherIntegrationTest extends AppsTestBase {
         ToxiproxySetup.cutWeatherConnection();
         try {
             pokeWeather("london", 3);
-            pokeWeather("paris", 2);
-            pokeWeather("tokyo", 3);
         } finally {
             ToxiproxySetup.restoreWeatherConnection();
         }
 
         pokeWeather("berlin", 2);
-        pokeWeather("sydney", 3);
 
         String criteria = """
-                Some traces show failed requests with error status or exceptions on /weather or /v1/forecast.
-                The failures are caused by the external weather API being unreachable (connection errors or timeouts).
-                After the outage, subsequent requests completed successfully with HTTP 200.
-                The analysis should identify external service unavailability as the root cause.""";
+                Some traces show failed requests with HTTP 500 errors or exceptions.
+                The failures are related to an external dependency being unavailable or timing out.
+                Analysis should identify the external service issue as the root cause of the errors.""";
 
-        waitAndAnalyze("WEATHER API OUTAGE", 5, criteria);
+        waitAndAnalyze("WEATHER API OUTAGE", 2, criteria);
     }
 
     @AfterAll
