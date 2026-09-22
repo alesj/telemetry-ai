@@ -34,7 +34,7 @@ User (browser / curl)
 **Modules:**
 - **proxy** (port 8081) -- Forwards requests to app, creates distributed trace chain
 - **app** (port 8082) -- Synthetic application with configurable failure modes (11 chaos types: delay, memory, cpu, leak, error, exception, threadpool, contention, gc, intermittent, deadlock)
-- **db** (port 8083) -- Database-backed application with JPA/Panache entities (Person), MySQL via Toxiproxy for infrastructure-level chaos injection (latency, connection cuts)
+- **ext** (port 8083/8084) -- External-dependency application: DB module with JPA/Panache entities (Person) and MySQL via Toxiproxy; Weather module with REST client calling Open-Meteo API via Toxiproxy for infrastructure-level chaos injection (latency, connection cuts, outages)
 - **ai** (port 8080) -- Core analysis engine with Web UI, LLM integration, MCP telemetry access
 
 ## Current Capabilities
@@ -59,7 +59,7 @@ User (browser / curl)
 - Three collapsible result sections with copy-to-clipboard
 
 ### Testing
-- **16 integration test scenarios** exercising the full stack (proxy -> app/db -> telemetry -> AI analysis -> LLM-as-judge scoring):
+- **19 integration test scenarios** exercising the full stack (proxy -> app/ext -> telemetry -> AI analysis -> LLM-as-judge scoring):
   1. Normal traffic (healthy requests)
   2. Error traffic (HTTP 4xx/5xx patterns)
   3. Latency (Thread.sleep delays)
@@ -76,8 +76,11 @@ User (browser / curl)
   14. DB slow queries (Toxiproxy 3s latency injection, JDBC span detection)
   15. DB pool exhaustion (4s latency + max-size=2 pool, concurrent requests, mixed success/failure)
   16. DB outage (Toxiproxy connection cut, failure and recovery detection)
+  17. Weather normal traffic (REST client calls to Open-Meteo API, healthy state)
+  18. Weather slow API (Toxiproxy 3s latency injection on external weather API)
+  19. Weather API outage (Toxiproxy connection cut to weather API, failure and recovery)
 - LLM-as-judge evaluation with configurable scorer model
-- Test automation scripts for all AI/scorer combinations (`run-integration-test.sh <chaos|db> [ai-profile] [scorer]` for full suite, `run-integration-methods.sh <chaos|db> [ai-profile] [scorer] <methods...>` for specific methods; supported scorers: openai, grok, watsonx)
+- Test automation scripts for all AI/scorer combinations (`run-integration-test.sh <chaos|db|weather> [ai-profile] [scorer]` for full suite, `run-integration-methods.sh <chaos|db|weather> [ai-profile] [scorer] <methods...>` for specific methods; supported scorers: openai, grok, watsonx)
 - DB chaos testing via Toxiproxy (latency injection, connection cuts) with JDBC telemetry for query-level span visibility
 
 ### Telemetry Data Pipeline
@@ -104,7 +107,7 @@ User (browser / curl)
 
 ### M3: Chaos Engineering & Evaluation (DONE)
 - [x] 11 chaos types in the app module (delay, memory, cpu, leak, error, exception, threadpool, contention, gc, intermittent, deadlock)
-- [x] 16 integration test scenarios with LLM-as-judge scoring (10 chaos + 2 post-analysis + 4 DB)
+- [x] 19 integration test scenarios with LLM-as-judge scoring (10 chaos + 2 post-analysis + 4 DB + 3 weather)
 - [x] Cross-provider test matrix (openai/grok as both analyzer and scorer)
 - [x] Prompt engineering for chaos log detection and severity classification
 - [x] Test automation scripts
@@ -114,6 +117,7 @@ User (browser / curl)
 - [x] Grafana dashboard generation from analysis findings
 - [x] Multi-format output (HTML, Markdown, Plain Text, AsciiDoc)
 - [x] DB module with JPA/Panache entities and Toxiproxy-based chaos injection
+- [x] Weather module with REST client calling Open-Meteo API via Toxiproxy for external-dependency chaos testing
 
 ### M5: Production Readiness (IN PROGRESS)
 - [x] Consistent pass rate across LLM provider combinations (all 12 scenarios pass with both openai/grok and grok/openai)

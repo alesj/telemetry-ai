@@ -2,7 +2,7 @@
 
 == Overview
 
-Telemetry AI includes 16 end-to-end integration test scenarios that exercise the full stack: monitored apps generate telemetry under controlled failure conditions, the AI module analyzes it, and an LLM-as-judge scores the analysis quality (threshold: 70/100).
+Telemetry AI includes 19 end-to-end integration test scenarios that exercise the full stack: monitored apps generate telemetry under controlled failure conditions, the AI module analyzes it, and an LLM-as-judge scores the analysis quality (threshold: 70/100).
 
 == Running Tests
 
@@ -10,7 +10,7 @@ Telemetry AI includes 16 end-to-end integration test scenarios that exercise the
 
 [source,bash]
 ----
-./run-integration-test.sh <chaos|db> [ai-profile] [scorer]
+./run-integration-test.sh <chaos|db|weather> [ai-profile] [scorer]
 ----
 
 Examples:
@@ -21,6 +21,7 @@ Examples:
 ./run-integration-test.sh chaos grok               # AI=grok, scorer=openai
 ./run-integration-test.sh chaos openai grok        # AI=openai, scorer=grok
 ./run-integration-test.sh db grok grok             # DB tests, both grok
+./run-integration-test.sh weather openai grok      # weather, AI=openai, scorer=grok
 ----
 
 === All Provider Combinations
@@ -29,13 +30,14 @@ Examples:
 ----
 ./run-all-integration-tests.sh chaos    # all 4 combos for chaos
 ./run-all-integration-tests.sh db       # all 4 combos for db
+./run-all-integration-tests.sh weather  # all 4 combos for weather
 ----
 
 === Specific Test Methods
 
 [source,bash]
 ----
-./run-integration-methods.sh <chaos|db> <ai-profile> [scorer] <method1> [method2] ...
+./run-integration-methods.sh <chaos|db|weather> <ai-profile> [scorer] <method1> [method2] ...
 ----
 
 Pass an empty string `''` for scorer to use the default (openai).
@@ -44,6 +46,7 @@ Pass an empty string `''` for scorer to use the default (openai).
 ----
 ./run-integration-methods.sh chaos openai grok analyzeLatency analyzeDeadlock
 ./run-integration-methods.sh db grok '' analyzeSlowQueries
+./run-integration-methods.sh weather openai grok analyzeWeatherSlowApi
 ----
 
 == Chaos Test Scenarios
@@ -78,6 +81,19 @@ DB tests use Toxiproxy for infrastructure-level chaos injection:
 | 14 | `analyzeSlowQueries` | Toxiproxy 3s latency -- DB slowness detection
 | 15 | `analyzePoolExhaustion` | 4s latency + small pool -- mixed success/failure pattern
 | 16 | `analyzeDbOutage` | Toxiproxy connection cut -- outage detection
+|===
+
+== Weather Test Scenarios
+
+Weather tests use Toxiproxy to inject chaos on the external Open-Meteo weather API connection:
+
+[cols="1,2,3"]
+|===
+| # | Method | What It Tests
+
+| 17 | `analyzeWeatherNormal` | REST client calls to weather API -- healthy state
+| 18 | `analyzeWeatherSlowApi` | Toxiproxy 3s latency on weather API -- external latency detection
+| 19 | `analyzeWeatherApiOutage` | Toxiproxy connection cut to weather API -- outage and recovery
 |===
 
 == Chaos Types

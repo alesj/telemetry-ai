@@ -153,7 +153,7 @@ Each section has a **Copy** button for clipboard export.
 Use `run-integration-test.sh` to run integration tests with flexible LLM and test type selection.
 
 The script takes up to three arguments:
-1. **Test type** — `chaos` (ChaosIntegrationTest) or `db` (DbIntegrationTest) (default: `chaos`)
+1. **Test type** — `chaos` (ChaosIntegrationTest), `db` (DbIntegrationTest), or `weather` (WeatherIntegrationTest) (default: `chaos`)
 2. **AI profile** — which LLM powers `TelemetryAiService` / `DevMcpAiService` (default: `openai`)
 3. **Scorer** — which LLM scores the test evaluation (default: `openai`)
 
@@ -164,12 +164,14 @@ The script takes up to three arguments:
 ./run-integration-test.sh chaos grok grok       # chaos, both grok
 ./run-integration-test.sh db openai             # db, AI=openai, scorer=openai
 ./run-integration-test.sh db grok grok          # db, both grok
+./run-integration-test.sh weather openai grok   # weather, AI=openai, scorer=grok
 ```
 
 Run all provider combinations for a test type:
 ```bash
 ./run-all-integration-tests.sh chaos            # all 4 combos for chaos
 ./run-all-integration-tests.sh db               # all 4 combos for db
+./run-all-integration-tests.sh weather          # all 4 combos for weather
 ```
 
 Supported AI profiles: `openai`, `grok`, `gemini`, `watsonx`.
@@ -184,7 +186,7 @@ Set `WATSONX_BASE_URL`, `WATSONX_API_KEY`, and `WATSONX_PROJECT_ID` env vars bef
 Use `run-integration-methods.sh` to run individual test methods:
 
 ```bash
-./run-integration-methods.sh <chaos|db> <ai-profile> [scorer] <method1> [method2] ...
+./run-integration-methods.sh <chaos|db|weather> <ai-profile> [scorer] <method1> [method2] ...
 ```
 
 Pass an empty string `''` for scorer to use the default (openai).
@@ -196,6 +198,9 @@ Pass an empty string `''` for scorer to use the default (openai).
 
 # DB tests
 ./run-integration-methods.sh db openai '' analyzeNormalTraffic
+
+# Weather tests
+./run-integration-methods.sh weather openai grok analyzeWeatherSlowApi
 ```
 
 Available chaos test methods:
@@ -223,3 +228,11 @@ Available db test methods:
 | `analyzeSlowQueries` | Slow queries via Toxiproxy latency injection (3s delay) |
 | `analyzePoolExhaustion` | Connection pool exhaustion via 4s latency + small pool + concurrent requests |
 | `analyzeDbOutage` | Database outage via Toxiproxy connection cut |
+
+Available weather test methods:
+
+| Method | Scenario |
+|---|---|
+| `analyzeWeatherNormal` | REST client calls to Open-Meteo API, healthy state |
+| `analyzeWeatherSlowApi` | Toxiproxy 3s latency on weather API |
+| `analyzeWeatherApiOutage` | Weather API outage via Toxiproxy connection cut |

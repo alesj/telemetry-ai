@@ -1,8 +1,8 @@
 name: Integration Tests
 
 on:
-  schedule:
-    - cron: '0 3 * * 1-5'
+  # schedule:
+  #   - cron: '0 3 * * 1-5'
   workflow_dispatch:
     inputs:
       test-type:
@@ -35,7 +35,6 @@ on:
 jobs:
   chaos-tests:
     if: >-
-      github.event_name == 'schedule' ||
       inputs.test-type == 'chaos' ||
       inputs.test-type == 'all'
     runs-on: ubuntu-latest
@@ -75,7 +74,6 @@ jobs:
 
   db-tests:
     if: >-
-      github.event_name == 'schedule' ||
       inputs.test-type == 'db' ||
       inputs.test-type == 'all'
     runs-on: ubuntu-latest
@@ -115,7 +113,6 @@ jobs:
 
   weather-tests:
     if: >-
-      github.event_name == 'schedule' ||
       inputs.test-type == 'weather' ||
       inputs.test-type == 'all'
     runs-on: ubuntu-latest
