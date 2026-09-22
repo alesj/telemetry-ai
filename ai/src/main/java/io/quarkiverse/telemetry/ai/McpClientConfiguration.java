@@ -15,6 +15,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -50,13 +51,17 @@ public class McpClientConfiguration {
     public McpClient grafanaMcpClient() {
         McpTransport transport = new StdioMcpTransport.Builder()
                 .command(List.of("uvx", "mcp-grafana"))
-                .environment(Map.of("GRAFANA_URL", grafanaEndpoint))
+                // mcp-grafana (Go) resolves "localhost" to IPv6 [::1] first, but the LGTM container binds to IPv4 only
+                .environment(Map.of("GRAFANA_URL", grafanaEndpoint.replace("localhost", "127.0.0.1")))
                 .logEvents(true)
                 .build();
         DefaultMcpClient client = new DefaultMcpClient.Builder()
                 .clientName("grafana")
                 .transport(transport)
                 .autoHealthCheck(false)
+                .toolExecutionTimeout(Duration.ofSeconds(15))
+                // mcp-grafana v1.5.1 speaks "2025-03-26"; the client's default "2026-07-28" causes a handshake timeout
+                .protocolVersion("2025-03-26")
                 .build();
 
         Map<String, Function<ToolExecutionResult, ToolExecutionResult>> toolSpecificFns = Map.of(

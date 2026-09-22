@@ -201,12 +201,15 @@ public class PlainTools {
     }
 
     private boolean isEmptyResult(String json) {
+        if (json == null || !json.trim().startsWith("{") && !json.trim().startsWith("[")) {
+            return false;
+        }
         try {
             JsonNode root = MAPPER.readTree(json);
             JsonNode data = root.path("data");
             return !data.isArray() || data.isEmpty();
         } catch (Exception e) {
-            return true;
+            return false;
         }
     }
 }
