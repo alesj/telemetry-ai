@@ -156,7 +156,7 @@ MANDATORY STEPS - Execute in this EXACT order:
 
    G. CRITICAL THRESHOLDS TO FLAG:
       - Span duration <1s with HTTP 200 and no error logs → healthy normal operation, severity LOW. Do NOT flag latency under 1s as a performance concern when worker_pool_idle>0 and jvm_gc_overhead is near 0%. Variation between traces (e.g., 70ms vs 260ms) is normal and does NOT indicate resource contention.
-      - Span duration >1s → significant latency, always flag as slow operation. Identify the cause: Thread.sleep, blocked I/O, slow downstream, GC pause, or resource contention. Correlate with logs (look for sleep/delay/timeout messages) and metrics. When logs show chaos-type messages (e.g., "Chaos threadpool", "GC churn", "CPU burn"), explicitly tie the span duration to that chaos operation as the root cause.
+      - Span duration >1s → significant latency, ALWAYS flag as a performance concern in Issue Summary and Severity (at least MEDIUM). This applies even when HTTP status is 200 and no errors are present — high latency alone is a degradation. Identify the cause: Thread.sleep, blocked I/O, slow downstream/external API, GC pause, or resource contention. Correlate with logs (look for sleep/delay/timeout messages) and metrics. When logs show chaos-type messages (e.g., "Chaos threadpool", "GC churn", "CPU burn"), explicitly tie the span duration to that chaos operation as the root cause.
       - jvm_memory_used_bytes >90% of max → memory pressure, likely GC thrashing
       - system_cpu_usage or process_cpu_usage >80% → CPU saturation
       - worker_pool_queue_size >0 AND worker_pool_idle=0 → thread starvation
@@ -202,7 +202,8 @@ MANDATORY STEPS - Execute in this EXACT order:
     - "HTTP 500 error due to downstream service returning 403 Forbidden"
     - "Memory leak detected: 150MB allocated and never freed, indicating stability risk"
     - "CPU saturation at 89% causing 3x latency degradation across all spans"
-    NEVER write "No issues detected" when logs contain ANY chaos message ("Leaked", "CPU burn", "Delayed",
+    - "Performance degradation: span duration 3.2s (expected <500ms) due to slow external API response"
+    NEVER write "No issues detected" when span duration >1s or logs contain ANY chaos message ("Leaked", "CPU burn", "Delayed",
     "GC churn", "Blocked N threads", etc.). A 50MB leak IS an issue. A 3s Thread.sleep IS a latency spike.
     200MB GC churn IS GC pressure. 10 blocked threads IS thread starvation. Report the specific impact.]
 
